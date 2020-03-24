@@ -1,0 +1,126 @@
+#nav-panel {
+    color: @panel_text_color;
+
+    .mobile-nav-wrap {
+        background-color: @panel_bg_color;
+    }
+
+    .welcome-msg {
+        color: @panel_text_color;
+    }
+
+    .mobile-menu li {
+        border-bottom-color: @panel_border_color;
+    }
+
+    .accordion-menu {
+        color: @panel_text_color;
+        li.menu-item {
+            > a,
+            > h5 {
+                color: @panel_link_color;
+            }
+            &:hover {
+                > a,
+                > h5 {
+                    color: @panel_hover_color;
+                }
+            }
+            &.active {
+                > a,
+                > h5 {
+                    background-color: @skinColor;
+                    color: #fff;
+                }
+            }
+            .sub-menu li:hover > *:not(.sub-menu) {
+                background: @panel_link_hbgcolor;
+            }
+        }
+
+        > li.menu-item {
+            > a,
+            > h5,
+            > .arrow {
+                color: @skinColor;
+            }
+            &.active > .arrow {
+                color: #fff;
+            }
+        }
+
+        .arrow {
+            color: @panel_link_color;
+            &:hover {
+                color: @panel_hover_color;
+            }
+        }
+    }
+
+    .menu-custom-block {
+        color: @panel_text_color;
+
+        span {
+            color: @panel_text_color;
+        }
+
+        a {
+            color: @panel_link_color;
+
+            &:hover {
+                background-color: lighten(@panel_bg_color, 5%);
+                color: @panel_hover_color;
+            }
+        }
+    }
+}
+
+/* Side navigation */
+#side-nav-panel {
+    background-color: @panel_bg_color;
+    color: @panel_text_color;
+
+    .welcome-msg {
+        color: @panel_text_color;
+    }
+
+    .accordion-menu {
+        color: @panel_text_color;
+
+        li.menu-item {
+
+            > a,
+            > h5 {
+                color: @panel_link_color;
+            }
+            &.active {
+                > a,
+                > h5 {
+                    background-color: lighten(@panel_bg_color, 5%);
+                    color: @panel_hover_color;
+                }
+            }
+        }
+    }
+
+    .menu-custom-block {
+        color: @panel_text_color;
+
+        span {
+            color: @panel_text_color;
+        }
+
+        a {
+            color: @panel_link_color;
+
+            &:hover {
+                background-color: lighten(@panel_bg_color, 5%);
+                color: @panel_hover_color;
+            }
+        }
+    }
+
+    .accordion-menu li {
+        border-bottom-color: @panel_border_color;
+    }
+}

@@ -1,0 +1,558 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Social Chat\n"
+"POT-Creation-Date: 2019-08-09 07:46-0300\n"
+"PO-Revision-Date: 2019-08-09 07:46-0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.1\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: wp-whatsapp-chat.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: includes/defaults.php:29
+#, php-format
+msgid "Hello! I'm testing the %s plugin @https://quadlayers.com"
+msgstr ""
+
+#: includes/defaults.php:34
+msgid "How can I help you?"
+msgstr ""
+
+#: includes/defaults.php:49
+msgid "Write a response"
+msgstr ""
+
+#: includes/defaults.php:58 includes/pages/welcome.php:25
+msgid "Support"
+msgstr ""
+
+#: includes/defaults.php:59
+msgid "Hello! I'm John from the support team."
+msgstr ""
+
+#: includes/pages/box.php:7
+msgid "Disable"
+msgstr ""
+
+#: includes/pages/box.php:10
+msgid "Enable contact box"
+msgstr ""
+
+#: includes/pages/box.php:11
+msgid "Disable contact box"
+msgstr ""
+
+#: includes/pages/box.php:16
+msgid "Header"
+msgstr ""
+
+#: includes/pages/box.php:22
+msgid "Footer"
+msgstr ""
+
+#: includes/pages/box.php:28
+msgid "Response"
+msgstr ""
+
+#: includes/pages/box.php:31
+msgid "Write a response text."
+msgstr ""
+
+#: includes/pages/box.php:36
+msgid "Contacts"
+msgstr ""
+
+#: includes/pages/box.php:44
+msgid "Save Contact"
+msgstr ""
+
+#: includes/pages/box.php:51
+msgid "Add Contact"
+msgstr ""
+
+#: includes/pages/box.php:52 includes/pages/button.php:43
+#: includes/pages/colors.php:22 includes/pages/colors.php:29
+#: includes/pages/colors.php:36 includes/pages/colors.php:43
+#: includes/pages/display.php:72
+msgid "This is a premium feature"
+msgstr ""
+
+#: includes/pages/box.php:57
+msgid "Avatar"
+msgstr ""
+
+#: includes/pages/box.php:58 includes/pages/button.php:66
+#: includes/settings.php:260
+msgid "Phone"
+msgstr ""
+
+#: includes/pages/box.php:59 includes/pages/colors.php:40
+msgid "Name"
+msgstr ""
+
+#: includes/pages/box.php:60 includes/pages/colors.php:33
+#: includes/settings.php:261
+msgid "Label"
+msgstr ""
+
+#: includes/pages/box.php:61 includes/pages/button.php:83
+#: includes/pages/colors.php:26 includes/settings.php:280
+msgid "Message"
+msgstr ""
+
+#: includes/pages/box.php:62 includes/settings.php:271
+msgid "Chat"
+msgstr ""
+
+#: includes/pages/box.php:63
+msgid "Actions"
+msgstr ""
+
+#: includes/pages/button.php:7
+msgid "Layout"
+msgstr ""
+
+#: includes/pages/button.php:10 includes/settings.php:58
+msgid "Button"
+msgstr ""
+
+#: includes/pages/button.php:11
+msgid "Bubble"
+msgstr ""
+
+#: includes/pages/button.php:13
+msgid "Switch to change the button layout."
+msgstr ""
+
+#: includes/pages/button.php:17
+msgid "Rounded"
+msgstr ""
+
+#: includes/pages/button.php:20
+msgid "Add rounded border"
+msgstr ""
+
+#: includes/pages/button.php:21
+msgid "Remove rounded border"
+msgstr ""
+
+#: includes/pages/button.php:23
+msgid "Add rounded border to the button."
+msgstr ""
+
+#: includes/pages/button.php:27
+msgid "Position"
+msgstr ""
+
+#: includes/pages/button.php:30
+msgid "Middle Left"
+msgstr ""
+
+#: includes/pages/button.php:31
+msgid "Middle Right"
+msgstr ""
+
+#: includes/pages/button.php:32
+msgid "Bottom Left"
+msgstr ""
+
+#: includes/pages/button.php:33
+msgid "Bottom Right"
+msgstr ""
+
+#: includes/pages/button.php:35
+msgid "Switch to change the button position."
+msgstr ""
+
+#: includes/pages/button.php:39
+msgid "Icon"
+msgstr ""
+
+#: includes/pages/button.php:42
+msgid "Add Icon"
+msgstr ""
+
+#: includes/pages/button.php:49
+msgid "Discreet link"
+msgstr ""
+
+#: includes/pages/button.php:52
+msgid "Show developer link"
+msgstr ""
+
+#: includes/pages/button.php:53
+msgid "Hide developer link"
+msgstr ""
+
+#: includes/pages/button.php:55
+msgid ""
+"Leave a discrete link to developer to help and keep new updates and support."
+msgstr ""
+
+#: includes/pages/button.php:59
+msgid "Text"
+msgstr ""
+
+#: includes/pages/button.php:62
+msgid "Customize your text."
+msgstr ""
+
+#: includes/pages/button.php:69
+msgid "Full phone number in international format."
+msgstr ""
+
+#: includes/pages/button.php:74
+msgid "Schedule"
+msgstr ""
+
+#: includes/pages/button.php:76 includes/settings.php:264
+msgid "From"
+msgstr ""
+
+#: includes/pages/button.php:78 includes/settings.php:265
+msgid "To"
+msgstr ""
+
+#: includes/pages/button.php:86
+msgid "Message that will automatically appear in the text field of a chat."
+msgstr ""
+
+#: includes/pages/colors.php:7
+msgid "Background"
+msgstr ""
+
+#: includes/pages/colors.php:13
+msgid "Color"
+msgstr ""
+
+#: includes/pages/colors.php:19
+msgid "Link"
+msgstr ""
+
+#: includes/pages/display.php:7
+msgid "Devices"
+msgstr ""
+
+#: includes/pages/display.php:10
+msgid "Show in all devices"
+msgstr ""
+
+#: includes/pages/display.php:11
+msgid "Show in mobile devices"
+msgstr ""
+
+#: includes/pages/display.php:12
+msgid "Show in desktop devices"
+msgstr ""
+
+#: includes/pages/display.php:13
+msgid "Hide in all devices"
+msgstr ""
+
+#: includes/pages/display.php:18
+msgid "Target"
+msgstr ""
+
+#: includes/pages/display.php:21 includes/pages/display.php:49
+#: includes/pages/display.php:97 includes/settings.php:35
+msgid "Exclude from all"
+msgstr ""
+
+#: includes/pages/display.php:22
+msgid "Home"
+msgstr ""
+
+#: includes/pages/display.php:23
+msgid "Blog"
+msgstr ""
+
+#: includes/pages/display.php:24
+msgid "Search"
+msgstr ""
+
+#: includes/pages/display.php:27
+msgid "If you select an option all the other will be excluded"
+msgstr ""
+
+#: includes/pages/display.php:48
+#, php-format
+msgid "Select for %s&hellip;"
+msgstr ""
+
+#: includes/pages/display.php:50
+msgid "Archive"
+msgstr ""
+
+#: includes/pages/premium.php:4 includes/settings.php:25
+#: includes/settings.php:62
+msgid "Premium"
+msgstr ""
+
+#: includes/pages/premium.php:6
+#, php-format
+msgid ""
+"Unlock the power of our premium %s plugin which allows you to include "
+"unlimited agent accounts with their names and labels inside the box to "
+"provide direct contact to the different support areas of your site."
+msgstr ""
+
+#: includes/pages/premium.php:9
+msgid "Purchase Now"
+msgstr ""
+
+#: includes/pages/premium.php:10
+msgid "Get Support"
+msgstr ""
+
+#: includes/pages/premium.php:14
+msgid "Multiple agents"
+msgstr ""
+
+#: includes/pages/premium.php:16
+#, php-format
+msgid ""
+"%s allows you to include unlimited agent accounts with their names and "
+"labels inside the box to provide direct contact to the different support "
+"areas of your site."
+msgstr ""
+
+#: includes/pages/premium.php:20
+msgid "Customize colors"
+msgstr ""
+
+#: includes/pages/premium.php:22
+msgid ""
+"Customize the colors to match your site theme through the WordPress live "
+"customizer interface."
+msgstr ""
+
+#: includes/pages/premium.php:26
+msgid "Custom icons"
+msgstr ""
+
+#: includes/pages/premium.php:28
+msgid ""
+"Our plugin allows you to select between more than forty icons to include in "
+"your Whatsapp button."
+msgstr ""
+
+#: includes/pages/premium.php:45
+msgid "Chatbox interface"
+msgstr ""
+
+#: includes/pages/premium.php:47
+msgid ""
+"WhatsApp chat for WordPress allows you to include a chatbox for each agent "
+"where your users can type their first message."
+msgstr ""
+
+#: includes/pages/premium.php:53
+msgid "Custom agent message"
+msgstr ""
+
+#: includes/pages/premium.php:55
+msgid ""
+"Allow you to set a custom message for each agent that will be displayed on "
+"the chatbox."
+msgstr ""
+
+#: includes/pages/premium.php:59
+msgid "Custom user message"
+msgstr ""
+
+#: includes/pages/premium.php:61
+msgid ""
+"You can choose the predefined user message that will be sent to the agent "
+"phone number."
+msgstr ""
+
+#: includes/pages/premium.php:65
+msgid "Type user message"
+msgstr ""
+
+#: includes/pages/premium.php:67
+msgid ""
+"Allow your users to type their own messages before sending it to the agent "
+"phone number."
+msgstr ""
+
+#: includes/pages/welcome.php:6
+msgid ""
+"Hello we're QuadLayers! We've recently acquired this plugin and this is the "
+"first update. We have worked very much and very hard to release it, and we "
+"will do our absolute best to support it and fix all the issues."
+msgstr ""
+
+#: includes/pages/welcome.php:11
+msgid "Community"
+msgstr ""
+
+#: includes/pages/welcome.php:13
+#, php-format
+msgid ""
+"If you want to get in touch with other %s users or be aware of our "
+"promotional discounts join our community now."
+msgstr ""
+
+#: includes/pages/welcome.php:15
+msgid "Join us"
+msgstr ""
+
+#: includes/pages/welcome.php:18
+msgid "Demo"
+msgstr ""
+
+#: includes/pages/welcome.php:20
+#, php-format
+msgid ""
+"Thank you for choosing our %s plugin for WordPress! Here you can see our "
+"demo and a description about the features we offer in the premium version."
+msgstr ""
+
+#: includes/pages/welcome.php:22
+msgid "View demo"
+msgstr ""
+
+#: includes/pages/welcome.php:27
+#, php-format
+msgid ""
+"If you have any doubt or you find any issue don't hesitate to contact us "
+"through our ticket system or join our community to meet other %s users."
+msgstr ""
+
+#: includes/pages/welcome.php:29
+msgid "Submit ticket"
+msgstr ""
+
+#: includes/settings.php:27
+msgid "Settings"
+msgstr ""
+
+#: includes/settings.php:57
+msgid "Welcome"
+msgstr ""
+
+#: includes/settings.php:59
+msgid "Box"
+msgstr ""
+
+#: includes/settings.php:60
+msgid "Display"
+msgstr ""
+
+#: includes/settings.php:61
+msgid "Colors"
+msgstr ""
+
+#: includes/settings.php:79
+#, php-format
+msgid ""
+"Thanks for using %s! We will do our best to offer you the best and improved "
+"communication experience with your users."
+msgstr ""
+
+#: includes/settings.php:82
+msgid "Check out our demo"
+msgstr ""
+
+#: includes/settings.php:101
+msgid "QuadLayers"
+msgstr ""
+
+#: includes/settings.php:246
+msgid "Upload"
+msgstr ""
+
+#: includes/settings.php:254
+msgid "Firstname"
+msgstr ""
+
+#: includes/settings.php:256
+msgid "Lastname"
+msgstr ""
+
+#: includes/settings.php:274
+msgid "Enabled"
+msgstr ""
+
+#: includes/settings.php:275
+msgid "Disabled"
+msgstr ""
+
+#: includes/settings.php:297
+msgid "Close media panel"
+msgstr ""
+
+#: includes/settings.php:306
+msgid "Select icon"
+msgstr ""
+
+#: includes/settings.php:313
+msgid "Featured Image"
+msgstr ""
+
+#: includes/settings.php:329
+msgid "Deselect"
+msgstr ""
+
+#: includes/settings.php:340
+msgid "Save"
+msgstr ""
+
+#: includes/settings.php:341
+msgid "Remove"
+msgstr ""
+
+#: includes/settings.php:379
+#, php-format
+msgid "Hello! Thank you for choosing the %s plugin!"
+msgstr ""
+
+#: includes/settings.php:381
+msgid ""
+"Could you please give it a 5-star rating on WordPress? We know its a big "
+"favor, but we've worked very much and very hard to release this great "
+"product. Your feedback will boost our motivation and help us promote and "
+"continue to improve this product."
+msgstr ""
+
+#: includes/settings.php:384
+msgid "Yes, of course!"
+msgstr ""
+
+#: includes/settings.php:387
+msgid "Report a bug"
+msgstr ""
+
+#: template/box.php:47
+msgid "Powered by QuadLayers"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+#. Author of the plugin/theme
+msgid "WP Social Chat"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://quadlayers.com/portfolio/wordpress-whatsapp-chat/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"WP Social Chat allows your visitors to contact you or your team through "
+"WhatsApp chat with a single click."
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://quadlayers.com"
+msgstr ""

@@ -53,6 +53,10 @@ jQuery(document).ready(function ($) {
             //$("#eres-loader").removeClass("active");
         });
     });
+    $("#btnviewregistrar").on("click",function(e){
+        e.preventDefault();
+        location.href="formtest/"
+    });
     function getFormData(){
         var unindexed_array =$("#form_customer_register").serializeArray();
         var indexed_array = {};

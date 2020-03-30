@@ -5,14 +5,15 @@ class PrestamosConfig{
 
   public function __construct($file) {
       $this->file = $file;
-      /* ******************* load Modules ******************* */
+      /* ******************* load Models ******************* */
       require_once plugin_dir_path(__DIR__).'/includes/Model/Barrios.php';
       require_once plugin_dir_path(__DIR__).'/includes/Model/Clientes.php';
-      /* ******************* load Modules ******************* */
+      /* ******************* load Models ******************* */
 
       add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
       register_activation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'db_schema_prestamos' ));
       add_shortcode( 'form_register', array($this, 'form_register' ) );
+      add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
       add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
       add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
       
@@ -338,7 +339,6 @@ class PrestamosConfig{
   }
   public function form_register(){
     require_once plugin_dir_path($this->file) . 'views/form_register.php';
-    
   }
   public function getListBarriosHtml(){
     $barrios = new Barrios();
@@ -354,7 +354,6 @@ class PrestamosConfig{
       'callback' => array($this,'create_customer'),
     ) );
   }
-
   public function create_customer( WP_REST_Request $request ) {
     try{
       $nombre1    = sanitize_text_field( $request['nombre1']);
@@ -384,12 +383,8 @@ class PrestamosConfig{
     }catch(Exception $e){
       return array("sussess"=>"error",'msg'=>$e->getMessage());
     }
-    
-
-    
   }
   public function form_register_js(){
-    error_log("load js");
     wp_enqueue_script( 
       'js_form_register',
       '/wp-content/plugins/eres_prestamos/includes/js/form_register.js ',
@@ -401,7 +396,9 @@ class PrestamosConfig{
         'nonce'  => wp_create_nonce( 'wp_rest' ),
     ) );
   }
-
+  public function view_ingresar(){
+    require_once plugin_dir_path($this->file) . 'views/ingresar.php';
+  }
 
 }
 

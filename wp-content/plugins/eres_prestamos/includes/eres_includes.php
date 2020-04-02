@@ -15,6 +15,7 @@ class PrestamosConfig{
       add_shortcode( 'form_register', array($this, 'form_register' ) );
       add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
       add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
+      add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
       add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
       
   }
@@ -392,9 +393,32 @@ class PrestamosConfig{
     );
 
     wp_localize_script( 'js_form_register', 'ajax_var', array(
-        'url'    => rest_url( '/customer/create' ),
-        'nonce'  => wp_create_nonce( 'wp_rest' ),
+        'url'       => rest_url( '/customer/create' ),
+        'nonce'     => wp_create_nonce( 'wp_rest' ),
+        'urllogin'  => rest_url( '/customer/login' )
     ) );
+  }
+  public function login_customer_endpoint() {
+    register_rest_route( 'customer/', 'login', array(
+      'methods'  => 'POST',
+      'callback' => array($this,'login_customer'),
+    ) );
+  }
+  public function login_customer( WP_REST_Request $request ) {
+    try{
+      $email      = sanitize_email( $request['email'] );
+      $clave      = sanitize_text_field( $request['clave']);
+      $cliente    = new Clientes();
+      $login      = $cliente->login($email,$clave);
+      if($login){
+        return array("sussess"=>"ok",'status'=>$login);
+      }else{
+        return array("sussess"=>"error",'status'=>$login,'msg'=>'Usuario y/o Clave invalido');
+      }
+      
+    }catch(Exception $e){
+      return array("sussess"=>"error",'msg'=>$e->getMessage());
+    }
   }
   public function view_ingresar(){
     require_once plugin_dir_path($this->file) . 'views/ingresar.php';

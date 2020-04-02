@@ -102,13 +102,36 @@
         margin-top: 14px;
     }
     .eres-btn-ingresar{
-        background-color:#000;
+        background-color: #b2d893;
+        border-color: #b2d893;
         margin-top: 40px;
+        color: #fff;
+        border: 0;
+        padding: 6px 10px;
+    }
+    .eres_ingresar{
+        margin-top: 70px;
+    }
+    .eres-input-ingresar{
+        margin-top: 10px;
+    }
+    ::-webkit-input-placeholder { /* Edge */
+        color: #818898;
+    }
 
+    :-ms-input-placeholder { /* Internet Explorer 10-11 */
+        color: #818898;
+    }
+
+    ::placeholder {
+        color: #818898;
     }
     @media(max-width: 991px){
         .wpcf7-form > .row > *{ margin-bottom: 15px; }
         .wpcf7-form .row.center{ margin-top: 10px; }
+        .eres-content2-ingresar{
+            margin-top: 60px;
+        }
     }
 </style>
 
@@ -125,9 +148,23 @@
             <div class="col-md-12">
                 <span class="eres-titulo">Clientes Registrados</span>
                 <div class="eres-division"></div>
+                <div class="eres-content-desc">
+                    <span>Si tiene una cuenta, inicie sesi&oacute;n con su correo electr&oacute;nico</span>
+                </div>
+                <form id="formlogin">
+                    <div class="col-md-12">
+                        <input type="text" name="email" placeholder="Email" value="" class="wpcf7-form-control custom-btn-style-4 eres-input-ingresar">
+                    </div>
+                    <div class="col-md-12">
+                        <input type="password" name="clave" placeholder="Clave" value="" class="wpcf7-form-control custom-btn-style-4 eres-input-ingresar">
+                    </div>
+                    <div class="col-md-12">
+                        <input id="btnloginuser" type="button" value="ENTRAR" class="wpcf7-form-control custom-btn-style-4 eres-btn-ingresar">
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 eres-content2-ingresar">
             <div class="col-md-12">
                 <span class="eres-titulo">Nuevos Clientes</span>
                 <div class="eres-division"></div>

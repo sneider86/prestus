@@ -10,7 +10,7 @@ jQuery(document).ready(function ($) {
         });
         
         $("#eres-loader").addClass("active");
-        var data = getFormData();
+        var data = getFormData("form_customer_register");
         fetch(ajax_var.url, {
             method: 'post',
             body: JSON.stringify(data),
@@ -55,10 +55,61 @@ jQuery(document).ready(function ($) {
     });
     $("#btnviewregistrar").on("click",function(e){
         e.preventDefault();
-        location.href="formtest/"
+        location.href="nuevo-cliente/"
     });
-    function getFormData(){
-        var unindexed_array =$("#form_customer_register").serializeArray();
+    $("#btnloginuser").on("click",function(e){
+        e.preventDefault();
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': ajax_var.nonce
+        });
+        
+        $("#eres-loader").addClass("active");
+        var data = getFormData("formlogin");
+        fetch(ajax_var.urllogin, {
+            method: 'post',
+            body: JSON.stringify(data),
+            headers: headers,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            $("#eres-loader").removeClass("active");
+            return response.ok ? response.json() : 'Not Found...';
+        }).then(json_response => {
+            let html;
+            if (typeof json_response === 'object') {
+            } else {
+                html = json_response;
+            }
+            if(json_response.sussess=="error"){
+                $("#eres-ajax-msg").attr("title","Advertencia");
+                $("#eres-ajax-msg").html(json_response.msg);
+                $( "#eres-ajax-msg" ).dialog({
+                    modal: true,
+                    buttons: {
+                      Ok: function() {
+                        $( this ).dialog( "close" );
+                      }
+                    }
+                });
+            }else{
+                // $("#eres-ajax-msg").attr("title","Exito!");
+                // $("#eres-ajax-msg").html("Cliente Creado");
+                // $( "#eres-ajax-msg" ).dialog({
+                //     modal: true,
+                //     buttons: {
+                //       Ok: function() {
+                //         $( this ).dialog( "close" );
+                //       }
+                //     }
+                // });
+            }
+            
+            //$("#eres-loader").removeClass("active");
+        });
+    });
+    function getFormData(id){
+        var unindexed_array =$("#"+id).serializeArray();
         var indexed_array = {};
     
         $.map(unindexed_array, function(n, i){

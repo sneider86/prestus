@@ -225,7 +225,8 @@ class Clientes{
                     email,
                     telefono,
                     celular,
-                    direccion
+                    direccion,
+                    clave
                 FROM 
                     $this->nombreTabla 
                 WHERE 
@@ -244,6 +245,7 @@ class Clientes{
                     $this->telefono     = $item->telefono;
                     $this->celular      = $item->celular;
                     $this->direccion    = $item->direccion;
+                    $this->clave        = $item->clave;
                 }
             }
         }else{
@@ -288,6 +290,20 @@ class Clientes{
         }else{
             throw new Exception("No existe cliente con este id ".$this->id);
         }
+    }
+    public function login($email,$clave){
+        try{
+            $this->getByEmail($email);
+            error_log($this->clave);
+            if(password_verify($clave, $this->clave)){
+                return true;
+            }else{
+                return false;
+            }
+        }catch(Exception $e){
+            return false;
+        }
+        
     }
 
 

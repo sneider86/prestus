@@ -13,24 +13,31 @@ class Clientes{
     private $direccion;
     private $clave;
     private $barrio;
+    private $tipodocumento;
+    private $documento;
+    private $cupo;
     private $nombreTabla;
 
     public function __construct() {
         //password_verify para verificar clave en el login
         global $wpdb;
-        $this->file         = __FILE__;
-        $this->con          = $wpdb;
-        $this->nombreTabla  = $this->con->prefix.'eres_clientes';
-        $this->nombre1      = '';
-        $this->nombre2      = '';
-        $this->apellido1    = '';
-        $this->apellido2    = '';
-        $this->email        = '';
-        $this->telefono     = '';
-        $this->celular      = '';
-        $this->direccion    = '';
-        $this->clave        = '';
-        $this->barrio       = 0;
+        $this->file             = __FILE__;
+        $this->con              = $wpdb;
+        $this->nombreTabla      = $this->con->prefix.'eres_clientes';
+        $this->nombre1          = '';
+        $this->nombre2          = '';
+        $this->apellido1        = '';
+        $this->apellido2        = '';
+        $this->email            = '';
+        $this->telefono         = '';
+        $this->celular          = '';
+        $this->direccion        = '';
+        $this->clave            = '';
+        $this->barrio           = 0;
+        $this->tipodocumento    = 0;
+        $this->documento        = 0;
+        $this->cupo             = 600000;
+
     }
     public function getId(){
         return $this->id;
@@ -100,6 +107,24 @@ class Clientes{
     public function setBarrio($barrio){
         $this->barrio = $barrio;
     }
+    public function getTipoDocumento(){
+        return $this->tipodocumento;
+    }
+    public function setTipoDocumento($tipodocumento){
+        $this->tipodocumento = $tipodocumento;
+    }
+    public function getDocumento(){
+        return $this->documento;
+    }
+    public function setDocumento($documento){
+        $this->documento = $documento;
+    }
+    public function getCupo(){
+        return $this->cupo;
+    }
+    public function setCupo($cupo){
+        $this->cupo = $cupo;
+    }
     public function save(){
         try{
             if(!empty(trim($this->email))){
@@ -116,6 +141,24 @@ class Clientes{
     private function create(){
         try{
             if(!$this->isExist()){
+                if($this->tipodocumento<=0){
+                    throw new Exception("El tipo de documento no puede estar vacio");
+                }
+                if(empty(trim($this->documento))){
+                    throw new Exception("El documento no puede estar vacio");
+                }
+                if(empty(trim($this->email))){
+                    throw new Exception("El email no puede estar vacio");
+                }
+                if(empty(trim($this->clave))){
+                    throw new Exception("La clave no puede estar vacia");
+                }
+                if(empty(trim($this->nombre1))){
+                    throw new Exception("Digite nombres");
+                }
+                if(empty(trim($this->apellido1))){
+                    throw new Exception("Digite apellidos");
+                }
                 $params = array(
                     'nombre1'   => $this->nombre1,
                     'nombre2'   => $this->nombre2,
@@ -126,7 +169,10 @@ class Clientes{
                     'celular'   => $this->celular,
                     'direccion' => $this->direccion,
                     'clave'     => password_hash($this->clave, PASSWORD_DEFAULT),
-                    'barrio'    => $this->barrio
+                    'barrio'    => $this->barrio,
+                    'tipodocumento' => $this->tipodocumento,
+                    'documento' => $this->documento,
+                    'cupo'      => $this->cupo
                 );
                 $typeData = array(
                     '%s',
@@ -138,6 +184,9 @@ class Clientes{
                     '%s',
                     '%s',
                     '%s',
+                    '%d',
+                    '%d',
+                    '%s',
                     '%d'
                 );
                 $success = $this->con->insert($this->nombreTabla,$params,$typeData);
@@ -147,7 +196,7 @@ class Clientes{
                     throw new Exception("No se pudo crear cliente");
                 }
             }else{
-                throw new Exception("No se puede crear un cliente con el mismo email $this->email.");
+                throw new Exception("El email ya existe ".$this->email." o el documento se encuentra registrado");
             }
         }catch(Exception $e){
             throw new Exception($e->getMessage());
@@ -164,7 +213,9 @@ class Clientes{
                     'email'     => $this->email,
                     'telefono'  => $this->telefono,
                     'celular'   => $this->celular,
-                    'direccion' => $this->direccion
+                    'direccion' => $this->direccion,
+                    'tipodocumento' => $this->tipodocumento,
+                    'documento' => $this->documento
                 );
                 $where = array(
                     'id' => $this->id
@@ -177,6 +228,8 @@ class Clientes{
                     '%s',
                     '%s',
                     '%s',
+                    '%s',
+                    '%d',
                     '%s'
                 );
                 $typeDataWhere = array(
@@ -213,7 +266,7 @@ class Clientes{
         
     }
     public function getByEmail($email,$load=true){
-        $param = array($email);
+        $param = array($email,$this->documento,$this->tipodocumento);
         $results = $this->con->get_results( 
             $this->con->prepare(
                 "SELECT 
@@ -226,11 +279,15 @@ class Clientes{
                     telefono,
                     celular,
                     direccion,
-                    clave
+                    clave,
+                    tipodocumento,
+                    documento,
+                    cupo
                 FROM 
                     $this->nombreTabla 
                 WHERE 
-                    email=%s", 
+                    email=%s 
+                    OR (documento=%s AND tipodocumento=%d)", 
             $param) 
         );
         if(isset($results) && is_array($results) && count($results)>0){
@@ -246,10 +303,13 @@ class Clientes{
                     $this->celular      = $item->celular;
                     $this->direccion    = $item->direccion;
                     $this->clave        = $item->clave;
+                    $this->tipodocumento= $item->tipodocumento;
+                    $this->documento    = $item->documento;
+                    $this->cupo         = $item->cupo;
                 }
             }
         }else{
-            throw new Exception("No existe cliente con este email ".$this->email);
+            throw new Exception("El email ya existe ".$this->email." o el documento se encuentra registrado");
         }
     }
     public function getById($id,$load=true){
@@ -266,7 +326,10 @@ class Clientes{
                     email,
                     telefono,
                     celular,
-                    direccion 
+                    direccion,
+                    tipodocumento,
+                    documento,
+                    cupo
                 FROM 
                     $this->nombreTabla 
                 WHERE 
@@ -285,6 +348,9 @@ class Clientes{
                     $this->telefono     = $item->telefono;
                     $this->celular      = $item->celular;
                     $this->direccion    = $item->direccion;
+                    $this->tipodocumento= $item->tipodocumento;
+                    $this->documento    = $item->documento;
+                    $this->cupo         = $item->cupo;
                 }
             }
         }else{

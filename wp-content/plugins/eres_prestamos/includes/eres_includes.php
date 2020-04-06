@@ -8,6 +8,7 @@ class PrestamosConfig{
       /* ******************* load Models ******************* */
       require_once plugin_dir_path(__DIR__).'/includes/Model/Barrios.php';
       require_once plugin_dir_path(__DIR__).'/includes/Model/Clientes.php';
+      require_once plugin_dir_path(__DIR__).'/includes/Model/Config.php';
       /* ******************* load Models ******************* */
 
       add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
@@ -16,7 +17,9 @@ class PrestamosConfig{
       add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
       add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
       add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
+      add_action( 'rest_api_init', array( $this, 'logout_customer_endpoint' ));
       add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
+      add_action( 'init', array($this,'eres_session_start'), 1 );
       
   }
 
@@ -40,6 +43,7 @@ class PrestamosConfig{
       $this->tableClientes();
       $this->tableLocalidades();
       $this->tableBarrios();
+      $this->tableConfig();
     }
     
   }
@@ -50,14 +54,38 @@ class PrestamosConfig{
     $sql = "CREATE TABLE $nombreTabla (
       id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
       id_customer INT NOT NULL,
+      cuotas INT NOT NULL,
+      interes DOUBLE NOT NULL,
       total DOUBLE NOT NULL DEFAULT 0,
       fecha_prestamo DATETIME NOT NULL,
+      dia_corte INT NOT NULL,
       PRIMARY KEY (ID)
     ) $charset_collate;";
     
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
     $sql = "CREATE INDEX indx_prestamos_cliente ON $nombreTabla (id_customer)" ;
+    $wpdb->query($sql);
+  }
+  private function tableConfig(){
+    global $wpdb;
+    $nombreTabla = $wpdb->prefix . "eres_config";
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE $nombreTabla (
+      id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+      ckey VARCHAR(80) NOT NULL DEFAULT '',
+      cvalue VARCHAR(80) NOT NULL DEFAULT '',
+      PRIMARY KEY (id)
+    ) $charset_collate;";
+    
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+    $sql = "CREATE INDEX indx_config ON $nombreTabla (ckey)" ;
+    $wpdb->query($sql);
+    $sql = "INSERT INTO $nombreTabla(ckey,cvalue) VALUES
+              ('interes','3.0'),
+              ('tipodocumento','C.C'),
+              ('tipodocumento','T.E')" ;
     $wpdb->query($sql);
   }
   private function tableClientes(){
@@ -76,6 +104,9 @@ class PrestamosConfig{
       celular VARCHAR(80) NOT NULL DEFAULT '',
       direccion VARCHAR(80) NOT NULL DEFAULT '',
       barrio VARCHAR(80) NOT NULL,
+      tipodocumento int(11) NOT NULL,
+      documento VARCHAR(80) NOT NULL,
+      cupo DOUBLE NOT NULL,
       PRIMARY KEY (id)
     ) $charset_collate;";
     
@@ -349,6 +380,14 @@ class PrestamosConfig{
     }
     return $html;
   }
+  public function getListTipoDocumento(){
+    $config = new Config();
+    $html = "";
+    foreach($config->getListConfiguration("tipodocumento") as $item){
+      $html = $html. "<option value='".$item['id']."'>".$item['value']."</option>";
+    }
+    return $html;
+  }
   public function create_customer_endpoint() {
     register_rest_route( 'customer/', 'create', array(
       'methods'  => 'POST',
@@ -358,28 +397,35 @@ class PrestamosConfig{
   public function create_customer( WP_REST_Request $request ) {
     try{
       $nombre1    = sanitize_text_field( $request['nombre1']);
-      $nombre2    = sanitize_text_field( $request['nombre2']);
+      //$nombre2    = sanitize_text_field( $request['nombre2']);
       $apellido1  = sanitize_text_field( $request['apellido1']);
-      $apellido2  = sanitize_text_field( $request['apellido2']);
+      //$apellido2  = sanitize_text_field( $request['apellido2']);
       $email      = sanitize_email( $request['email'] );
       $clave      = sanitize_text_field( $request['password']);
       $telefono   = sanitize_text_field( $request['telefono']);
       $celular    = sanitize_text_field( $request['celular']);
       $barrio     = sanitize_text_field( $request['barrio']);
       $direccion  = sanitize_text_field( $request['direccion']);
+      $tdocumento = sanitize_text_field( $request['tipodocumento']);
+      $documento  = sanitize_text_field( $request['documento']);
 
       $cliente    = new Clientes();
       $cliente->setNombre1($nombre1);
-      $cliente->setNombre2($nombre2);
+      //$cliente->setNombre2($nombre2);
       $cliente->setApellido1($apellido1);
-      $cliente->setApellido2($apellido2);
+      //$cliente->setApellido2($apellido2);
       $cliente->setTelefono($telefono);
       $cliente->setCelular($celular);
       $cliente->setEmail($email);
       $cliente->setClave($clave);
       $cliente->setBarrio($barrio);
       $cliente->setDireccion($direccion);
+      $cliente->setTipoDocumento($tdocumento);
+      $cliente->setDocumento($documento);
       $cliente->save();
+      $_SESSION['id_user']        = $cliente->getId();
+      $_SESSION['nombrecompleto'] = $cliente->getNombre1().' '.$cliente->getNombre2().' '.$cliente->getApellido1().' '.$cliente->getApellido2();
+      $_SESSION['cupo']           = $cliente->getCupo();
       return array("sussess"=>"ok",'id'=>$cliente->getId());
     }catch(Exception $e){
       return array("sussess"=>"error",'msg'=>$e->getMessage());
@@ -395,7 +441,8 @@ class PrestamosConfig{
     wp_localize_script( 'js_form_register', 'ajax_var', array(
         'url'       => rest_url( '/customer/create' ),
         'nonce'     => wp_create_nonce( 'wp_rest' ),
-        'urllogin'  => rest_url( '/customer/login' )
+        'urllogin'  => rest_url( '/customer/login' ),
+        'urllogout'  => rest_url( '/customer/logout' )
     ) );
   }
   public function login_customer_endpoint() {
@@ -411,6 +458,9 @@ class PrestamosConfig{
       $cliente    = new Clientes();
       $login      = $cliente->login($email,$clave);
       if($login){
+        $_SESSION['id_user'] = $cliente->getId();
+        $_SESSION['nombrecompleto'] = $cliente->getNombre1().' '.$cliente->getNombre2().' '.$cliente->getApellido1().' '.$cliente->getApellido2();
+        $_SESSION['cupo'] = $cliente->getCupo();
         return array("sussess"=>"ok",'status'=>$login);
       }else{
         return array("sussess"=>"error",'status'=>$login,'msg'=>'Usuario y/o Clave invalido');
@@ -421,7 +471,33 @@ class PrestamosConfig{
     }
   }
   public function view_ingresar(){
-    require_once plugin_dir_path($this->file) . 'views/ingresar.php';
+    if(isset($_SESSION['id_user']) && is_numeric($_SESSION['id_user'])){
+      $conf = new Config();
+      $interes = (double)$conf->getConfiguration('interes');
+      require_once plugin_dir_path($this->file) . 'views/panel.php';
+    }else{
+      require_once plugin_dir_path($this->file) . 'views/ingresar.php';
+    }
+    
+  }
+  public function eres_session_start(){
+    if( ! session_id() ) {
+      session_start();
+    }
+
+  }
+  public function logout_customer_endpoint() {
+    register_rest_route( 'customer/', 'logout', array(
+      'methods'  => 'POST',
+      'callback' => array($this,'logout_customer'),
+    ) );
+  }
+  public function logout_customer( WP_REST_Request $request ) {
+    if(isset($_SESSION['id_user'])){
+      unset($_SESSION['id_user']);
+      session_destroy();
+    }
+    return array("sussess"=>"ok");
   }
 
 }

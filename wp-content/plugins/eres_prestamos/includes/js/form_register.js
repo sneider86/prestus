@@ -45,9 +45,11 @@ jQuery(document).ready(function ($) {
                     buttons: {
                       Ok: function() {
                         $( this ).dialog( "close" );
+                        
                       }
                     }
                 });
+                location.href="ingresar/";
             }
             
             //$("#eres-loader").removeClass("active");
@@ -55,7 +57,7 @@ jQuery(document).ready(function ($) {
     });
     $("#btnviewregistrar").on("click",function(e){
         e.preventDefault();
-        location.href="nuevo-cliente/"
+        location.href="nuevo-cliente/";
     });
     $("#btnloginuser").on("click",function(e){
         e.preventDefault();
@@ -93,17 +95,32 @@ jQuery(document).ready(function ($) {
                     }
                 });
             }else{
-                // $("#eres-ajax-msg").attr("title","Exito!");
-                // $("#eres-ajax-msg").html("Cliente Creado");
-                // $( "#eres-ajax-msg" ).dialog({
-                //     modal: true,
-                //     buttons: {
-                //       Ok: function() {
-                //         $( this ).dialog( "close" );
-                //       }
-                //     }
-                // });
+                location.reload();
             }
+        });
+    });
+    $("#btnsalir").on("click",function(e){
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+            'X-WP-Nonce': ajax_var.nonce
+        });
+        
+        $("#eres-loader").addClass("active");
+        fetch(ajax_var.urllogout, {
+            method: 'post',
+            headers: headers,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            $("#eres-loader").removeClass("active");
+            return response.ok ? response.json() : 'Not Found...';
+        }).then(json_response => {
+            let html;
+            if (typeof json_response === 'object') {
+            } else {
+                html = json_response;
+            }
+            location.reload();
             
             //$("#eres-loader").removeClass("active");
         });

@@ -124,27 +124,13 @@
             <div class="col-md-6">
                 <i class="Simple-Line-Icons-user text-color-light"></i>
                 <span class="wpcf7-form-control-wrap your-name">
-                    <input type="text" name="nombre1" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Primer Nombre*">
+                    <input type="text" name="nombre1" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Nombres *">
                 </span>
             </div>
             <div class="col-md-6">
                 <i class="Simple-Line-Icons-user text-color-light"></i>
                 <span class="wpcf7-form-control-wrap your-email">
-                    <input type="text" name="nombre2" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Segundo Nombre *">
-                </span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <i class="Simple-Line-Icons-user text-color-light"></i>
-                <span class="wpcf7-form-control-wrap your-name">
-                    <input type="text" name="apellido1" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Primer Apellido*">
-                </span>
-            </div>
-            <div class="col-md-6">
-                <i class="Simple-Line-Icons-user text-color-light"></i>
-                <span class="wpcf7-form-control-wrap your-email">
-                    <input type="text" name="apellido2" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Segundo Apellido *">
+                    <input type="text" name="apellido1" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Apellidos *">
                 </span>
             </div>
         </div>
@@ -162,7 +148,7 @@
                 </span>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="display:none;">
             <div class="col-md-6">
                 <i class="Simple-Line-Icons-target icons text-color-light"></i>
                 <span class="wpcf7-form-control-wrap moption">
@@ -176,6 +162,23 @@
                 <i class="Simple-Line-Icons-target icons text-color-light"></i>
                 <span class="wpcf7-form-control-wrap your-email">
                     <input type="text" name="direccion" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Direcci&oacute;n *">
+                </span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <i class="Simple-Line-Icons-user text-color-light"></i>
+                <span class="wpcf7-form-control-wrap moption">
+                    <select name="tipodocumento" class="wpcf7-form-control wpcf7-select wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false">
+                        <option value="">Tipo Documento</option>
+                        <?php echo $this->getListTipoDocumento(); ?>
+                    </select>
+                </span>
+            </div>
+            <div class="col-md-6">
+                <i class="Simple-Line-Icons-user text-color-light"></i>
+                <span class="wpcf7-form-control-wrap your-email">
+                    <input type="text" name="documento" value="" size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required custom-contact-input" aria-required="true" aria-invalid="false" placeholder="Documento *">
                 </span>
             </div>
         </div>

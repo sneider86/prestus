@@ -15,7 +15,7 @@ class PrestamosConfig{
 
     add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
     register_activation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'db_schema_prestamos' ));
-    register_deactivation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'drop_db_schema_prestamos' ));
+    register_deactivation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'drop_db_schema_prestamos' )); 
     add_shortcode( 'form_register', array($this, 'form_register' ) );
     add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
     add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));

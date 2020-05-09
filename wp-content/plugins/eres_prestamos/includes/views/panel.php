@@ -94,6 +94,29 @@ $step   = round($maximo/10);
     .divnewprestamo p{
         margin:0px;
     }
+    #loader{
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        z-index: 1002;
+        top: 0;
+        opacity: 0.3;
+        display: none;
+    }
+    #eres-loader{
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        opacity: 0.3;
+        z-index: 1002;
+        display: none;
+    }
+    #eres-loader.active{
+        display: block;
+    }
     @media(max-width: 991px){
         .wpcf7-form > .row > *{ margin-bottom: 15px; }
         .wpcf7-form .row.center{ margin-top: 10px; }
@@ -129,9 +152,9 @@ $step   = round($maximo/10);
         <ul id="menu-dashboard"class="nav nav-pills nav-stacked">
             <li class="active"><a href="#"><span class="icon-home4"></span> <span class="">Inicio</span></a></li>
             <li><a class="btnmenu" eres-action="perfil" href="#"><span class="icon-user3"></span> <span class="">Perfil</span></a></li>
-            <li><a class="btnmenu" eres-action="newprestamo" href="#"><span class="icon-search-2"></span> <span class="">Hacer Prestamos</span></a></li>
+            <li><a class="btnmenu" eres-action="newprestamo" href="#"><span class="icon-search-2"></span> <span class="">Solicitar Prestamos</span></a></li>
             <li><a href="#"><span class="icon-speacker-1"></span> <span class=""> Publicaciones</span> <span class="badge pull-right">42</span></a></li>            
-            <li><a href="#"><span class="icon-files"></span> <span class="">Facturación</a></li>
+            <li><a class="btnmenu" eres-action="facturacion" href="#"><span class="icon-files"></span> <span class="">Facturación</a></li>
             
             
             <li class="dropdown">
@@ -151,28 +174,76 @@ $step   = round($maximo/10);
     </div>
     <div class="conent-panel">
         <div class="multicontent divnewprestamo">
-            <input type="hidden" value="<?php echo $interes; ?>" name="interes" />
-            <p>
-                <label for="ncuotas">Numero de Cuotas:</label>
-                <input type="text" id="ncuotas" readonly style="border:0; color:#f6931f; font-weight:bold;">
-            </p>
-            <div id="cuotas"></div>
-            <p style="margin-top:20px;">
-                <label for="mprestar">Monto a Prestar:</label>
-                <input type="text" id="mprestar" readonly style="border:0; color:#f6931f; font-weight:bold;">
-            </p>
-            <div id="divprestar"></div>
+            <form class="form_prestamo" id="form_prestamo">
+                <input type="hidden" value="<?php echo $interes; ?>" name="interes" />
+                <p>
+                    <label for="ncuotas">Numero de Cuotas:</label>
+                    <input type="text" id="ncuotas" name="ncuotas" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                </p>
+                <div id="cuotas"></div>
+                <p style="margin-top:20px;">
+                    <label for="mprestar">Monto a Prestar:</label>
+                    <input type="text" id="mprestar" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                    <input type="hidden" id="mprestarvalue" name="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                </p>
+                <div id="divprestar"></div>
 
-            <p style="margin-top:20px;">
-                <label for="diacorte">D&iacute;a de Corte:</label>
-                <input type="text" id="diacorte" readonly style="border:0; color:#f6931f; font-weight:bold;">
-            </p>
-            <div id="divdiacorte"></div>
+                <p style="margin-top:20px;">
+                    <label for="diacorte">D&iacute;a de Corte:</label>
+                    <input type="text" id="diacorte" name="diacorte" readonly style="border:0; color:#f6931f; font-weight:bold;">
+                </p>
+                <div id="divdiacorte"></div>
+            </form>
+            <div class="widget"><button id="btnsolicitar">Solicitar</button></div>
+        </div>
+        <div class="multicontent divfacturacion">
+            <table class="table table-responsive table-striped">
+                <thead>
+                    <tr>
+                        <th>Fecha de Prestamo</th>
+                        <th>Valor Base</th>
+                        <th>Mora</th>
+                        <th>Valor a pagar</th>
+                        <th>Acci&oacute;n</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        foreach($prestamos as $prestamo){
+                            echo '
+                            <tr>
+                                <td>'.$prestamo->getFechaPrestamo().'</td>
+                                <td>Doe</td>
+                                <td>john@example.com</td>
+                                <td>$0</td>
+                                <td><button id="btnsolicitar">Pagar</button></td>
+                            </tr>
+                            ';
+                        }
+                    ?>
+                    
+                    <tr>
+                        <td>Smith</td>
+                        <td>Thomas</td>
+                        <td>smith@example.com</td>
+                        <td>$0</td>
+                        <td><button id="btnsolicitar">Pagar</button></td>
+                    </tr>
+                    <tr>
+                        <td>Merry</td>
+                        <td>Jim</td>
+                        <td>merry@example.com</td>
+                        <td>$0</td>
+                        <td><button id="btnsolicitar">Pagar</button></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 <script>
     jQuery(document).ready(function ($) {
+        $( ".widget button" ).button();
         $('#submenu li a').on('click', function(e){
             $('#submenu').toggleClass();
         });
@@ -182,6 +253,9 @@ $step   = round($maximo/10);
             switch(op){
                 case "newprestamo":
                     $(".divnewprestamo").css({'display':'block'});
+                break;
+                case "facturacion":
+                    $(".divfacturacion").css({'display':'block'});
                 break;
             }
         });
@@ -205,11 +279,11 @@ $step   = round($maximo/10);
             max: <?php echo $maximo; ?>,
             slide: function( event, ui ) {
                 $( "#mprestar" ).val( "$" + ui.value );
+                $( "#mprestarvalue" ).val(ui.value );
             }
         });
         $( "#mprestar" ).val( "$" + $( "#divprestar" ).slider( "value" ) );
-
-
+        $( "#mprestarvalue" ).val($( "#divprestar" ).slider( "value" ) );
         $( "#divdiacorte" ).slider({
             range: "min",
             value: 1,
@@ -220,6 +294,59 @@ $step   = round($maximo/10);
             }
         });
         $( "#diacorte" ).val( $( "#divdiacorte" ).slider( "value" ) );
+        $("#btnsolicitar").on('click',function(){
+            $.ajax({
+                url: '/wp-json/customer/request/loan',
+                method:'POST',
+                data:$("#form_prestamo").serialize(),
+                beforeSend: function( xhr ) {
+                    $("#eres-loader").addClass("active");
+                },
+                success: function(respuesta) {
+                    $("#eres-loader").removeClass("active");
+                    if(respuesta.sussess=="ok"){
+                        $("#eres-ajax-msg").attr("title","Exito!");
+                        $(".ui-dialog-title").html("Exito!");
+                        $("#eres-ajax-msg").html("Se envió solicitud de prestamo");
+                        $( "#eres-ajax-msg" ).dialog({
+                            modal: true,
+                            buttons: {
+                                Ok: function() {
+                                    $( this ).dialog( "close" );
+                                }
+                            }
+                        });
+                    }else{
+                        $("#eres-ajax-msg").attr("title","Advertencia!");
+                        $(".ui-dialog-title").html("Advertencia!");
+                        $("#eres-ajax-msg").html(respuesta.msg);
+                        $( "#eres-ajax-msg" ).dialog({
+                            modal: true,
+                            buttons: {
+                                Ok: function() {
+                                    $( this ).dialog( "close" );
+                                }
+                            }
+                        });
+                    }
+                    
+                },
+                error: function(e) {
+                    switch(e.status){
+                        case 404:
+                            console.log("El sistema de solucitud no responde vuelva a intentarlo mas tarde.");
+                        break;
+                        case 500:
+                            console.log("El sistema tiene un fallo.");
+                        break;
+                        default:
+                            console.log("No se a podido determinar el error. Codigo: "+e.status);
+                        break;
+                    }
+                    $("#eres-loader").removeClass("active");
+                }
+            });
+        });
     
     });
 </script>

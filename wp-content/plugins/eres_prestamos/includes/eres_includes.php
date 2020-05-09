@@ -1,25 +1,36 @@
 <?php
+date_default_timezone_set('America/Bogota');
 class PrestamosConfig{
 
   public $file;
 
   public function __construct($file) {
-      $this->file = $file;
-      /* ******************* load Models ******************* */
-      require_once plugin_dir_path(__DIR__).'/includes/Model/Barrios.php';
-      require_once plugin_dir_path(__DIR__).'/includes/Model/Clientes.php';
-      require_once plugin_dir_path(__DIR__).'/includes/Model/Config.php';
-      /* ******************* load Models ******************* */
+    $this->file = $file;
+    /* ******************* load Models ******************* */
+    require_once plugin_dir_path(__DIR__).'/includes/Model/Barrios.php';
+    require_once plugin_dir_path(__DIR__).'/includes/Model/Clientes.php';
+    require_once plugin_dir_path(__DIR__).'/includes/Model/Prestamo.php';
+    require_once plugin_dir_path(__DIR__).'/includes/Model/Config.php';
+    /* ******************* load Models ******************* */
 
-      add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
-      register_activation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'db_schema_prestamos' ));
-      add_shortcode( 'form_register', array($this, 'form_register' ) );
-      add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
-      add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
-      add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
-      add_action( 'rest_api_init', array( $this, 'logout_customer_endpoint' ));
-      add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
-      add_action( 'init', array($this,'eres_session_start'), 1 );
+    add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
+    register_activation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'db_schema_prestamos' ));
+    register_deactivation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'drop_db_schema_prestamos' ));
+    add_shortcode( 'form_register', array($this, 'form_register' ) );
+    add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
+    add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
+    add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
+    add_action( 'rest_api_init', array( $this, 'logout_customer_endpoint' ));
+    add_action( 'rest_api_init', array( $this, 'request_loan_endpoint' ));
+    add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
+    add_action( 'init', array($this,'eres_session_start'), 1 );
+
+    // wp_clear_scheduled_hook( 'cron_job', array(  ) );7
+    // wp_schedule_event( strtotime( '00:00 tomorrow ' . $ve . absint( get_option( 'gmt_offset' ) ) . ' HOURS' ), 'daily', 'woocommerce_scheduled_sales' );
+
+    add_action( 'even_cronjob', array($this,'even_cronjob_func'));
+    register_activation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'cron_job' ));
+    register_deactivation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'drop_cron_job' ));
       
   }
 
@@ -44,6 +55,37 @@ class PrestamosConfig{
       $this->tableLocalidades();
       $this->tableBarrios();
       $this->tableConfig();
+      $this->tableCuotas();
+      
+    }
+    
+  }
+  public function drop_db_schema_prestamos(){
+    global $wpdb;
+    $nombreTabla = $wpdb->prefix . "eres_prestamos";
+    $table_name = '';
+    if($wpdb->get_var("SHOW TABLES LIKE '$nombreTabla'") == $nombreTabla) {
+      global $wpdb;
+      $nombreTabla = $wpdb->prefix . "eres_clientes";
+      $sql = "DROP TABLE $nombreTabla";
+      $wpdb->query($sql);
+
+      $nombreTabla = $wpdb->prefix . "eres_prestamos";
+      $sql = "DROP TABLE $nombreTabla";
+      $wpdb->query($sql);
+
+      $nombreTabla = $wpdb->prefix . "eres_localidades";
+      $sql = "DROP TABLE $nombreTabla";
+      $wpdb->query($sql);
+
+      $nombreTabla = $wpdb->prefix . "eres_barrios";
+      $sql = "DROP TABLE $nombreTabla";
+      $wpdb->query($sql);
+
+      $nombreTabla = $wpdb->prefix . "eres_config";
+      $sql = "DROP TABLE $nombreTabla";
+      $wpdb->query($sql);
+
     }
     
   }
@@ -58,6 +100,7 @@ class PrestamosConfig{
       interes DOUBLE NOT NULL,
       total DOUBLE NOT NULL DEFAULT 0,
       fecha_prestamo DATETIME NOT NULL,
+      estado VARCHAR(10) NOT NULL DEFAULT '',
       dia_corte INT NOT NULL,
       PRIMARY KEY (ID)
     ) $charset_collate;";
@@ -85,7 +128,8 @@ class PrestamosConfig{
     $sql = "INSERT INTO $nombreTabla(ckey,cvalue) VALUES
               ('interes','3.0'),
               ('tipodocumento','C.C'),
-              ('tipodocumento','T.E')" ;
+              ('tipodocumento','T.E'),
+              ('valorprimerprestamo','600000')" ;
     $wpdb->query($sql);
   }
   private function tableClientes(){
@@ -112,6 +156,10 @@ class PrestamosConfig{
     
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
+
+    $sql = "CREATE INDEX indx_login_cliente ON $nombreTabla (email,clave)" ;
+    $wpdb->query($sql);
+
   }
   private function tableLocalidades(){
     global $wpdb;
@@ -362,7 +410,28 @@ class PrestamosConfig{
 
     ;";
     $wpdb->query($sql);
-  }    
+  }
+  private function tableCuotas(){
+    global $wpdb;
+    $nombreTabla = $wpdb->prefix . "eres_cuotas";
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE $nombreTabla (
+      id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+      id_credito int(11) NOT NULL,
+      valor_cuota DOUBLE NOT NULL,
+      fecha_pago DATETIME NOT NULL,
+      fecha_generacion DATETIME NOT NULL,
+      referencia_pago VARCHAR(255) NOT NULL,
+      PRIMARY KEY (id)
+    ) $charset_collate;";
+    
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+
+    $sql = "CREATE INDEX indx_cuotas_id_redigo ON $nombreTabla (id_credito)" ;
+    $wpdb->query($sql);
+
+  } 
   public function funcion_mostrar_pagina() {
     if (!current_user_can('manage_options'))  {
         wp_die( __('No tienes suficientes permisos para acceder a esta página.') );
@@ -442,7 +511,8 @@ class PrestamosConfig{
         'url'       => rest_url( '/customer/create' ),
         'nonce'     => wp_create_nonce( 'wp_rest' ),
         'urllogin'  => rest_url( '/customer/login' ),
-        'urllogout'  => rest_url( '/customer/logout' )
+        'urllogout'  => rest_url( '/customer/logout' ),
+        'urlloan'  => rest_url( '/customer/request/loan' )
     ) );
   }
   public function login_customer_endpoint() {
@@ -470,10 +540,40 @@ class PrestamosConfig{
       return array("sussess"=>"error",'msg'=>$e->getMessage());
     }
   }
+  public function request_loan_endpoint() {
+    register_rest_route( 'customer/request/', 'loan', array(
+      'methods'  => 'POST',
+      'callback' => array($this,'loan_customer'),
+    ) );
+  }
+  public function loan_customer( WP_REST_Request $request ) {
+    try{
+      if(isset($_SESSION) && isset($_SESSION['id_user'])){
+        $config     = new Config();
+        $maxmvalor  = (int)$config->getConfiguration('valorprimerprestamo');
+        $prestamo   = new Prestamo($maxmvalor);
+        $prestamo->setIdCUstomer($_SESSION['id_user']);
+        $prestamo->setCuotas($request['ncuotas']);
+        $prestamo->setInteres($request['interes']);
+        $prestamo->setTotal($request['amount']);
+        $prestamo->setFechaPrestamo(date('Y-m-d H:i:s'));
+        $prestamo->setDiaCorte($request['diacorte']);
+        $prestamo->save();
+        return array("sussess"=>"ok",'status'=>'success');
+      }else{
+
+        return array("sussess"=>"error",'msg'=>'Debe iniciar session.');
+      }
+    }catch(Exception $e){
+      return array("sussess"=>"error",'msg'=>$e->getMessage());
+    }
+  }
   public function view_ingresar(){
     if(isset($_SESSION['id_user']) && is_numeric($_SESSION['id_user'])){
       $conf = new Config();
       $interes = (double)$conf->getConfiguration('interes');
+      $prestamo = new Prestamo();
+      $prestamos = $prestamo->loadListByCustomer($_SESSION['id_user']);
       require_once plugin_dir_path($this->file) . 'views/panel.php';
     }else{
       require_once plugin_dir_path($this->file) . 'views/ingresar.php';
@@ -499,7 +599,20 @@ class PrestamosConfig{
     }
     return array("sussess"=>"ok");
   }
-
+  public function cron_job(){
+    $args = null;
+    error_log("antes validacion");
+    if ( ! wp_next_scheduled( 'even_cronjob', $args ) ) {
+      error_log("se registro");
+      wp_schedule_event( time(), 'every_minute', 'even_cronjob' );
+    }
+  }
+  public function even_cronjob_func(){
+    //error_log("time: ".date('H:i:s d:m:Y'));
+  }
+  public function drop_cron_job(){
+    wp_clear_scheduled_hook( 'even_cronjob' );
+  }
 }
 
 $obj = new PrestamosConfig(__FILE__);

@@ -14,14 +14,14 @@
 		exit;
 	}
 
-	if( !class_exists('Wbcr_FactoryForms423_MoreLinkHolder') ) {
+	if( !class_exists('Wbcr_FactoryForms425_MoreLinkHolder') ) {
 
 		/**
 		 * Collapsed Group Holder
 		 *
 		 * @since 1.0.0
 		 */
-		class Wbcr_FactoryForms423_MoreLinkHolder extends Wbcr_FactoryForms423_Holder {
+		class Wbcr_FactoryForms425_MoreLinkHolder extends Wbcr_FactoryForms425_Holder {
 
 			/**
 			 * A holder type.

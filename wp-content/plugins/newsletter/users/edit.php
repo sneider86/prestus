@@ -139,13 +139,14 @@ function percentValue($value, $total) {
                         <tr>
                             <th><?php _e('Gender', 'newsletter'); ?></th>
                             <td>
-                                <?php $controls->select('sex', array('n' => 'Not specified', 'f' => 'female', 'm' => 'male')); ?>
+                                <?php $controls->select('sex', array('n' => __('Not specified', 'newsletter'), 'f' => __('Female', 'newsletter'), 'm' => __('Male', 'newsletter'))); ?>
                             </td>
                         </tr>
                         <tr>
                             <th><?php _e('Status', 'newsletter'); ?></th>
                             <td>
-                                <?php $controls->select('status', array('C' => 'Confirmed', 'S' => 'Not confirmed', 'U' => 'Unsubscribed', 'B' => 'Bounced')); ?>
+                                <?php $controls->select('status', array('C' => __('Confirmed', 'newsletter'), 'S' => __('Not confirmed', 'newsletter'), 
+                                    'U' => __('Unsubscribed', 'newsletter'), 'B' => __('Bounced', 'newsletter'))); ?>
                             </td>
                         </tr>
                         <tr>

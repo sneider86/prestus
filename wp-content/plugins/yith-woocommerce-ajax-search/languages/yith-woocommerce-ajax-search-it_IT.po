@@ -2,47 +2,54 @@ msgid ""
 msgstr ""
 "Project-Id-Version: YITH WooCommerce Ajax Search Premium\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/init\n"
-"POT-Creation-Date: 2018-10-23 11:55:17+00:00\n"
-"PO-Revision-Date: 2018-10-23 13:57+0200\n"
+"POT-Creation-Date: 2020-03-20 07:22:19+00:00\n"
+"PO-Revision-Date: 2020-03-20 08:22+0100\n"
 "Last-Translator: \n"
 "Language-Team: Yithemes <plugins@yithemes.com>\n"
 "Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Poedit-KeywordsList: __;_e;_x\n"
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: ..\n"
 "X-Poedit-SearchPathExcluded-0: ../plugin-fw\n"
 
-#: class.yith-wcas-admin.php:125
+#: class.yith-wcas-admin.php:123
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: class.yith-wcas-admin.php:126
+#: class.yith-wcas-admin.php:124
 msgid "Premium Version"
 msgstr "Versione premium"
 
-#: class.yith-wcas-admin.php:132 class.yith-wcas-admin.php:133
-msgid "Ajax Search"
-msgstr "Ajax Search"
-
 #. Plugin Name of the plugin/theme
-#: class.yith-wcas-admin.php:204 plugin-options/settings-options.php:24
-#: plugin-options/settings-options.php:31
+#: class.yith-wcas-admin.php:131
+#: compatibility/elementor/class.yith-wcas-search-form-elementor.php:40
+#: compatibility/elementor/class.yith-wcas-search-form-elementor.php:77
 msgid "YITH WooCommerce Ajax Search"
 msgstr "YITH WooCommerce Ajax Search"
 
-#: class.yith-wcas-admin.php:218
-msgid "YITH WooCommerce Ajax Search Updated"
-msgstr "YITH WooCommerce Ajax Search aggiornato"
+#: class.yith-wcas-admin.php:132
+msgid "Ajax Search"
+msgstr "Ajax Search"
 
-#: class.yith-wcas.php:200
+#: class.yith-wcas.php:203
 msgid "No results"
 msgstr "Nessun risultato"
 
-#: init.php:48
+#: compatibility/elementor/class.yith-wcas-search-form-elementor.php:87
+msgid ""
+"This widget inherits the style from the settings of YITH WooCommerce Ajax "
+"Search plugin that you can edit"
+msgstr ""
+
+#: compatibility/elementor/class.yith-wcas-search-form-elementor.php:89
+msgid "here"
+msgstr ""
+
+#: init.php:52
 msgid ""
 "You can't activate the free version of YITH WooCommerce Ajax Search while "
 "you are using the premium one."
@@ -50,7 +57,7 @@ msgstr ""
 "Non puoi attivare la versione free di YITH WooCommerce Ajax Search se stai "
 "già utilizzando la premium."
 
-#: init.php:112
+#: init.php:121
 msgid ""
 "YITH WooCommerce Ajax Search is enabled but not effective. It requires "
 "WooCommerce in order to work."
@@ -58,100 +65,93 @@ msgstr ""
 "YITH WooCommerce Ajax Search è abilitato ma non in funzione. Devi aver "
 "installato WooCommerce per poter funzionare."
 
-#: plugin-options/settings-options.php:21
-msgid "Upgrade to the PREMIUM VERSION"
-msgstr "Aggiorna alla VERSIONE PREMIUM"
-
-#: plugin-options/settings-options.php:25
-msgid "Discover the Advanced Features"
-msgstr "Scopri le funzionalità avanzate"
-
-#: plugin-options/settings-options.php:26
+#: plugin-options/gutenberg/blocks.php:17
 #, fuzzy
-#| msgid ""
-#| "Upgrade to the PREMIUM VERSION\n"
-#| "of YITH WOOCOMMERCE AJAX SEARCH to benefit from all features!"
-msgid ""
-"Upgrade to the PREMIUM VERSION\r\n"
-"of YITH WOOCOMMERCE AJAX SEARCH to benefit from all features!"
-msgstr ""
-"Passa alla VERSIONE PREMIUM\n"
-"di YITH WooCommerce Ajax Search per poter fruire di tutte le sue "
-"funzionalità!"
+#| msgid "Ajax Search"
+msgctxt "[gutenberg]: block name"
+msgid "Ajax Search"
+msgstr "Ajax Search"
 
-#: plugin-options/settings-options.php:33
-msgid "Get Support and Pro Features"
-msgstr "Accedi al supporto e alle funzionalità premium"
+#: plugin-options/gutenberg/blocks.php:18
+#, fuzzy
+#| msgid "Ajax Search"
+msgctxt "[gutenberg]: block description"
+msgid "Show Ajax Search Form"
+msgstr "Ajax Search"
 
-#: plugin-options/settings-options.php:34
-msgid ""
-"By purchasing the premium version of the plugin, you will take advantage of "
-"the advanced features of the product and you will get one year of free "
-"updates and support through our platform available 24h/24."
-msgstr ""
-"Acquistando la versione premium del plugin, potrai utilizzare le "
-"funzionalità avanzate del prodotto ed otterrai un anno di aggiornamenti "
-"gratuiti e di supporto sulla nostra piattaforma disponibile 24h su 24."
+#: plugin-options/gutenberg/blocks.php:22
+#, fuzzy
+#| msgid "Ajax Search"
+msgctxt "[gutenberg]: keywords"
+msgid "Ajax Search"
+msgstr "Ajax Search"
 
-#: plugin-options/settings-options.php:44
-msgid "General settings"
-msgstr "Impostazioni generali"
-
-#: plugin-options/settings-options.php:53
-msgid "Search input label"
-msgstr "Etichetta campo \"Cerca\""
-
-#: plugin-options/settings-options.php:55
-#: plugin-options/settings-options.php:63
-msgid "Label for Search input field."
-msgstr "Etichetta per il campo \"Cerca\""
-
-#: plugin-options/settings-options.php:57
-msgid "Search for products"
-msgstr "Cerca prodotto"
-
-#: plugin-options/settings-options.php:61
-msgid "Search submit label"
-msgstr "Etichetta campo \"Submit\""
-
-#: plugin-options/settings-options.php:65
+#: plugin-options/gutenberg/blocks.php:23
+#, fuzzy
+#| msgid "Search"
+msgctxt "[gutenberg]: keywords"
 msgid "Search"
 msgstr "Cerca"
 
-#: plugin-options/settings-options.php:69
+#: plugin-options/settings-options.php:21
+msgid "General settings"
+msgstr "Impostazioni generali"
+
+#: plugin-options/settings-options.php:30
+msgid "Search input label"
+msgstr "Etichetta campo \"Cerca\""
+
+#: plugin-options/settings-options.php:32
+#: plugin-options/settings-options.php:40
+msgid "Label for Search input field."
+msgstr "Etichetta per il campo \"Cerca\""
+
+#: plugin-options/settings-options.php:34
+msgid "Search for products"
+msgstr "Cerca prodotto"
+
+#: plugin-options/settings-options.php:38
+msgid "Search submit label"
+msgstr "Etichetta campo \"Submit\""
+
+#: plugin-options/settings-options.php:42
+msgid "Search"
+msgstr "Cerca"
+
+#: plugin-options/settings-options.php:46
 msgid "Minimum number of characters"
 msgstr "Numero minimo di caratteri"
 
-#: plugin-options/settings-options.php:70
+#: plugin-options/settings-options.php:47
 msgid "Minimum number of characters required to trigger autosuggest."
 msgstr ""
 "Numero minimo di caratteri richiesti per mostrare i suggerimenti automatici."
 
-#: plugin-options/settings-options.php:83
+#: plugin-options/settings-options.php:60
 msgid "Maximum number of results"
 msgstr "Numero massimo di risultati"
 
-#: plugin-options/settings-options.php:84
+#: plugin-options/settings-options.php:61
 msgid "Maximum number of results showed within the autosuggest box."
 msgstr "Numero massimo di risultati da mostrare tra i suggerimenti automatici."
 
-#: plugin-options/settings-options.php:97
+#: plugin-options/settings-options.php:74
 msgid "Enable transients to cache autocomplete results"
 msgstr "Attiva i transient per salvare nella cache i risulti autocompletati"
 
-#: plugin-options/settings-options.php:98
+#: plugin-options/settings-options.php:75
 msgid "Save the results of a query in a transient"
 msgstr "Salva i risultati di una query in un transient"
 
-#: plugin-options/settings-options.php:106
+#: plugin-options/settings-options.php:84
 msgid "Set the duration of transient"
 msgstr "Imposta la durata del transient "
 
-#: plugin-options/settings-options.php:107
+#: plugin-options/settings-options.php:85
 msgid "(hours)"
 msgstr "(ore)"
 
-#: templates/admin/premium.php:251 templates/admin/premium.php:299
+#: templates/admin/premium.php:256 templates/admin/premium.php:304
 msgid ""
 "Upgrade to the %1$spremium version%2$s%3$s of %1$sYITH WooCommerce Ajax "
 "Search%2$s to benefit from all features!"
@@ -159,77 +159,73 @@ msgstr ""
 "Aggiorna alla %1$spremium versione%2$s %3$s di%1$sYITH WooCommerce Ajax "
 "Search%2$s per usufruire di tutte le sue funzionalità!"
 
-#: templates/admin/premium.php:253 templates/admin/premium.php:301
+#: templates/admin/premium.php:258 templates/admin/premium.php:306
 msgid "%1$sUPGRADE%2$s %3$sto the premium version%2$s"
 msgstr "%1$sAGGIORNA%2$s %3$salla versione premium%2$s "
 
-#: templates/admin/premium.php:259
+#: templates/admin/premium.php:264
 msgid "Premium Features"
 msgstr "Funzionalità premium"
 
-#: templates/admin/premium.php:261
+#: templates/admin/premium.php:266
 msgid "HOW TO CUSTOMIZE THE RESULTS OF THE AUTOCOMPLETE"
 msgstr "Come personalizzare i risultati del riempimento automatico"
 
-#: templates/admin/premium.php:263
+#: templates/admin/premium.php:268
 msgid "RESULTS OF THE AUTOCOMPLETE"
 msgstr "Risultati del completamento automatico"
 
-#: templates/admin/premium.php:268
+#: templates/admin/premium.php:273
 msgid "Show %1$sthe image%2$s of the product (left or right aligned)"
 msgstr "Mostra %1$sl'immagine%2$s del prodotto (a destra o sinistra)"
 
-#: templates/admin/premium.php:269
+#: templates/admin/premium.php:274
 msgid "Enable the %1$sprice visualization%2$s"
 msgstr "Abilita %1$svisualizzazione prezzo%2$s"
 
-#: templates/admin/premium.php:270
+#: templates/admin/premium.php:275
 msgid "Show the %1$sproduct description%2$s"
 msgstr "Mostra %1$sdescrizione prodotto%2$s"
 
-#: templates/admin/premium.php:271
+#: templates/admin/premium.php:276
 msgid "Tell to the client if the product is %1$son discount or is featured%2$s"
 msgstr "Informa l'utente se il prodotto è %1$sin saldo o in evidenza%2$s"
 
-#: templates/admin/premium.php:279
+#: templates/admin/premium.php:284
 msgid "HOW TO CUSTOMIZE THE SEARCH OPTIONS"
 msgstr "Come personalizzare le opzioni di ricerca"
 
-#: templates/admin/premium.php:283
+#: templates/admin/premium.php:288
 msgid "%1$sExtend the research%2$s in the excerpt and in the content"
 msgstr ""
 "%1$sEstendi le funzionalità di ricerca%2$s anche all'interno del riassunto "
 "prodotto e del contenuto"
 
-#: templates/admin/premium.php:284
+#: templates/admin/premium.php:289
 msgid "%1$sActivate%2$s the category search"
 msgstr "%1$sAbilita%2$s la ricerca per categoria"
 
-#: templates/admin/premium.php:285
+#: templates/admin/premium.php:290
 msgid "Configure the %1$stag%2$s search"
 msgstr "Configura la ricerca per %1$stag%2$s"
 
-#: templates/admin/premium.php:286
+#: templates/admin/premium.php:291
 msgid "Search a product with an %1$sID%2$s"
 msgstr "Cerca un prodotto utilizzando il suo %1$sID%2$s"
 
-#: templates/admin/premium.php:292
-msgid "SEARCH OPTIONS"
-msgstr "OPZIONI DI RICERCA"
-
-#: templates/yith-woocommerce-ajax-search.php:18
+#: templates/yith-woocommerce-ajax-search.php:19
 msgid "Search for:"
 msgstr "Cerca:"
 
-#: widgets/class.yith-wcas-ajax-search.php:28
+#: widgets/class.yith-wcas-ajax-search.php:29
 msgid "An Ajax Search box for products only."
 msgstr "Un filtro di ricerca Ajax solo per i prodotti."
 
-#: widgets/class.yith-wcas-ajax-search.php:30
+#: widgets/class.yith-wcas-ajax-search.php:31
 msgid "YITH WooCommerce Ajax Product Search"
 msgstr "YITH WooCommerce Ajax Product Search"
 
-#: widgets/class.yith-wcas-ajax-search.php:89
+#: widgets/class.yith-wcas-ajax-search.php:94
 msgid "Title:"
 msgstr "Titolo:"
 
@@ -254,6 +250,42 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://yithemes.com/"
 msgstr ""
+
+#~ msgid "YITH WooCommerce Ajax Search Updated"
+#~ msgstr "YITH WooCommerce Ajax Search aggiornato"
+
+#~ msgid "Upgrade to the PREMIUM VERSION"
+#~ msgstr "Aggiorna alla VERSIONE PREMIUM"
+
+#~ msgid "Discover the Advanced Features"
+#~ msgstr "Scopri le funzionalità avanzate"
+
+#, fuzzy
+#~| msgid ""
+#~| "Upgrade to the PREMIUM VERSION\n"
+#~| "of YITH WOOCOMMERCE AJAX SEARCH to benefit from all features!"
+#~ msgid ""
+#~ "Upgrade to the PREMIUM VERSION\r\n"
+#~ "of YITH WOOCOMMERCE AJAX SEARCH to benefit from all features!"
+#~ msgstr ""
+#~ "Passa alla VERSIONE PREMIUM\n"
+#~ "di YITH WooCommerce Ajax Search per poter fruire di tutte le sue "
+#~ "funzionalità!"
+
+#~ msgid "Get Support and Pro Features"
+#~ msgstr "Accedi al supporto e alle funzionalità premium"
+
+#~ msgid ""
+#~ "By purchasing the premium version of the plugin, you will take advantage "
+#~ "of the advanced features of the product and you will get one year of free "
+#~ "updates and support through our platform available 24h/24."
+#~ msgstr ""
+#~ "Acquistando la versione premium del plugin, potrai utilizzare le "
+#~ "funzionalità avanzate del prodotto ed otterrai un anno di aggiornamenti "
+#~ "gratuiti e di supporto sulla nostra piattaforma disponibile 24h su 24."
+
+#~ msgid "SEARCH OPTIONS"
+#~ msgstr "OPZIONI DI RICERCA"
 
 #~ msgid "Plugin Documentation"
 #~ msgstr "Documentazione plugin"

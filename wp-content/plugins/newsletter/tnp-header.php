@@ -37,48 +37,48 @@ $warning |= empty($status_options['mail']);
 <div class="tnp-drowpdown" id="tnp-header">
     <a href="?page=newsletter_main_index"><img src="<?php echo plugins_url('newsletter'); ?>/images/header/tnp-logo-red-header.png" class="tnp-header-logo" style="vertical-align: bottom;"></a>
     <ul>
-        <li><a href="#"><i class="fa fa-users"></i> <?php _e('Subscribers', 'newsletter') ?> <i class="fa fa-chevron-down"></i></a>
+        <li><a href="#"><i class="fas fa-users"></i> <?php _e('Subscribers', 'newsletter') ?> <i class="fas fa-chevron-down"></i></a>
             <ul>
-                <li><a href="?page=newsletter_users_index"><i class="fa fa-search"></i> <?php _e('Search And Edit', 'newsletter') ?>
+                <li><a href="?page=newsletter_users_index"><i class="fas fa-search"></i> <?php _e('Search And Edit', 'newsletter') ?>
                         <small><?php _e('Add, edit, search', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_profile_index"><i class="fa fa-user-circle"></i> <?php _e('Profile page', 'newsletter') ?>
+                <li><a href="?page=newsletter_profile_index"><i class="fas fa-user-circle"></i> <?php _e('Profile page', 'newsletter') ?>
                         <small><?php _e('The subscriber personal profile editing panel', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_users_import"><i class="fa fa-upload"></i> <?php _e('Import', 'newsletter') ?>
+                <li><a href="?page=newsletter_users_import"><i class="fas fa-upload"></i> <?php _e('Import', 'newsletter') ?>
                         <small><?php _e('Import from external sources', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_users_export"><i class="fa fa-download"></i> <?php _e('Export', 'newsletter') ?>
+                <li><a href="?page=newsletter_users_export"><i class="fas fa-download"></i> <?php _e('Export', 'newsletter') ?>
                         <small><?php _e('Export your subscribers list', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_users_massive"><i class="fa fa-wrench"></i> <?php _e('Maintenance', 'newsletter') ?>
+                <li><a href="?page=newsletter_users_massive"><i class="fas fa-wrench"></i> <?php _e('Maintenance', 'newsletter') ?>
                         <small><?php _e('Massive actions: change list, clean up, ...', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_users_statistics"><i class="fa fa-chart-bar"></i> <?php _e('Statistics', 'newsletter') ?>
+                <li><a href="?page=newsletter_users_statistics"><i class="fas fa-chart-bar"></i> <?php _e('Statistics', 'newsletter') ?>
                         <small><?php _e('All about your subscribers', 'newsletter') ?></small></a></li>
                 <?php
                 newsletter_print_entries('subscribers');
                 ?>
             </ul>
         </li>
-        <li><a href="#"><i class="fa fa-list"></i> <?php _e('List Building', 'newsletter') ?> <i class="fa fa-chevron-down"></i></a>
+        <li><a href="#"><i class="fas fa-list"></i> <?php _e('List Building', 'newsletter') ?> <i class="fas fa-chevron-down"></i></a>
             <ul>
-                <li><a href="?page=newsletter_subscription_options"><i class="fa fa-sign-in-alt"></i> <?php _e('Subscription', 'newsletter') ?>
+                <li><a href="?page=newsletter_subscription_options"><i class="fas fa-sign-in-alt"></i> <?php _e('Subscription', 'newsletter') ?>
                         <small><?php _e('The subscription process in detail', 'newsletter') ?></small></a></li>
 
-                <li><a href="?page=newsletter_subscription_antibot"><i class="fa fa-lock"></i> <?php _e('Security', 'newsletter') ?>
+                <li><a href="?page=newsletter_subscription_antibot"><i class="fas fa-lock"></i> <?php _e('Security', 'newsletter') ?>
                         <small><?php _e('Spam subscriptions control', 'newsletter') ?></small></a></li>
 
                 <li>
-                    <a href="?page=newsletter_subscription_profile"><i class="fa fa-check-square"></i> <?php _e('Subscription Form Fields, Buttons, Labels', 'newsletter') ?>
+                    <a href="?page=newsletter_subscription_profile"><i class="fas fa-check-square"></i> <?php _e('Subscription Form Fields, Buttons, Labels', 'newsletter') ?>
                         <small><?php _e('When and what data to collect', 'newsletter') ?></small></a>
                 </li>
                 <li>
-                    <a href="?page=newsletter_subscription_lists"><i class="fa fa-th-list"></i> <?php _e('Lists', 'newsletter') ?>
+                    <a href="?page=newsletter_subscription_lists"><i class="fas fa-th-list"></i> <?php _e('Lists', 'newsletter') ?>
                         <small><?php _e('Profile the subscribers for a better targeting', 'newsletter') ?></small></a>
                 </li>
                 <li>
-                    <a href="?page=newsletter_unsubscription_index"><i class="fa fa-sign-out-alt"></i> <?php _e('Unsubscription', 'newsletter') ?>
+                    <a href="?page=newsletter_unsubscription_index"><i class="fas fa-sign-out-alt"></i> <?php _e('Unsubscription', 'newsletter') ?>
                         <small><?php _e('How to give the last goodbye (or avoid it!)', 'newsletter') ?></small></a>
                 </li>
 
                 <li>
-                    <a href="?page=newsletter_subscription_forms"><i class="fa fa-edit"></i> <?php _e('Custom Forms', 'newsletter') ?>
+                    <a href="?page=newsletter_subscription_forms"><i class="fas fa-edit"></i> <?php _e('Custom Forms', 'newsletter') ?>
                         <small><?php _e('Hand coded form storage', 'newsletter') ?></small></a>
                 </li>
 
@@ -89,14 +89,14 @@ $warning |= empty($status_options['mail']);
         </li>
         
         <li>
-            <a href="#"><i class="fa fa-newspaper"></i> <?php _e('Newsletters', 'newsletter') ?> <i class="fa fa-chevron-down"></i></a>
+            <a href="#"><i class="fas fa-newspaper"></i> <?php _e('Newsletters', 'newsletter') ?> <i class="fas fa-chevron-down"></i></a>
             <ul>
-                <li><a href="?page=newsletter_emails_theme"><i class="fa fa-plus"></i> <?php _e('Create newsletter', 'newsletter') ?>
+                <li><a href="?page=newsletter_emails_theme"><i class="fas fa-plus"></i> <?php _e('Create newsletter', 'newsletter') ?>
                         <small><?php _e('Start your new campaign', 'newsletter') ?></small></a></li>
-                <li><a href="?page=newsletter_emails_index"><i class="fa fa-newspaper"></i> <?php _e('Newsletters', 'newsletter') ?>
+                <li><a href="?page=newsletter_emails_index"><i class="fas fa-newspaper"></i> <?php _e('Newsletters', 'newsletter') ?>
                         <small><?php _e('The classic "write & send" newsletters', 'newsletter') ?></small></a></li>
                 <li>
-                    <a href="<?php echo NewsletterStatistics::instance()->get_index_url() ?>"><i class="fa fa-chart-bar"></i> <?php _e('Statistics', 'newsletter') ?>
+                    <a href="<?php echo NewsletterStatistics::instance()->get_index_url() ?>"><i class="fas fa-chart-bar"></i> <?php _e('Statistics', 'newsletter') ?>
                         <small><?php _e('Tracking configuration and basic data', 'newsletter') ?></small></a>
                 </li>
                 <?php
@@ -106,26 +106,26 @@ $warning |= empty($status_options['mail']);
         </li>
         
         <li>
-            <a href="#"><i class="fa fa-cog"></i> <?php _e('Settings', 'newsletter') ?> <i class="fa fa-chevron-down"></i></a>
+            <a href="#"><i class="fas fa-cog"></i> <?php _e('Settings', 'newsletter') ?> <i class="fas fa-chevron-down"></i></a>
             <ul>
                 <?php if ($is_administrator) { ?>
                 <li>
-                    <a href="?page=newsletter_main_main"><i class="fa fa-cogs"></i> <?php _e('General Settings', 'newsletter') ?>
+                    <a href="?page=newsletter_main_main"><i class="fas fa-cogs"></i> <?php _e('General Settings', 'newsletter') ?>
                         <small><?php _e('Delivery speed, sender details, ...', 'newsletter') ?></small></a>
                 </li>
                 <?php if (!class_exists('NewsletterSmtp')) { ?>
                     <li>
-                        <a href="?page=newsletter_main_smtp"><i class="fa fa-server"></i> <?php _e('SMTP', 'newsletter') ?>
+                        <a href="?page=newsletter_main_smtp"><i class="fas fa-server"></i> <?php _e('SMTP', 'newsletter') ?>
                             <small><?php _e('External mail server', 'newsletter') ?></small>
                         </a>
                     </li>
                 <?php } ?>
                 <?php } ?>
                         
-                <li><a href="?page=newsletter_main_info"><i class="fa fa-info"></i> <?php _e('Company Info', 'newsletter') ?>
+                <li><a href="?page=newsletter_main_info"><i class="fas fa-info"></i> <?php _e('Company Info', 'newsletter') ?>
                         <small><?php _e('Social, address, logo and general info', 'newsletter') ?></small></a></li>
                 <li>
-                    <a href="?page=newsletter_subscription_template"><i class="fa fa-file-alt"></i> <?php _e('Messages Template', 'newsletter') ?>
+                    <a href="?page=newsletter_subscription_template"><i class="fas fa-file-alt"></i> <?php _e('Messages Template', 'newsletter') ?>
                         <small><?php _e('Change the look of your service emails', 'newsletter') ?></small></a>
                 </li>
 
@@ -137,43 +137,45 @@ $warning |= empty($status_options['mail']);
 
         <?php if ($is_administrator) { ?>
         <li>
-            <a href="?page=newsletter_main_status"><i class="fa fa-thermometer"></i> <?php _e('Status', 'newsletter') ?>
+            <a href="?page=newsletter_main_status"><i class="fas fa-thermometer"></i> <?php _e('Status', 'newsletter') ?>
                 <?php if ($warning) { ?>
-                    <i class="fa fa-exclamation-triangle" style="color: red;"></i>
+                    <i class="fas fa-exclamation-triangle" style="color: red;"></i>
                 <?php } ?>
             </a>
         </li>
         <?php } ?>
         
-        <?php $license_data = Newsletter::instance()->get_license_data() ?>
+        <?php 
+            $license_data = Newsletter::instance()->get_license_data();
+            $premium_url = 'https://www.thenewsletterplugin.com/premium?utm_source=plugin&utm_medium=link&utm_campaign=header&utm_content=' . urlencode($_GET['page']);
+        ?>
 
         <?php if (empty($license_data)) { ?>
-            
-            <li class="tnp-professional-extensions-button"><a href="https://www.thenewsletterplugin.com/premium?utm_source=plugin&utm_medium=link&utm_campaign=header" target="_blank">
-                <i class="fa fa-trophy"></i> <?php _e('Get Professional Addons', 'newsletter') ?></a>
+            <li class="tnp-professional-extensions-button"><a href="<?php echo $premium_url?>" target="_blank">
+                <i class="fas fa-trophy"></i> <?php _e('Get Professional Addons', 'newsletter') ?></a>
             </li>
         <?php } elseif (is_wp_error($license_data)) { ?>
-<li class="tnp-professional-extensions-button-red">
-                <a href="?page=newsletter_main_main"><i class="fa fa-hand-paper" style="color: white"></i> <?php _e('License not valid', 'newsletter') ?></a>
+            <li class="tnp-professional-extensions-button-red">
+                <a href="?page=newsletter_main_main"><i class="fas fa-hand-paper" style="color: white"></i> <?php _e('License not valid', 'newsletter') ?></a>
             </li>
             
         <?php } elseif ($license_data->expire == 0) { ?>
             
-            <li class="tnp-professional-extensions-button"><a href="https://www.thenewsletterplugin.com/premium?utm_source=plugin&utm_medium=link&utm_campaign=header" target="_blank">
-                <i class="fa fa-trophy"></i> <?php _e('Get Professional Addons', 'newsletter') ?></a>
+            <li class="tnp-professional-extensions-button"><a href="<?php echo $premium_url?>" target="_blank">
+                <i class="fas fa-trophy"></i> <?php _e('Get Professional Addons', 'newsletter') ?></a>
             </li>
         
         <?php } elseif ($license_data->expire < time()) { ?>
             
             <li class="tnp-professional-extensions-button-red">
-                <a href="?page=newsletter_main_main"><i class="fa fa-hand-paper" style="color: white"></i> <?php _e('License expired', 'newsletter') ?></a>
+                <a href="?page=newsletter_main_main"><i class="fas fa-hand-paper" style="color: white"></i> <?php _e('License expired', 'newsletter') ?></a>
             </li>
             
         <?php } elseif ($license_data->expire >= time()) { ?>
                     
             <?php $p = class_exists('NewsletterExtensions')?'newsletter_extensions_index':'newsletter_main_extensions'; ?>
             <li class="tnp-professional-extensions-button">
-                <a href="?page=<?php echo $p?>"><i class="fa fa-check-square"></i> <?php _e('License active', 'newsletter') ?></a>
+                <a href="?page=<?php echo $p?>"><i class="fas fa-check-square"></i> <?php _e('License active', 'newsletter') ?></a>
             </li>
        
             
@@ -237,6 +239,23 @@ $warning |= empty($status_options['mail']);
     </div>
 <?php } ?>
 
+<?php if (!defined('NEWSLETTER_CRON_WARNINGS') || NEWSLETTER_CRON_WARNINGS) {
+            $x = wp_next_scheduled('newsletter');
+            if ($x === false) {
+                echo '<div class="tnp-warning">The Newsletter delivery engine is off (it should never be off). Deactivate and reactivate the Newsletter plugin.</div>';
+            } else if (time() - $x > 900) {
+                echo '<div class="tnp-warning">The WP scheduler doesn\'t seem to be running correctly for Newsletter. <a href="https://www.thenewsletterplugin.com/documentation/?p=6128" target="_blank"><strong>Read this page to solve the problem</strong></a>.</div>';
+            } else {
+//            if (empty($this->options['disable_cron_notice'])) {
+//                $cron_data = get_option('newsletter_diagnostic_cron_data');
+//                if ($cron_data && $cron_data['mean'] > 500) {
+//                    echo '<div class="notice notice-error"><p>The WP scheduler doesn\'t seem to be triggered enough often for Newsletter. <a href="https://www.thenewsletterplugin.com/documentation/newsletter-delivery-engine#cron" target="_blank"><strong>Read this page to solve the problem</strong></a> or disable this notice on <a href="admin.php?page=newsletter_main_main"><strong>main settings</strong></a>.</p></div>';
+//                }
+//            }
+            }
+        }
+ ?>
+        
 <div id="tnp-notification">
     <?php
     if (isset($controls)) {

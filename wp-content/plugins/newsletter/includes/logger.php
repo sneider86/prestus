@@ -70,9 +70,9 @@ class NewsletterLogger {
         }
         
         // The "logs" dir is created on Newsletter constructor.
-        $res = @file_put_contents($this->file, $time . ' - m: ' . size_format(memory_get_usage(), 1) . ', u: ' . $user_id . ' - ' . $text . "\n", FILE_APPEND | FILE_TEXT);
+        $res = @file_put_contents($this->file, $time . ' - v: ' . NEWSLETTER_VERSION . ' - m: ' . size_format(memory_get_usage(), 1) . ', u: ' . $user_id . ' - ' . $text . "\n", FILE_APPEND | FILE_TEXT);
         if ($res === false) {
-            $this->level = self::NONE;
+            //$this->level = self::NONE;
         }
     }
 

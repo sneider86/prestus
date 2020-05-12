@@ -3,6 +3,25 @@
 defined('ABSPATH') || exit;
 
 /**
+ * @property string $id Theme identifier
+ * @property string $dir Absolute path to the theme folder
+ * @property string $name Theme name
+ */
+class TNP_Theme {
+
+    var $dir;
+    var $name;
+
+    public function get_defaults() {
+        @include $this->dir . '/theme-defaults.php';
+        if (!isset($theme_defaults) || !is_array($theme_defaults)) {
+            return array();
+        }
+        return $theme_defaults;
+    }
+}
+
+/**
  * Registers a Newsletter theme to be shown as option on standard newsletter creation
  * Designers love functions...
  * @param string $dir The absolute path of a folder containing a Newsletter theme
@@ -86,6 +105,7 @@ class NewsletterThemes {
         $list['blank'] = $this->build_theme(NEWSLETTER_DIR . '/emails/themes/blank');
         $list['cta-2015'] = $this->build_theme(NEWSLETTER_DIR . '/emails/themes/cta-2015');
         $list['vimeo-like'] = $this->build_theme(NEWSLETTER_DIR . '/emails/themes/vimeo-like');
+        $list['pint'] = $this->build_theme(NEWSLETTER_DIR . '/emails/themes/pint');
 
         // Extensions folder scan
         $dir = WP_CONTENT_DIR . '/extensions/newsletter/' . $this->module . '/themes';

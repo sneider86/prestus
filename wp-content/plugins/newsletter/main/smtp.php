@@ -31,6 +31,8 @@ if (!$controls->is_action()) {
 
         if (is_wp_error($r)) {
             $controls->errors = $r->get_error_message();
+            $controls->errors .= '<br><a href="https://www.thenewsletterplugin.com/documentation/?p=15170" target="_blank"><strong>' . __('Read more', 'newsletter') . '</strong></a>.';
+
         } else {
             $controls->messages = 'Success.';
         }
@@ -52,7 +54,7 @@ if (empty($controls->data['enabled']) && !empty($controls->data['host'])) {
         <h2><?php _e('SMTP Settings', 'newsletter') ?></h2>
     
     <p>
-        <i class="fa fa-info-circle"></i> <a href="https://www.thenewsletterplugin.com/extensions" target="_blank">Discover how SMTP services can boost your newsletters!</a>
+        <i class="fas fa-info-circle"></i> <a href="https://www.thenewsletterplugin.com/extensions" target="_blank">Discover how SMTP services can boost your newsletters!</a>
         <!--
     <p>SMTP (Simple Mail Transfer Protocol) refers to external delivery services you can use to send emails.</p>
     <p>SMTP services are usually more reliable, secure and spam-aware than the standard delivery method available to your blog.</p>
@@ -94,8 +96,9 @@ if (empty($controls->data['enabled']) && !empty($controls->data['host'])) {
                     port: <?php $controls->text('port', 6); ?>
                     <?php $controls->select('secure', array('' => 'No secure protocol', 'tls' => 'TLS protocol', 'ssl' => 'SSL protocol')); ?>
                     <p class="description">
-                        Leave port empty for default value (25). To use Gmail try host "smtp.gmail.com" and port "465" and SSL protocol (without quotes).
-                        For GoDaddy use "relay-hosting.secureserver.net".
+                        Leave port empty for default value (25).<br>
+                        To use GMail, do not set the SMTP here but use a <a href="https://wordpress.org/plugins/search/smtp+gmail/" target="_blank">SMTP plugin which supprts oAuth 2.0</a><br>
+                        On GoDaddy TRY to use "relay-hosting.secureserver.net".
                     </p>
                 </td>
             </tr>

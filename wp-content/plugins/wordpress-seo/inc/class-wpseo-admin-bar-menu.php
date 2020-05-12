@@ -280,7 +280,13 @@ class WPSEO_Admin_Bar_Menu implements WPSEO_WordPress_Integration {
 	 * @return void
 	 */
 	protected function add_analysis_submenu( WP_Admin_Bar $wp_admin_bar ) {
-		$url           = WPSEO_Frontend::get_instance()->canonical( false );
+		try {
+			$url = YoastSEO()->meta->for_current_page()->canonical;
+		} catch ( Exception $e ) {
+			// This is not the type of error we can handle here.
+			return;
+		}
+
 		$focus_keyword = '';
 
 		if ( ! $url ) {
@@ -317,11 +323,6 @@ class WPSEO_Admin_Bar_Menu implements WPSEO_WordPress_Integration {
 				'id'     => 'wpseo-cache',
 				'title'  => __( 'Check Google Cache', 'wordpress-seo' ),
 				'href'   => '//webcache.googleusercontent.com/search?strip=1&q=cache:' . $encoded_url,
-			],
-			[
-				'id'     => 'wpseo-header',
-				'title'  => __( 'Check Headers', 'wordpress-seo' ),
-				'href'   => '//quixapp.com/headers/?r=' . urlencode( $url ),
 			],
 			[
 				'id'     => 'wpseo-structureddata',
@@ -397,6 +398,11 @@ class WPSEO_Admin_Bar_Menu implements WPSEO_WordPress_Integration {
 
 		foreach ( $submenu_pages as $submenu_page ) {
 			if ( ! current_user_can( $submenu_page[3] ) ) {
+				continue;
+			}
+
+			// Don't add the Google Search Console menu item.
+			if ( $submenu_page[4] === 'wpseo_search_console' ) {
 				continue;
 			}
 

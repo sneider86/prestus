@@ -42,6 +42,17 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 	}
 
 	/**
+	 * Статический метод для быстрого доступа к классу соцсети.
+	 *
+	 * @param string $class
+	 *
+	 * @return $class
+	 */
+	public static function social($class) {
+		return new $class;
+	}
+
+	/**
 	 * Конструктор
 	 *
 	 * Применяет конструктор родительского класса и записывает экземпляр текущего класса в свойство $app.
@@ -87,6 +98,9 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 	 */
 	private function register_pages() {
 		require_once WIS_PLUGIN_DIR . '/admin/class-wis-page.php';
+
+		//$fb = new WIS_Facebook();
+
 		self::app()->registerPage( 'WIS_WidgetsPage', WIS_PLUGIN_DIR . '/admin/pages/widgets.php' );
 		self::app()->registerPage( 'WIS_SettingsPage', WIS_PLUGIN_DIR . '/admin/pages/settings.php' );
 		self::app()->registerPage( 'WIS_LicensePage', WIS_PLUGIN_DIR . '/admin/pages/license.php' );
@@ -102,6 +116,8 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 		$this->register_pages();
 
 		add_action( 'admin_enqueue_scripts', [$this, 'admin_enqueue_assets'] );
+		add_action( 'admin_notices', [ $this, 'new_api_admin_notice'] );
+		add_action( 'admin_notices', [ $this, 'check_token_admin_notice'] );
 	}
 
 	/**
@@ -118,7 +134,7 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 		add_action( 'wp_enqueue_scripts', [$this, 'enqueue_assets'] );
 	}
 
-	public function admin_enqueue_assets()
+	public function admin_enqueue_assets($hook_suffix)
 	{
 		wp_enqueue_style( 'jr-insta-admin-styles', WIS_PLUGIN_URL.'/admin/assets/css/jr-insta-admin.css', array(), WIS_PLUGIN_VERSION );
 		wp_enqueue_script( 'jr-insta-admin-script', WIS_PLUGIN_URL.'/admin/assets/js/jr-insta-admin.js',  array( 'jquery' ), WIS_PLUGIN_VERSION, true );
@@ -128,7 +144,7 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 		));
 		wp_enqueue_script( 'jr-tinymce-button', WIS_PLUGIN_URL.'/admin/assets/js/tinymce_button.js',  array( 'jquery' ), WIS_PLUGIN_VERSION, false );
 		$wis_shortcodes = $this->get_isw_widgets();
-		wp_localize_script('jr-insta-admin-script', 'wis_shortcodes', $wis_shortcodes);
+		wp_localize_script('jr-tinymce-button', 'wis_shortcodes', $wis_shortcodes);
 		wp_localize_script('jr-insta-admin-script', 'add_account_nonce', array(
 			'nonce' => wp_create_nonce("addAccountByToken"),
 		));
@@ -137,6 +153,7 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 
 	public function enqueue_assets()
 	{
+		wp_enqueue_style( 'jr-insta-styles', WIS_PLUGIN_URL.'/assets/css/jr-insta.css', array(), WIS_PLUGIN_VERSION );
 	}
 
 	/**
@@ -173,6 +190,59 @@ class WIS_Plugin extends Wbcr_Factory423_Plugin {
 			);
 		}
 		return $result;
+	}
+
+	/**
+	 * Выводит нотис о том, что изменилось в новой версии
+	 *
+	 */
+	public function new_api_admin_notice()
+	{
+		$text = "";
+		$accounts = $this->getOption( 'account_profiles', array() );
+		if(count($accounts)) {
+			foreach ( $accounts as $account ) {
+				if ( strlen( $account['token'] ) < 55 ) {
+					$text .= "<p><b>@" . $account['username'] . "</b></p>";
+				}
+			}
+		}
+		if(!empty($text)) {
+			?>
+			<div class="notice notice-info is-dismissible">
+				<p>
+					<b>Social Slider Widget:</b><br>
+					The plugin has moved to the new Instagram Basic Display API.<br>
+					To make your widgets work again, reconnect your instagram accounts in the plugin settings.
+					<a href="https://cm-wp.com/important-update-social-slider-widget/" class="">Read more about the changes</a>
+				</p>
+			</div>
+			<?php
+		}
+	}
+
+	/**
+	 * Выводит нотис о том, что нужно обновить токены
+	 *
+	 */
+	public function check_token_admin_notice()
+	{
+		$text = "";
+		$accounts = $this->getOption( 'account_profiles', array() );
+		if(count($accounts)) {
+			foreach ( $accounts as $account ) {
+				if ( strlen( $account['token'] ) < 55 ) {
+					$text .= "<p><b>@" . $account['username'] . "</b></p>";
+				}
+			}
+		}
+		if(!empty($text)) {
+			echo '<div class="notice notice-warning">
+					<p><b>Social Slider Widget:</b><br>You need to reconnect this accounts in the <a href="'.admin_url("admin.php?page=settings-wisw&tab=instagram").'">plugin settings</a>'.
+				        $text.
+			        '</p>
+				  </div>';
+		}
 	}
 
 }

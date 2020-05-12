@@ -76,7 +76,7 @@ $posts = get_posts($filters);
                                         <tr>
                                             <td valign="top" align="left">
                                                 <?php
-                                                foreach (array('facebook', 'twitter', 'youtube', 'linkedin', 'googleplus', 'pinterest', 'tumblr', 'instagram') as $social) {
+                                                foreach (array('facebook', 'twitter', 'youtube', 'linkedin', 'pinterest', 'tumblr', 'instagram') as $social) {
                                                     if (empty($theme_options["theme_$social"]))
                                                         continue;
                                                     ?>

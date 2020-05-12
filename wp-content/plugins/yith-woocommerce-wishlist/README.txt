@@ -3,13 +3,13 @@
 Contributors: yithemes
 Tags: wishlist, woocommerce, products, yit, e-commerce, shop, ecommerce wishlist, yith, woocommerce wishlist, shop wishlist
 Requires at least: 4.0
-Tested up to: 5.3
-Stable tag: 3.0.6
+Tested up to: 5.4
+Stable tag: 3.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 YITH WooCommerce Wishlist add all Wishlist features to your website. Needs WooCommerce to work.
-WooCommerce 3.9.x compatible.
+WooCommerce 4.1.x compatible.
 
 == Description ==
 
@@ -56,6 +56,7 @@ The free version of our plugin works like a charm, but the premium one is an eve
 * Allow users to manage wishlists, rename and delete them, add or remove items
 * Allow users to search and see registered wishlists
 * Allow users to set visibility options for each wishlist, by making them either public (visible to everyone), private (visible to the owner only) or shared (visible only to people it has been shared with)
+* Allow users to manage the item quantity in the wishlist
 * Show multiple ‘Add to Cart’ buttons in the wishlist table
 * Show product price variations (Amazon style)
 * Allow users to move an element from one wishlist to another, right from the wishlist table
@@ -111,6 +112,55 @@ Yes, of course you can. To avoid Wishlist page to show product prices, you can h
 
 
 == Changelog ==
+
+= 3.0.10 - Released on 07 May 2020 =
+
+* New: support for WooCommerce 4.1
+* New: prevent some UserAgents from triggering wishlist handling (avoid spam)
+* New: added minor css fixes for Storefront theme
+* Update: plugin framework
+* Tweak: review add process, to avoid unnecessary items update
+* Tweak: improved localized date on wishlist table
+* Tweak: added wishlist as gutenberg block in new wishlist page
+* Tweak: added "Wishlist page" post status
+* Tweak: added new check to avoid "Cannot read property contains of undefined" error
+* Tweak: added search box to All Wishlist view
+* Fix: show remove button on list mobile when at least one of the two buttons is shown on desktop
+* Fix: fatal error on empty wishlist page
+* Dev: added yith_wcwl_is_wishlist_responsive filter, to allow developers disable responsive behaviour for the wishlist
+* Dev: added yith_wcwl_generated_default_wishlist action
+* Dev: added yith_wcwl_default_wishlist filter
+* Dev: added yith_wcwl_add_notice wrapper function, to avoid possible fatal errors when calling wc_add_notice
+
+= 3.0.9 - Released on 09 March 2020 =
+
+* Tweak: use wp_kses_post instead of esc_html for browse wishlist text
+* Update: plugin framework
+
+= 3.0.8 - Released on 04 March 2020 =
+
+* Tweak: use wp_kses_post sanitization instead of esc_html for button labels to allow developers to add HTML to them
+* Tweak: minor improvements for OceanWP theme style
+* Fix: notice on empty wishlist page (thanks to ashimhastech)
+
+= 3.0.7 - Released on 03 March 2020 =
+
+* New: support for WordPress 5.4
+* New: support for WooCommerce 4.0
+* New: improved checks on user capabilities
+* New: added wishlist widgets to Elementor
+* Update: plugin framework
+* Tweak: added check on user permission level for all wishlist actions
+* Tweak: escape output on templates
+* Fix: custom css not being loaded in the page
+* Fix: compatibility with YITH Infinite Scrolling when ajax loading is enabled
+* Fix: hide share section on wishlist page when "Share wishlist" option is disabled
+* Fix: assign correct css rule to border color for Wishlist Table
+* Dev: added yith_wcwl_reload_fragments trigger to refresh wishlist fragments
+* Dev: added yith_wcwl_remove_hidden_products_via_query filter
+* Dev: added yith_wcwl_show_add_to_wishlist filter, to allow dev selectively hide Add to Wishlist buttons
+* Dev: new actions on wishlist-view.php template (thanks to Jory)
+* Dev: added .editorconfig (thanks to Jory)
 
 = 3.0.6 – Released on 04 February 2020 =
 

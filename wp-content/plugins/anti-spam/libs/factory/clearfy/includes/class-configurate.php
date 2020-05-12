@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @copyright (c) 2018, Webcraftic Ltd
  *
  */
-abstract class Wbcr_FactoryClearfy217_Configurate {
+abstract class Wbcr_FactoryClearfy219_Configurate {
 
 	/**
-	 * @param Wbcr_Factory425_Plugin $plugin
+	 * @param Wbcr_Factory427_Plugin $plugin
 	 */
-	public function __construct( Wbcr_Factory425_Plugin $plugin ) {
+	public function __construct( Wbcr_Factory427_Plugin $plugin ) {
 		$this->plugin = $plugin;
 		$this->registerActionsAndFilters();
 	}

@@ -248,6 +248,11 @@ class NewsletterStatistics extends NewsletterModule {
         $page = apply_filters('newsletter_statistics_view', 'newsletter_statistics_view');
         return 'admin.php?page=' . $page . '&amp;id=' . $email_id;
     }
+    
+    function echo_statistics_button($email_id) {
+        echo '<a class="button-primary" href="', $this->get_statistics_url($email_id), '"><i class="fas fa-chart-bar"></i></a>';
+                
+    }
 
     function get_index_url() {
         $page = apply_filters('newsletter_statistics_index', 'newsletter_statistics_index');

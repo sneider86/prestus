@@ -19,12 +19,6 @@ $social_icon_url = plugins_url('newsletter') . '/emails/themes/default/images';
             </td>
         <?php } ?>
 
-        <?php if (!empty($theme_options['theme_googleplus'])) { ?>
-            <td style="text-align: center; vertical-align: top" align="center" valign="top">
-                <a href="<?php echo esc_attr($theme_options['theme_googleplus']) ?>"><img src="<?php echo $social_icon_url ?>/googleplus.png"><br>Google+</a>
-            </td>
-        <?php } ?>
-
         <?php if (!empty($theme_options['theme_pinterest'])) { ?>
             <td style="text-align: center; vertical-align: top" align="center" valign="top">
                 <a href="<?php echo esc_attr($theme_options['theme_pinterest']) ?>"><img src="<?php echo $social_icon_url ?>/pinterest.png"><br>Pinterest</a>

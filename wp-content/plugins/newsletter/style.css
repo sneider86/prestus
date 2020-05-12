@@ -246,7 +246,6 @@ CUSTOM CSS RULES.
     font-size: 14px;
     line-height: normal;
     border-radius: 0px;
-    box-sizing: border-box;
     height: auto;
     margin: 0;
 }
@@ -295,7 +294,6 @@ CUSTOM CSS RULES.
     color: #fff;
     font-size: 14px;
     line-height: 20px;
-    box-sizing: border-box;
     border-radius: 0px;
     margin: 0;
 }
@@ -327,4 +325,8 @@ CUSTOM CSS RULES.
     padding: 15px;
     background-color: #fff;
     border: 1px solid #ddd;
+}
+
+.tnp-nl-checkout {
+    margin-bottom: 1em;
 }

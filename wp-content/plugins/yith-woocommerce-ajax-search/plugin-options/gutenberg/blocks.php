@@ -22,10 +22,10 @@ $blocks = array(
 			_x( 'Ajax Search', '[gutenberg]: keywords', 'yith-woocommerce-ajax-search' ),
 			_x( 'Search', '[gutenberg]: keywords', 'yith-woocommerce-ajax-search' ),
 		),
-	)
+	),
 );
 
 
 
 
-return apply_filters('ywraq_gutenberg_blocks', $blocks );
+return apply_filters( 'ywraq_gutenberg_blocks', $blocks );

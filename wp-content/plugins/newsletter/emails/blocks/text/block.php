@@ -15,6 +15,8 @@ $default_options = array(
     'font_color'=>'#000000',
     'block_padding_left'=>15,
     'block_padding_right'=>15,
+    'block_padding_top' => 20,
+    'block_padding_bottom' => 20,
     'block_background'=>'#ffffff'
 );
 

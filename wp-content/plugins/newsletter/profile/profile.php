@@ -32,11 +32,12 @@ class NewsletterProfile extends NewsletterModule {
             case 'p':
             case 'pe':
                 $user = $this->check_user();
+                $email = $this->get_email_from_request();
                 if ($user == null) {
                     die('No subscriber found.');
                 }
-                $profile_url = $this->build_message_url($this->options['url'], 'profile', $user);
-                $profile_url = apply_filters('newsletter_profile_url', $profile_url, $user);
+                $profile_url = $this->build_message_url($this->options['url'], 'profile', $user, $email);
+                $profile_url = apply_filters('newsletter_profile_url', $profile_url, $user, $email);
 
                 wp_redirect($profile_url);
                 die();
@@ -46,8 +47,9 @@ class NewsletterProfile extends NewsletterModule {
             case 'profile-save':
             case 'ps':
                 $user = $this->save_profile();
+                $email = $this->get_email_from_request();
                 // $user->alert is a temporary field
-                wp_redirect($this->build_message_url($this->options['url'], 'profile', $user, null, $user->alert));
+                wp_redirect($this->build_message_url($this->options['url'], 'profile', $user, $email, $user->alert));
                 die();
                 break;
 
@@ -71,8 +73,8 @@ class NewsletterProfile extends NewsletterModule {
      * 
      * @param stdClass $user
      */
-    function get_profile_url($user) {
-        return $this->build_action_url('profile', $user);
+    function get_profile_url($user, $email = null) {
+        return $this->build_action_url('profile', $user, $email);
     }
 
     function hook_newsletter_replace($text, $user, $email) {
@@ -81,7 +83,7 @@ class NewsletterProfile extends NewsletterModule {
         }
 
         // Profile edit page URL and link
-        $url = $this->get_profile_url($user);
+        $url = $this->get_profile_url($user, $email);
         $text = $this->replace_url($text, 'PROFILE_URL', $url);
         // Profile export URL and link
         $url = $this->get_profile_export_url($user);
@@ -363,9 +365,15 @@ class NewsletterProfile extends NewsletterModule {
         $data['email'] = $email;
         if (isset($_REQUEST['nn'])) {
             $data['name'] = $this->normalize_name(stripslashes($_REQUEST['nn']));
+            if ($subscription_module->is_spam_text($data['name'])) {
+                die();
+            }
         }
         if (isset($_REQUEST['ns'])) {
             $data['surname'] = $this->normalize_name(stripslashes($_REQUEST['ns']));
+            if ($subscription_module->is_spam_text($data['surname'])) {
+                die();
+            }
         }
         if ($options_profile['sex_status'] >= 1) {
             $data['sex'] = $_REQUEST['nx'][0];
@@ -430,17 +438,6 @@ class NewsletterProfile extends NewsletterModule {
 
         parent::upgrade();
 
-        // Migration code
-        if (empty($this->options) || empty($this->options['email_changed'])) {
-            // Options of the subscription module (worng name, I know)
-            $options = get_option('newsletter');
-            $this->options['saved'] = $options['profile_saved'];
-            $this->options['text'] = $options['profile_text'];
-            $this->options['email_changed'] = $options['profile_email_changed'];
-            $this->options['error'] = $options['profile_error'];
-            $this->options['url'] = $options['profile_url'];
-            $this->save_options($this->options);
-        }
     }
 
     function admin_menu() {

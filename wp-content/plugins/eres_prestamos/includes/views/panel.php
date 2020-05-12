@@ -7,7 +7,7 @@ $step   = round($maximo/10);
     *  MENU HORIZONTAL DASHBOARD
     *-------------------------------------------------------*/
     #wrapperMenu {
-    width: 30%;
+    width: 20%;
     margin: 20px 50px;
     }
 
@@ -76,7 +76,7 @@ $step   = round($maximo/10);
         margin: 19px;
     }
     .conent-panel{
-        width: 60%;
+        width: 70%;
         margin-top: 20px;
         -webkit-box-shadow: 10px 10px 5px 0px rgba(129,136,152,1);
         -moz-box-shadow: 10px 10px 5px 0px rgba(129,136,152,1);
@@ -141,6 +141,12 @@ $step   = round($maximo/10);
             display: inline;
         }
     }
+    @media(max-width: 410px){
+        .table.table-responsive.table-striped{
+            display: inline-grid;
+        }
+
+    }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" type="text/css" media="all">
 <script
@@ -156,17 +162,17 @@ $step   = round($maximo/10);
             <li><a href="#"><span class="icon-speacker-1"></span> <span class=""> Publicaciones</span> <span class="badge pull-right">42</span></a></li>            
             <li><a class="btnmenu" eres-action="facturacion" href="#"><span class="icon-files"></span> <span class="">Facturación</a></li>
             
-            
             <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="collapse" data-target="#submenu" aria-expanded="false">
-                <span class="icon-link2"></span>
-                Nuevos Link<span class="caret"></span></a>
-            <ul class="nav collapse" id="submenu" role="menu" aria-labelledby="btn-1">                        
-                <li><a href="#">Elementos del Submenu</a></li>
-                <li><a href="#">Elementos del Submenu</a></li>
-                <li><a href="#">Elementos del Submenu</a></li>
-                <li><a href="#">Elementos del Submenu</a></li>                  
-            </ul>
+                <a href="#" class="dropdown-toggle" data-toggle="collapse" data-target="#submenu" aria-expanded="false">
+                    <span class="icon-link2"></span>
+                    Nuevos Link<span class="caret"></span>
+                </a>
+                <ul class="nav collapse" id="submenu" role="menu" aria-labelledby="btn-1">                        
+                    <li><a href="#">Elementos del Submenu</a></li>
+                    <li><a href="#">Elementos del Submenu</a></li>
+                    <li><a href="#">Elementos del Submenu</a></li>
+                    <li><a href="#">Elementos del Submenu</a></li>                  
+                </ul>
             </li>
             <li><a href="#"><span class="icon-link2"></span> <span class="">Nuevos link</span></a></li>
             <li><a id="btnsalir" href="#"><span class="icon-link2"></span> <span class="">Salir</span></a></li>
@@ -201,41 +207,26 @@ $step   = round($maximo/10);
                 <thead>
                     <tr>
                         <th>Fecha de Prestamo</th>
-                        <th>Valor Base</th>
-                        <th>Mora</th>
-                        <th>Valor a pagar</th>
+                        <th>Monto Prestado</th>
+                        <th>Estado</th>
                         <th>Acci&oacute;n</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php
-                        foreach($prestamos as $prestamo){
-                            echo '
-                            <tr>
-                                <td>'.$prestamo->getFechaPrestamo().'</td>
-                                <td>Doe</td>
-                                <td>john@example.com</td>
-                                <td>$0</td>
-                                <td><button id="btnsolicitar">Pagar</button></td>
-                            </tr>
-                            ';
-                        }
-                    ?>
-                    
+                <tbody class="data-table-grid-load">
+                </tbody>
+            </table>
+        </div>
+        <div class="multicontent divdetallefactura">
+            <table class="table table-responsive table-striped">
+                <thead>
                     <tr>
-                        <td>Smith</td>
-                        <td>Thomas</td>
-                        <td>smith@example.com</td>
-                        <td>$0</td>
-                        <td><button id="btnsolicitar">Pagar</button></td>
+                        <th>Total a Pagar</th>
+                        <th>Fecha de Pago</th>
+                        <th>Estado</th>
+                        <th>Acci&oacute;n</th>
                     </tr>
-                    <tr>
-                        <td>Merry</td>
-                        <td>Jim</td>
-                        <td>merry@example.com</td>
-                        <td>$0</td>
-                        <td><button id="btnsolicitar">Pagar</button></td>
-                    </tr>
+                </thead>
+                <tbody class="data-table-grid-det-load">
                 </tbody>
             </table>
         </div>
@@ -255,6 +246,7 @@ $step   = round($maximo/10);
                     $(".divnewprestamo").css({'display':'block'});
                 break;
                 case "facturacion":
+                    ajax_grid_load();
                     $(".divfacturacion").css({'display':'block'});
                 break;
             }
@@ -347,6 +339,40 @@ $step   = round($maximo/10);
                 }
             });
         });
+        function ajax_grid_load(){
+            $.ajax({
+                url: '/wp-json/customer/grid/loan',
+                method:'GET',
+                beforeSend: function( xhr ) {
+                    $("#eres-loader").addClass("active");
+                },
+                success: function(respuesta) {
+                    $("#eres-loader").removeClass("active");
+                    if(respuesta.sussess=="ok"){
+                        $(".data-table-grid-load").html(respuesta.html);
+                    }
+                    $(".btndetloan").off("click");
+                    $(".btndetloan").on("click",function(){
+                        $(".multicontent").css({'display':'none'});
+                        $(".divdetallefactura").css({'display':'block'});
+                    });
+                },
+                error: function(e) {
+                    switch(e.status){
+                        case 404:
+                            console.log("El sistema de solucitud no responde vuelva a intentarlo mas tarde.");
+                        break;
+                        case 500:
+                            console.log("El sistema tiene un fallo.");
+                        break;
+                        default:
+                            console.log("No se a podido determinar el error. Codigo: "+e.status);
+                        break;
+                    }
+                    $("#eres-loader").removeClass("active");
+                }
+            });
+        }
     
     });
 </script>

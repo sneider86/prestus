@@ -1,0 +1,45 @@
+2020-05-09T20:50:56-05:00 CRITICAL Uncaught Error: Class 'Cuotas' not found in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php:649
+Stack trace:
+#0 /var/www/prestus/wp-includes/class-wp-hook.php(288): PrestamosConfig->even_cronjob_func()
+#1 /var/www/prestus/wp-includes/class-wp-hook.php(312): WP_Hook->apply_filters('', Array)
+#2 /var/www/prestus/wp-includes/plugin.php(544): WP_Hook->do_action(Array)
+#3 /var/www/prestus/wp-cron.php(138): do_action_ref_array('even_cronjob', Array)
+#4 {main}
+  thrown in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php on line 649
+
+2020-05-09T20:51:56-05:00 CRITICAL Uncaught Error: Class 'Cuotas' not found in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php:654
+Stack trace:
+#0 /var/www/prestus/wp-includes/class-wp-hook.php(288): PrestamosConfig->even_cronjob_func()
+#1 /var/www/prestus/wp-includes/class-wp-hook.php(312): WP_Hook->apply_filters('', Array)
+#2 /var/www/prestus/wp-includes/plugin.php(544): WP_Hook->do_action(Array)
+#3 /var/www/prestus/wp-cron.php(138): do_action_ref_array('even_cronjob', Array)
+#4 {main}
+  thrown in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php on line 654
+
+2020-05-09T20:53:06-05:00 CRITICAL Uncaught Error: Class 'Cuotas' not found in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php:650
+Stack trace:
+#0 /var/www/prestus/wp-includes/class-wp-hook.php(288): PrestamosConfig->even_cronjob_func()
+#1 /var/www/prestus/wp-includes/class-wp-hook.php(312): WP_Hook->apply_filters('', Array)
+#2 /var/www/prestus/wp-includes/plugin.php(544): WP_Hook->do_action(Array)
+#3 /var/www/prestus/wp-cron.php(138): do_action_ref_array('even_cronjob', Array)
+#4 {main}
+  thrown in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php on line 650
+
+2020-05-09T20:53:43-05:00 CRITICAL Uncaught Error: Call to private method Cuotas::createProduct() from context 'PrestamosConfig' in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php:652
+Stack trace:
+#0 /var/www/prestus/wp-includes/class-wp-hook.php(288): PrestamosConfig->even_cronjob_func()
+#1 /var/www/prestus/wp-includes/class-wp-hook.php(312): WP_Hook->apply_filters('', Array)
+#2 /var/www/prestus/wp-includes/plugin.php(544): WP_Hook->do_action(Array)
+#3 /var/www/prestus/wp-cron.php(138): do_action_ref_array('even_cronjob', Array)
+#4 {main}
+  thrown in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php on line 652
+
+2020-05-09T20:54:05-05:00 CRITICAL Uncaught Error: Call to private method Cuotas::createProduct() from context 'PrestamosConfig' in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php:652
+Stack trace:
+#0 /var/www/prestus/wp-includes/class-wp-hook.php(288): PrestamosConfig->even_cronjob_func()
+#1 /var/www/prestus/wp-includes/class-wp-hook.php(312): WP_Hook->apply_filters('', Array)
+#2 /var/www/prestus/wp-includes/plugin.php(544): WP_Hook->do_action(Array)
+#3 /var/www/prestus/wp-cron.php(138): do_action_ref_array('even_cronjob', Array)
+#4 {main}
+  thrown in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php on line 652
+

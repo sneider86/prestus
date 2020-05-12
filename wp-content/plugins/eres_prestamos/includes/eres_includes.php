@@ -11,6 +11,7 @@ class PrestamosConfig{
     require_once plugin_dir_path(__DIR__).'/includes/Model/Clientes.php';
     require_once plugin_dir_path(__DIR__).'/includes/Model/Prestamo.php';
     require_once plugin_dir_path(__DIR__).'/includes/Model/Config.php';
+    require_once plugin_dir_path(__DIR__).'/includes/Model/Cuotas.php';
     /* ******************* load Models ******************* */
 
     add_action( 'admin_menu',array( $this, 'eres_add_link_prestamos' ));
@@ -22,6 +23,7 @@ class PrestamosConfig{
     add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'logout_customer_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'request_loan_endpoint' ));
+    add_action( 'rest_api_init', array( $this, 'load_grid_loan_customer' ));
     add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
     add_action( 'init', array($this,'eres_session_start'), 1 );
 
@@ -546,6 +548,25 @@ class PrestamosConfig{
       'callback' => array($this,'loan_customer'),
     ) );
   }
+  public function load_grid_loan_customer(){
+    register_rest_route( 'customer/grid/', 'loan', array(
+      'methods'  => 'GET',
+      'callback' => array($this,'grid_loan_customer'),
+    ) );
+  }
+  public function grid_loan_customer(WP_REST_Request $request){
+    try{
+      if(isset($_SESSION) && isset($_SESSION['id_user'])){
+        $html = $this->getGridPrestamos();
+        return array("sussess"=>"ok",'status'=>'success','html'=>$html);
+      }else{
+        return array("sussess"=>"error",'msg'=>'Debe iniciar session.');
+      }
+    }catch(Exception $e){
+      return array("sussess"=>"error",'msg'=>$e->getMessage());
+    }
+  }
+
   public function loan_customer( WP_REST_Request $request ) {
     try{
       if(isset($_SESSION) && isset($_SESSION['id_user'])){
@@ -572,13 +593,30 @@ class PrestamosConfig{
     if(isset($_SESSION['id_user']) && is_numeric($_SESSION['id_user'])){
       $conf = new Config();
       $interes = (double)$conf->getConfiguration('interes');
-      $prestamo = new Prestamo();
-      $prestamos = $prestamo->loadListByCustomer($_SESSION['id_user']);
+      // $prestamo = new Prestamo();
+      // $prestamos = $prestamo->loadListByCustomer($_SESSION['id_user']);
       require_once plugin_dir_path($this->file) . 'views/panel.php';
     }else{
       require_once plugin_dir_path($this->file) . 'views/ingresar.php';
     }
-    
+  }
+  public function getGridPrestamos(){
+    if(isset($_SESSION['id_user']) && is_numeric($_SESSION['id_user'])){
+      $prestamo = new Prestamo();
+      $prestamos = $prestamo->loadListByCustomer($_SESSION['id_user']);
+      $html = '';
+      foreach($prestamos as $prestamo){
+        $html = $html. '
+          <tr>
+              <td>'.$prestamo->getFechaPrestamo().'</td>
+              <td>$'.number_format($prestamo->getTotal()).'</td>
+              <td>'.$prestamo->getNameEstado().'</td>
+              <td><button class="btndetloan">Ver</button></td>
+          </tr>
+        ';
+      }
+    }
+    return $html;
   }
   public function eres_session_start(){
     if( ! session_id() ) {
@@ -609,6 +647,20 @@ class PrestamosConfig{
   }
   public function even_cronjob_func(){
     //error_log("time: ".date('H:i:s d:m:Y'));
+    try{
+      // $cuota = new Cuotas();
+      // if($cuota->createProduct()){
+      //   error_log("se creo producto");
+      // }else{
+      //   error_log("no se pudo crear");
+      // }
+      
+
+    }catch(Exception $e){
+      error_log("error: ".$e->getMessage());
+    }
+    
+    
   }
   public function drop_cron_job(){
     wp_clear_scheduled_hook( 'even_cronjob' );

@@ -1,0 +1,39 @@
+2020-04-18T21:00:32+00:00 CRITICAL Uncaught Error: Call to undefined function nonce() in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php:230
+Stack trace:
+#0 /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php(503): require_once()
+#1 /var/www/prestus/wp-includes/shortcodes.php(325): PrestamosConfig->view_ingresar('', '', 'ingresar')
+#2 [internal function]: do_shortcode_tag(Array)
+#3 /var/www/prestus/wp-includes/shortcodes.php(199): preg_replace_callback('/\\[(\\[?)(ingres...', 'do_shortcode_ta...', '[ingresar]\n')
+#4 /var/www/prestus/wp-includes/class-wp-hook.php(288): do_shortcode('[ingresar]\n')
+#5 /var/www/prestus/wp-includes/plugin.php(206): WP_Hook->apply_filters('[ingresar]\n', Array)
+#6 /var/www/prestus/wp-includes/post-template.php(253): apply_filters('the_content', '[ingresar]')
+#7 /var/www/prestus/wp-content/themes/porto/page.php(55): the_content()
+#8 /var/www/prestus/wp-includes/template-loader.php(98): include('/var/www/prestu...')
+#9 /var/www/prestus/wp-blog-header.php(19): requ in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php on line 230
+
+2020-04-18T21:00:51+00:00 CRITICAL Uncaught Error: Call to undefined function nonce() in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php:230
+Stack trace:
+#0 /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php(503): require_once()
+#1 /var/www/prestus/wp-includes/shortcodes.php(325): PrestamosConfig->view_ingresar('', '', 'ingresar')
+#2 [internal function]: do_shortcode_tag(Array)
+#3 /var/www/prestus/wp-includes/shortcodes.php(199): preg_replace_callback('/\\[(\\[?)(ingres...', 'do_shortcode_ta...', '[ingresar]\n')
+#4 /var/www/prestus/wp-includes/class-wp-hook.php(288): do_shortcode('[ingresar]\n')
+#5 /var/www/prestus/wp-includes/plugin.php(206): WP_Hook->apply_filters('[ingresar]\n', Array)
+#6 /var/www/prestus/wp-includes/post-template.php(253): apply_filters('the_content', '[ingresar]')
+#7 /var/www/prestus/wp-content/themes/porto/page.php(55): the_content()
+#8 /var/www/prestus/wp-includes/template-loader.php(98): include('/var/www/prestu...')
+#9 /var/www/prestus/wp-blog-header.php(19): requ in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php on line 230
+
+2020-04-18T21:01:09+00:00 CRITICAL Uncaught Error: Call to undefined function nonce() in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php:230
+Stack trace:
+#0 /var/www/prestus/wp-content/plugins/eres_prestamos/includes/eres_includes.php(503): require_once()
+#1 /var/www/prestus/wp-includes/shortcodes.php(325): PrestamosConfig->view_ingresar('', '', 'ingresar')
+#2 [internal function]: do_shortcode_tag(Array)
+#3 /var/www/prestus/wp-includes/shortcodes.php(199): preg_replace_callback('/\\[(\\[?)(ingres...', 'do_shortcode_ta...', '[ingresar]\n')
+#4 /var/www/prestus/wp-includes/class-wp-hook.php(288): do_shortcode('[ingresar]\n')
+#5 /var/www/prestus/wp-includes/plugin.php(206): WP_Hook->apply_filters('[ingresar]\n', Array)
+#6 /var/www/prestus/wp-includes/post-template.php(253): apply_filters('the_content', '[ingresar]')
+#7 /var/www/prestus/wp-content/themes/porto/page.php(55): the_content()
+#8 /var/www/prestus/wp-includes/template-loader.php(98): include('/var/www/prestu...')
+#9 /var/www/prestus/wp-blog-header.php(19): requ in /var/www/prestus/wp-content/plugins/eres_prestamos/includes/views/panel.php on line 230
+

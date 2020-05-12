@@ -90,65 +90,105 @@ class Cuotas{
             throw new Exception($e->getMessage());
         }
     }
-    private function create(){
+    public function createProduct($precio='30000'){
         try{
-            if(!$this->isExist()){
-                if($this->tipodocumento<=0){
-                    throw new Exception("El tipo de documento no puede estar vacio");
-                }
-                if(empty(trim($this->documento))){
-                    throw new Exception("El documento no puede estar vacio");
-                }
-                if(empty(trim($this->email))){
-                    throw new Exception("El email no puede estar vacio");
-                }
-                if(empty(trim($this->clave))){
-                    throw new Exception("La clave no puede estar vacia");
-                }
-                if(empty(trim($this->nombre1))){
-                    throw new Exception("Digite nombres");
-                }
-                if(empty(trim($this->apellido1))){
-                    throw new Exception("Digite apellidos");
-                }
+            $nombreTabla = $this->con->prefix.'posts';
+            $guid = $this->getUrl().'/?post_type=product&#038;p=';
+            $params = array(
+                'post_author'   => 1,
+                'post_date'   => date("Y-m-d H:i:s"),
+                'post_date_gmt' => date("Y-m-d H:i:s"),
+                'post_content' => '',
+                'post_title'     => 'Cuota',
+                'post_excerpt'  => '',
+                'post_status'   => 'publish',
+                'comment_status' => 'open',
+                'ping_status'     => 'closed',
+                'post_name'    => 'cuota',
+                'to_ping' => '',
+                'pinged' => '',
+                'post_modified'      => date("Y-m-d H:i:s"),
+                'post_modified_gmt'      => date("Y-m-d H:i:s"),
+                'post_content_filtered'      => '',
+                'guid'      => $guid,
+                'post_type'      => 'product'
+            );
+            $typeData = array(
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s'
+            );
+            $success = $this->con->insert($nombreTabla,$params,$typeData);
+            if($success){
+                $id = $this->con->insert_id;
+                //$sql = "UPDATE ".$nombreTabla." SET guid = '".$guid.$id."' WHERE ID=".$id;
                 $params = array(
-                    'nombre1'   => $this->nombre1,
-                    'nombre2'   => $this->nombre2,
-                    'apellido1' => $this->apellido1,
-                    'apellido2' => $this->apellido2,
-                    'email'     => $this->email,
-                    'telefono'  => $this->telefono,
-                    'celular'   => $this->celular,
-                    'direccion' => $this->direccion,
-                    'clave'     => password_hash($this->clave, PASSWORD_DEFAULT),
-                    'barrio'    => $this->barrio,
-                    'tipodocumento' => $this->tipodocumento,
-                    'documento' => $this->documento,
-                    'cupo'      => $this->cupo
+                    'guid' => $guid.$id,
+                    'post_name' => 'cuota-'.$id
+                );
+                $where = array(
+                    'ID' => $id
                 );
                 $typeData = array(
                     '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%d',
-                    '%d',
-                    '%s',
+                    '%s'
+                );
+                $typeDataWhere = array(
                     '%d'
                 );
-                $success = $this->con->insert($this->nombreTabla,$params,$typeData);
+                $success = $this->con->update($nombreTabla,$params,$where,$typeData,$typeDataWhere);
                 if($success){
-                    $this->id = $this->con->insert_id;    
+                    $data = array(
+                        '_backorders' => 'no',
+                        '_download_expiry' => '-1',
+                        '_download_limit' => '-1',
+                        '_downloadable' => 'no',
+                        '_downloadable' => 'no',
+                        '_edit_last' => '1',
+                        '_edit_lock' => '1589075411:1',
+                        '_manage_stock' => 'no',
+                        '_price' => $precio,
+                        '_product_version' => '3.9.1',
+                        '_regular_price' => $precio,
+                        '_sku' => 'sku-'.$id,
+                        '_sold_individually' => 'no',
+                        '_stock' => null,
+                        '_stock_status' => 'instock',
+                        '_tax_class' => '',
+                        '_tax_status' => 'taxable',
+                        '_virtual' => 'yes',
+                        '_wc_average_rating' => '0',
+                        '_wc_review_count' => '0',
+                        'custom_tab_priority1' => '40',
+                        'custom_tab_priority2' => '41',
+                        'dfiFeatured' => 'a:1:{i:0;s:0:"";}',
+                        'layout' => 'right-sidebar',
+                        'slide_template' => 'default',
+                        'total_sales' => '0'
+                    );
+                    foreach($data as $key => $value){
+                        $this->createParamsProducto($id,$key,$value);
+                    }
+                    return true;
                 }else{
-                    throw new Exception("No se pudo crear cliente");
+                    throw new Exception("No se pudo actualizar producto");
                 }
             }else{
-                throw new Exception("El email ya existe ".$this->email." o el documento se encuentra registrado");
+                throw new Exception("No se pudo crear producto");
             }
         }catch(Exception $e){
             throw new Exception($e->getMessage());
@@ -323,6 +363,40 @@ class Cuotas{
         }
         
     }
+    private function getUrl(){
+        if(isset($_SERVER['HTTPS'])){
+            $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+        }
+        else{
+            $protocol = 'http';
+        }
+        return $protocol . "://" . $_SERVER['HTTP_HOST'];
+    }
+
+    public function createParamsProducto($post_id,$metaKey,$metaValue){
+        try{
+            $nombreTabla = $this->con->prefix.'postmeta';
+            $params = array(
+                'post_id'   => $post_id,
+                'meta_key'   => $metaKey,
+                'meta_value' => $metaValue
+            );
+            $typeData = array(
+                '%d',
+                '%s',
+                '%s'
+            );
+            $success = $this->con->insert($nombreTabla,$params,$typeData);
+            if($success){
+                return true;
+            }else{
+                throw new Exception("No se pudo crear atributo producto");
+            }
+        }catch(Exception $e){
+            throw new Exception($e->getMessage());
+        }
+    }
+
 
 
 }

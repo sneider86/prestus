@@ -34,6 +34,9 @@ class Prestamo{
     public function getId(){
         return $this->id;
     }
+    public function setId($id){
+        $this->id = $id;
+    }
     public function getIdCustomer(){
         return $this->id_customer;
     }
@@ -247,18 +250,28 @@ class Prestamo{
         );
         if(isset($results) && is_array($results) && count($results)>0){
             foreach($results as $item){
-                $this->id               = $item->id;
-                $this->id_customer      = $item->id_customer;
-                $this->cuotas           = $item->cuotas;
-                $this->interes          = $item->interes;
-                $this->total            = $item->total;
-                $this->fecha_prestamo   = $item->fecha_prestamo;
-                $this->estado           = $item->estado;
-                $this->dia_corte        = $item->dia_corte;
-                $list[] = $this;
+                $tmp = new Prestamo();
+                $tmp->setId($item->id);
+                $tmp->setTotal($item->total);
+                $tmp->setFechaPrestamo($item->fecha_prestamo);
+                $tmp->setIdCUstomer($item->id_customer);
+                $tmp->setCuotas($item->cuotas);
+                $tmp->setInteres($item->interes);
+                $tmp->setEstado($item->estado);
+                $tmp->setDiaCorte($item->dia_corte);
+                $list[] = $tmp;
             }
         }
         return $list;
+    }
+    public function getNameEstado(){
+        $result = $this->estado;
+        switch($this->estado){
+            case 'P':
+                $result = 'Pendiente por aprobar';
+            break;
+        }
+        return $result;
     }
 
 

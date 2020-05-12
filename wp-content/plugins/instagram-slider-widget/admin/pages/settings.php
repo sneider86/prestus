@@ -134,30 +134,75 @@ class WIS_SettingsPage extends WIS_Page {
 	}
 
 	public function indexAction() {
+		wp_enqueue_style( 'wis-tabs-style', WIS_PLUGIN_URL.'/admin/assets/css/component.css', array(), WIS_PLUGIN_VERSION );
+		if(isset($_GET['tab']) && !empty($_GET['tab']))
+        {
+            switch($_GET['tab'])
+            {
+                case "instagram":
+                    $this->instagram();
+                    break;
+                case "facebook":
+                	WIS_FacebookSlider::app()->FACEBOOK->tabAction();
+                    break;
+                case "youtube":
+	                $this->youtube();
+                    break;
+            }
+        }
+		else $this->instagram();
 
-		?>
-		<script>
-            jQuery(document).ready(function(){
-                var hash = document.location.hash;
-                var token = hash.substring(14);
-                if(token.length > 40)
-                {
-                    jQuery.post ( ajaxurl, {
-                        action:      'wis_add_account_by_token',
-                        insttoken:       token,
-                        _ajax_nonce: '<?php echo wp_create_nonce("addAccountByToken"); ?>',
-                    }).done( function( html ) {
-                        console.log(html);
-                        console.log(token);
-                        document.location.hash = "";
-                        window.location.reload();
-                    });
-
-                    jQuery('#wis-spinner').addClass('is-active');
-                }
-            });
-		</script>
-		<?php
 		parent::indexAction();
 	}
+
+	/**
+	 * Логика на вкладке Инстаграма
+	 */
+	public function instagram() {
+        if(isset( $_GET['type'] ) && $_GET['type'] == 'business') {
+            if ( isset( $_GET['token_error'] ) ) {
+	            echo '<div class="notice notice-error"><p>' . $_GET['token_error'] . '</p></div>';
+                $_SERVER['REQUEST_URI'] = str_replace( '#_', '', remove_query_arg( 'token_error' ) );
+            } else {
+                if ( isset( $_GET['access_token'] ) ) {
+                    $token                  = $_GET['access_token'];
+                    $result                 = WIS_InstagramSlider::app()->update_account_profiles( $token, true );
+                    $_SERVER['REQUEST_URI'] = remove_query_arg( 'access_token' );
+                    ?>
+                    <div id="wis_accounts_modal" class="wis_accounts_modal">
+                        <div class="wis_modal_header">
+                            Choose Account:
+                        </div>
+                        <div class="wis_modal_content">
+                            <?php echo $result[0]; ?>
+                        </div>
+                    </div>
+                    <div id="wis_modal_overlay" class="wis_modal_overlay"></div>
+                    <span class="wis-overlay-spinner is-active">&nbsp;</span>
+                    <?php
+                }
+            }
+        }
+		else
+		{
+			if ( isset( $_GET['token_error'] ) ) {
+				echo '<div class="notice notice-error"><p>' . $_GET['token_error'] . '</p></div>';
+				$_SERVER['REQUEST_URI'] = str_replace( '#_', '', remove_query_arg( 'token_error' ));
+			} else {
+				if ( isset( $_GET['access_token'] ) ) {
+					$token = $_GET['access_token'];
+					$result = WIS_InstagramSlider::app()->update_account_profiles( $token );
+					$_SERVER['REQUEST_URI'] = str_replace( '#_', '', remove_query_arg( 'access_token' ));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Логика на вкладке Ютуба
+	 */
+	public function youtube() {
+		//require_once WIS_PLUGIN_DIR . '/includes/socials/class.wis_youtube.php';
+	}
+
 }

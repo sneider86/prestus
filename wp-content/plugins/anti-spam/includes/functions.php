@@ -1,172 +1,463 @@
 <?php
 /**
- * Helper functions
  *
- * @author        Alex Kovalev <alex.kovalevv@gmail.com>, Github: https://github.com/alexkovalevv
- * @copyright (c) 12.12.2019, Webcraftic
+ * @author        Webcraftic <wordpress.webraftic@gmail.com>
  * @version       1.0
+ * @copyright (c) 10.02.2020, Webcraftic
  */
 
+use WBCR\Titan\Client\Client;
+use WBCR\Titan\Client\Entity\CmsCheckItem;
+use WBCR\Titan\MalwareScanner\HashListPool;
+use WBCR\Titan\MalwareScanner\Scanner;
+use WBCR\Titan\Plugin;
+
+add_filter('cron_schedules', 'titan_add_minute_schedule');
 /**
- * Gets honeypot fields.
- *
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
+ * @param array $schedules
  */
-function wantispam_get_honeypot_fields() {
-	$rn   = "\r\n"; // .chr(13).chr(10)
-	$html = '';
+function titan_add_minute_schedule($schedules)
+{
+	$schedules['minute'] = [
+		'interval' => 30,
+		'display' => __('Once 30 sec', 'titan-security'),
+	];
 
-	$html .= '<div class="wantispam-group wantispam-group-q" style="clear: both;">
-					<label>Current ye@r <span class="required">*</span></label>
-					<input type="hidden" name="wantispam_a" class="wantispam-control wantispam-control-a" value="' . date( 'Y' ) . '" />
-					<input type="text" name="wantispam_q" class="wantispam-control wantispam-control-q" value="' . \WBCR\Antispam\Plugin::app()->getPluginVersion() . '" autocomplete="off" />
-				  </div>' . $rn; // question (hidden with js)
-	$html .= '<div class="wantispam-group wantispam-group-e" style="display: none;">
-					<label>Leave this field empty</label>
-					<input type="text" name="wantispam_e_email_url_website" class="wantispam-control wantispam-control-e" value="" autocomplete="off" />
-				  </div>' . $rn; // empty field (hidden with css); trap for spammers because many bots will try to put email or url here
-
-	return $html;
+	return $schedules;
 }
 
+add_action('titan_scheduled_scanner', 'titan_scheduled_scanner');
 /**
- * Gets required fields into the comment form on the page.
- *
- * @param string $html
- *
- * @return string
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
- *
+ * @throws Exception
  */
-function wantispam_get_required_fields( $render_honeypot_fields = true ) {
-	$html = '<!-- Anti-spam plugin wordpress.org/plugins/anti-spam/ -->';
-	$html .= '<div class="wantispam-required-fields">';
-	$html .= '<input type="hidden" name="wantispam_t" class="wantispam-control wantispam-control-t" value="' . time() . '" />'; // Start time of form filling
-	if ( $render_honeypot_fields ) {
-		$html .= wantispam_get_honeypot_fields();
-	}
-	$html .= '</div>';
-	$html .= '<!--\End Anti-spam plugin -->';
+function titan_scheduled_scanner()
+{
+	require_once WTITAN_PLUGIN_DIR . '/libs/api-client/boot.php';
+	require_once WTITAN_PLUGIN_DIR . '/includes/scanner/classes/scanner/boot.php';
 
-	return $html;
-}
+	/** @var Scanner $scanner */
+	$scanner = get_option(Plugin::app()->getPrefix() . 'scanner', null);
+	if( is_null($scanner) || $scanner === false ) {
+		\WBCR\Titan\Logger\Writter::error('Scanner does not exists');
+		error_log('Scanner does not exists');
+		titan_remove_scheduler_scanner();
 
-/**
- * Controls the display of a privacy related notice underneath the comment form.
- *
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
- * @since  6.5.3
- */
-function wantispam_display_comment_form_privacy_notice( $echo = false ) {
-	if ( ! \WBCR\Antispam\Plugin::app()->getPopulateOption( 'comment_form_privacy_notice' ) ) {
-		return '';
+		return;
 	}
 
-	$output = '<p class="wantispam-comment-form-privacy-notice" style="margin-top:10px;">' . sprintf( __( 'This site uses Antispam to reduce spam. <a href="%s" target="_blank" rel="nofollow noopener">Learn how your comment data is processed</a>.', 'anti-spam' ), 'https://anti-spam.space/antispam-privacy/' ) . '</p>';
+	set_time_limit(0);
 
-	if ( ! $echo ) {
-		return $output;
+	$speed = Plugin::app()->getPopulateOption('scanner_speed', 'slow');
+	$files_count = @Scanner::SPEED_FILES[$speed];
+	if( is_null($files_count) ) {
+		$files_count = Scanner::SPEED_FILES[Scanner::SPEED_MEDIUM];
 	}
 
-	echo $output;
+	$matched = Plugin::app()->getOption('scanner_malware_matched', []);
+
+	foreach($scanner->scan($files_count) as $match) {
+		/** @var \WBCR\Titan\MalwareScanner\Match $match */
+		if( $match->getSignature()->getSever() === \WBCR\Titan\MalwareScanner\Signature::SEVER_CRITICAL ) {
+			array_unshift($matched, $match);
+		} else {
+			array_push($matched, $match);
+		}
+	}
+
+	Plugin::app()->updateOption('scanner_malware_matched', $matched);
+	Plugin::app()->updateOption('scanner', $scanner);
+
+	if( $scanner->get_files_count() < 1 ) {
+		titan_remove_scheduler_scanner();
+	}
 }
 
 /**
- * Return premium widget markup
- *
- * @return string
- * @since  6.5.3
- * @author Alexander Kovalev <alex.kovalevv@gmail.com>
+ * @return CmsCheckItem[]
  */
-function wantispam_get_sidebar_premium_widget() {
-	ob_start();
-	?>
-    <div class="wbcr-factory-sidebar-widget">
-        <p>
-            <a href="https://anti-spam.space/pricing/" target="_blank" rel="noopener nofollow">
-                <img style="width: 100%;"
-                     src="https://api.cm-wp.com/wp-content/uploads/2019/12/baner_antispam_vertical.jpg" alt="">
-            </a>
-        </p>
-    </div>
-	<?php
-	return ob_get_clean();
-}
+function titan_check_cms()
+{
+	global $wp_version;
 
-/**
- * Should show a page about the plugin or not.
- *
- * @return bool
- * @since  6.5.3
- */
-function wantispam_is_need_show_about_page() {
-	if ( \WBCR\Antispam\Plugin::app()->isNetworkActive() ) {
-		$need_show_about = (int) get_site_option( \WBCR\Antispam\Plugin::app()->getOptionName( 'what_is_new_64' ) );
+	if( Plugin::app()->is_premium() ) {
+		$license_key = Plugin::app()->premium->get_license()->get_key();
 	} else {
-		$need_show_about = (int) get_option( \WBCR\Antispam\Plugin::app()->getOptionName( 'what_is_new_64' ) );
+		$license_key = null;
 	}
 
-	$is_ajax = wantispam_doing_ajax();
-	$is_cron = wantispam_doing_cron();
-	$is_rest = wantispam_doing_rest_api();
+	$client = new Client($license_key);
 
-	if ( $need_show_about && ! $is_ajax && ! $is_cron && ! $is_rest ) {
-		return true;
+	if( Plugin::app()->is_premium() ) {
+		$result = $client->check_cms_premium($wp_version, collect_wp_hash_sum());
+	} else {
+		$result = $client->check_cms_free($wp_version, collect_wp_hash_sum());
 	}
 
-	return false;
+	if( is_null($result) ) {
+		return [];
+	}
+
+	WBCR\Titan\Logger\Writter::info(sprintf("Founded %d corrupted files", count($result->items)));
+
+	foreach($result->items as $check_item) {
+		WBCR\Titan\Logger\Writter::debug(sprintf("File `%s` (action %s)", $check_item->path, $check_item->action));
+		$path = dirname(WP_CONTENT_DIR) . '/' . $check_item->path;
+		switch( $check_item->action ) {
+			case CmsCheckItem::ACTION_REMOVE:
+				if( file_exists($path) && is_writable($path) ) {
+					unlink($path);
+				}
+				break;
+
+			case CmsCheckItem::ACTION_REPAIR:
+				if( file_exists($path) && is_writeable($path) ) {
+					$data = file_get_contents($check_item->url);
+					file_put_contents($path, $data);
+				}
+				break;
+		}
+	}
+
+	return $result->items;
 }
 
 /**
- * Checks if the current request is a WP REST API request.
+ * Creating cron task
+ */
+function titan_create_scheduler_scanner()
+{
+	// todo: реализовать уровень проверки сайта
+
+	if( Plugin::app()->is_premium() ) {
+		$license_key = Plugin::app()->premium->get_license()->get_key();
+	} else {
+		$license_key = null;
+	}
+
+	$client = new Client($license_key);
+
+	if( Plugin::app()->is_premium() ) {
+		$signatures = $client->get_signatures();
+	} else {
+		$signatures = $client->get_free_signatures();
+	}
+
+	/** @var array[]|WBCR\Titan\Client\Entity\Signature[] $signatures */
+
+	foreach($signatures as $key => $signature) {
+		$signatures[$key] = $signature->to_array();
+	}
+	$signature_pool = WBCR\Titan\MalwareScanner\SignaturePool::fromArray($signatures);
+
+	$file_hash = get_option(Plugin::app()->getPrefix() . 'files_hash');
+	if( !$file_hash ) {
+		$file_hash_pool = HashListPool::fromArray($file_hash);
+	} else {
+		$file_hash_pool = null;
+	}
+
+	$scanner = new WBCR\Titan\MalwareScanner\Scanner(ABSPATH, $signature_pool, $file_hash_pool, [
+		'wp-admin',
+		'wp-includes',
+		'wp-activate.php',
+		'wp-blog-header.php',
+		'wp-comments-post.php',
+		'wp-config-sample.php',
+		'wp-cron.php',
+		'wp-links-opml.php',
+		'wp-load.php',
+		'wp-login.php',
+		'wp-mail.php',
+		'wp-settings.php',
+		'wp-signup.php',
+		'wp-trackback.php',
+		'xmlrpc.php',
+		'debug.log',
+		'node_modules',
+		'vendor',
+		'wp-plugin-titan-security',
+		'anti-spam',
+	]);
+
+	Plugin::app()->updateOption('scanner', $scanner);
+	Plugin::app()->updateOption('scanner_malware_matched', []);
+	Plugin::app()->updateOption('scanner_files_count', $scanner->get_files_count());
+	Plugin::app()->updateOption('scanner_status', 'started');
+	wp_schedule_event(time(), 'minute', 'titan_scheduled_scanner');
+}
+
+/**
+ * Deleting a cron task
+ */
+function titan_remove_scheduler_scanner()
+{
+	$scanner = get_option(Plugin::app()->getPrefix() . 'scanner');
+	if( $scanner ) {
+		$file_hash = [];
+		foreach($scanner->getFileList() as $file) {
+			$file_hash[$file->getPath()] = $file->getFileHash();
+		}
+		Plugin::app()->updateOption('files_hash', $file_hash);
+	}
+
+	wp_unschedule_hook('titan_scheduled_scanner');
+	Plugin::app()->updateOption('scanner_status', 'stopped');
+
+	try {
+		$matched = Plugin::app()->getOption('scanner_malware_matched');
+
+		if( count($matched) > 0 ) {
+			if( Plugin::app()->is_premium() ) {
+				$license_key = Plugin::app()->premium->get_license()->get_key();
+			} else {
+				$license_key = null;
+			}
+			$client = new Client($license_key);
+
+			$client->send_notification('email', 'virusFound', [
+				'subject' => 'VIRUS',
+				'url' => get_site_url(),
+				'files' => $matched
+			]);
+		}
+	} catch( Exception $e ) {
+
+	}
+}
+
+/**
+ * Collecting hash sums of WP files
  *
- * Case #1: After WP_REST_Request initialisation
- * Case #2: Support "plain" permalink settings
- * Case #3: URL Path begins with wp-json/ (your REST prefix)
- *          Also supports WP installations in subfolders
+ * @param string $path
  *
- * @author matzeeable https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist
- * @since  2.1.0
- * @return boolean
+ * @return array
  */
-function wantispam_doing_rest_api() {
-	$prefix     = rest_get_url_prefix();
-	$rest_route = \WBCR\Antispam\Plugin::app()->request->get( 'rest_route', null );
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST // (#1)
-	     || ! is_null( $rest_route ) // (#2)
-	        && strpos( trim( $rest_route, '\\/' ), $prefix, 0 ) === 0 ) {
-		return true;
+function collect_wp_hash_sum($path = ABSPATH)
+{
+	$hash = [];
+
+	foreach(scandir($path) as $item) {
+		if( $item == '.' || $item == '..' || $item == 'plugins' || $item == 'themes' ) {
+			continue;
+		}
+
+		$newPath = $path . $item;
+		$relativePath = str_replace(ABSPATH, '', $newPath);
+		if( is_dir($newPath) ) {
+			$hash = array_merge($hash, collect_wp_hash_sum($newPath . '/'));
+		} else {
+			$hash[$relativePath] = md5_file($newPath);
+		}
 	}
 
-	// (#3)
-	$rest_url    = wp_parse_url( site_url( $prefix ) );
-	$current_url = wp_parse_url( add_query_arg( [] ) );
-
-	return strpos( $current_url['path'], $rest_url['path'], 0 ) === 0;
+	return $hash;
 }
 
 /**
+ * Displays a notification inside the Antispam interface, on all pages of the plugin.
+ * This is necessary to remind the user to update the configuration of the plugin components,
+ * Otherwise, the newly activated components will not be involved in the work of the plugin.
+ *
+ * @param Wbcr_Factory427_Plugin $plugin
+ * @param Wbcr_FactoryPages427_ImpressiveThemplate $obj
+ *
  * @return bool
- * @since  6.5.3
  */
-function wantispam_doing_ajax() {
-	if ( function_exists( 'wp_doing_ajax' ) ) {
-		return wp_doing_ajax();
+add_action('wbcr/factory/pages/impressive/print_all_notices', function ($plugin, $obj) {
+	if( $plugin->getPluginName() != \WBCR\Titan\Plugin::app()->getPluginName() ) {
+		return;
 	}
 
-	return defined( 'DOING_AJAX' ) && DOING_AJAX;
+	if( !empty($_GET['page']) && "sitechecker-" . \WBCR\Titan\Plugin::app()->getPluginName() === $_GET['page'] ) {
+		require_once WTITAN_PLUGIN_DIR . '/includes/audit/classes/class.cert.php';
+		$cert = \WBCR\Titan\Cert\Cert::get_instance();
+		$output = false;
+		$message = '';
+		$type = 'warning';
+		//$plugin_name = WBCR\Titan\Plugin::app()->getPluginTitle();
+
+		if( $cert->is_available() ) {
+			if( !$cert->is_lets_encrypt() ) {
+				$remaining = $cert->get_expiration_timestamp() - time();
+				if( $remaining <= 86400 * 90 ) { // 3 month (90 days)
+					$message = 'The SSL certificate expires in less than three months';
+					$output = true;
+				} else if( $remaining <= 86400 * 3 ) { // 3 days
+					$type = 'notice-error';
+					$message = 'The SSL certificate expires in less than three days';
+					$output = true;
+				}
+			}
+		} else {
+			$output = true;
+			$type = 'error';
+			$message = $cert->get_error_message();
+		}
+
+		if( $output ) {
+			switch( $type ) {
+				case 'error':
+					$obj->printErrorNotice($message);
+					break;
+				case 'warning':
+					$obj->printWarningNotice($message);
+					break;
+			}
+		}
+	}
+}, 10, 2);
+
+add_action('init', 'titan_init_https_redirect');
+function titan_init_https_redirect()
+{
+	$strict_https = Plugin::app()->getPopulateOption('strict_https', false);
+	if( !is_ssl() && $strict_https ) {
+		wp_redirect(home_url(add_query_arg($_GET, $_SERVER['REQUEST_URI']), 'https'));
+		die;
+	}
+}
+
+add_action(Plugin::app()->getPluginName() . "/factory/premium/license_activate", 'titan_set_scanner_speed_active');
+function titan_set_scanner_speed_active()
+{
+	$scanner_speed = Plugin::app()->getPopulateOption('scanner_speed', 'free');
+	if( $scanner_speed == 'free' ) {
+		Plugin::app()->updatePopulateOption('scanner_speed', 'slow');
+	}
+
+	$scanner_schedule = Plugin::app()->getPopulateOption('scanner_schedule', 'disabled');
+	if( $scanner_schedule == 'disabled' ) {
+		Plugin::app()->updatePopulateOption('scanner_schedule', 'disabled');
+	}
+
+	$scanner_type = Plugin::app()->getPopulateOption('scanner_type', 'basic');
+	if( $scanner_type == 'basic' ) {
+		Plugin::app()->updatePopulateOption('scanner_type', 'advanced');
+	}
+}
+
+add_action(Plugin::app()->getPluginName() . "/factory/premium/license_deactivate", 'titan_set_scanner_speed_deactive');
+function titan_set_scanner_speed_deactive()
+{
+	$scanner_speed = Plugin::app()->getPopulateOption('scanner_speed', 'free');
+	if( $scanner_speed !== 'free' ) {
+		Plugin::app()->updatePopulateOption('scanner_speed', 'free');
+	}
+
+	$scanner_schedule = Plugin::app()->getPopulateOption('scanner_schedule', 'disabled');
+	if( $scanner_schedule !== 'disabled' ) {
+		Plugin::app()->updatePopulateOption('scanner_schedule', 'disabled');
+	}
+
+	$scanner_type = Plugin::app()->getPopulateOption('scanner_type', 'basic');
+	if( $scanner_type !== 'basic' ) {
+		Plugin::app()->updatePopulateOption('scanner_type', 'basic');
+	}
 }
 
 /**
- * @return bool
- * @since  6.5.3
+ * @return int|float [Memory limit in MB]
  */
-function wantispam_doing_cron() {
-	if ( function_exists( 'wp_doing_cron' ) ) {
-		return wp_doing_cron();
+function get_memory_limit()
+{
+	$mem = ini_get('memory_limit');
+	$last = $mem[strlen($mem) - 1];
+	$mem = (int)$mem;
+	do {
+		switch( $last ) {
+			case 'g':
+			case 'G':
+				$mem = $mem * 1024;
+				$last = 'm';
+				break;
+
+			case 'm':
+			case 'M':
+				break 2;
+
+			default:
+				$mem = ((int)$mem) / 1024 / 1024; // bytes to mbytes
+				break 2;
+		}
+	} while( true );
+
+	return $mem;
+}
+
+function get_recommended_scanner_speed()
+{
+	$mem = get_memory_limit();
+	if( $mem > 100 ) {
+		$recommendation = \WBCR\Titan\MalwareScanner\Scanner::SPEED_FAST;
+	} elseif( $mem > 60 ) {
+		$recommendation = \WBCR\Titan\MalwareScanner\Scanner::SPEED_MEDIUM;
+	} else {
+		$recommendation = \WBCR\Titan\MalwareScanner\Scanner::SPEED_SLOW;
 	}
 
-	return defined( 'DOING_CRON' ) && DOING_CRON;
+	return $recommendation;
+}
+
+/**
+ * @param $time
+ *
+ * @return int
+ */
+function correct_timezone($time)
+{
+	$localOffset = (new DateTime)->getOffset();
+
+	return $time + $localOffset;
+}
+
+add_action('plugins_loaded', 'titan_init_check_schedule');
+function titan_init_check_schedule()
+{
+	$format_date = 'Y/m/d H:i';
+	$format_time = 'H:i';
+
+	$is_schedule = false;
+
+	$lasttime = Plugin::app()->getPopulateOption('scanner_schedule_last_time', date_i18n($format_date));
+	$schedule = Plugin::app()->getPopulateOption('scanner_schedule', 'disabled');
+	$last = date_parse_from_format($format_time, $lasttime);
+
+	switch( $schedule ) {
+		case 'daily':
+			$daily = Plugin::app()->getPopulateOption('scanner_schedule_daily', '2000/01/01 23:00');
+			$daily = date_parse_from_format($format_time, $daily);
+			$daily = $daily['hour'] * 60 + $daily['minute'];
+			$last = $last['hour'] * 60 + $last['minute'];
+			if( $last <= $daily ) {
+				titan_create_scheduler_scanner();
+				$is_schedule = true;
+			}
+			break;
+		case 'weekly':
+			$week = Plugin::app()->getPopulateOption('scanner_schedule_weekly_day', '7');
+			$time = Plugin::app()->getPopulateOption('scanner_schedule_weekly_time', '2000/01/01 23:00');
+			$time = date_parse_from_format($format_time, $time);
+			$time = $time['hour'] * 60 + $time['minute'];
+			$last = $last['hour'] * 60 + $last['minute'];
+			$this_week = date('N');
+			if( $this_week == $week && $last <= $time ) {
+				titan_create_scheduler_scanner();
+				$is_schedule = true;
+			}
+			break;
+		case 'custom':
+			$time = Plugin::app()->getPopulateOption('scanner_schedule_custom', '2000/01/01 23:00');
+			$time = strtotime($time);
+			$last = strtotime($lasttime);
+			if( $last <= $time ) {
+				titan_create_scheduler_scanner();
+				$is_schedule = true;
+			}
+			break;
+		case 'disabled':
+			break;
+	}
+	if( $is_schedule ) {
+		Plugin::app()->updatePopulateOption('scanner_schedule_last_time', date_i18n($format_date));
+	}
 }

@@ -274,6 +274,7 @@
 
         $reply.data('phone', phone);//.data('message', message);
         $avatar.attr('src', avatar);
+        $avatar.attr('alt', name);
         $number.html(phone);
         $name.html(name);
         $label.html(meta);

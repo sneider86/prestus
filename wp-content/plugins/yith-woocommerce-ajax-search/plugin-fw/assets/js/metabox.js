@@ -128,8 +128,22 @@
                     case 'hideme':
                         $current_field.hide();
                         break;
-                    default:
+                    case 'fadeInOut':
+                    case 'fadeOut':
+                        $current_container.hide( 500 );
+                        break;
+                    case 'fadeIn':
                         $current_container.hide();
+                        break;
+                    default:
+                        if( ! $current_container.hasClass('fade-in')){
+                            $current_container.hide();
+                            $current_container.css({'opacity':'0'});
+                        }else{
+                            $current_container.fadeTo("slow" , 0, function(){
+                                $(this).hide().removeClass('fade-in');
+                            });
+                        }
                 }
 
             } else {
@@ -141,8 +155,16 @@
                     case 'hideme':
                         $current_field.show();
                         break;
+                    case 'fadeInOut':
+                    case 'fadeIn':
+                        $current_container.show( 500 );
+                        break;
+                    case 'fadeOut':
+                        $current_container.show();
+                        break;
                     default:
                         $current_container.show();
+                        $current_container.fadeTo("slow" , 1).addClass('fade-in');
                 }
             }
         }

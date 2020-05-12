@@ -43,14 +43,6 @@ $configured = false;
                 </span>
             <?php } ?>
             <?php
-            if (!empty($block_options['googleplus_url'])) {
-                $configured = true;
-                ?>
-                <span class="tnpc-row-edit" data-type="image">
-                    <a href="<?php echo $block_options['googleplus_url'] ?>"><img src="<?php echo $social_icon_url ?>/googleplus.png" alt="Google+"></a>
-                </span>
-            <?php } ?>
-            <?php
             if (!empty($block_options['pinterest_url'])) {
                 $configured = true;
                 ?>

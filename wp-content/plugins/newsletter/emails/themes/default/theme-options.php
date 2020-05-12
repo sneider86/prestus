@@ -38,9 +38,12 @@ defined('ABSPATH') || exit;
         <td>
             <?php $controls->checkbox('theme_posts', 'Add latest posts'); ?>
             <br>
-            <?php $controls->checkbox('theme_thumbnails', 'Add post thumbnails'); ?>
-            <br>
             <?php $controls->checkbox('theme_excerpts', 'Add post excerpts'); ?>
+            <br>
+            <?php $controls->checkbox('theme_thumbnails', 'Add post thumbnails'); ?> 
+            <?php $controls->select('theme_image_size', array('thumbnail'=>'Thumbnail', 'medium'=>'Medium')); ?>
+            <br>
+            
         </td>
     </tr>
     <tr>

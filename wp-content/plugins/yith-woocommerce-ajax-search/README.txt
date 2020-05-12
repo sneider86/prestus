@@ -3,8 +3,8 @@
 Contributors: yithemes
 Tags: woocommerce search by sku, woocommerce search results, woocommerce search shortcode, woocommerce search page, woocommerce search form, woocommerce search filter, woocommerce search products, woocommerce search content, woocommerce search autocomplete, woocommerce advanced search, woocommerce search category, woocommerce search product attributes, woocommerce search by tag, woocommerce search by brand, woocommerce predictive, woocommerce live search, woocommerce single product search, woocommerce site search, woocommerce search tex, tajax, search, woocommerce, products, themes, yit, e-commerce, shop, yith, ajax search, instant search, premium, yithemes, autocomplete, autosuggest, better search, category search, custom search, highlight terms, Live Search, Predictive Search, product search, relevant search, search highlight, search product, suggest, typeahead, WooCommerce Plugin, woocommerce product search, woocommerce search, wordpress ecommerce
 Requires at least: 4.0.0
-Tested up to: 5.3
-Stable tag: 1.7.4
+Tested up to: 5.4
+Stable tag: 1.7.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,6 +138,22 @@ If you have created your own language pack for YITH WooCommerce Ajax Search, or 
 2. YITH WooCommerce Ajax Search in operation displaying WooCommerce search results
 
 == Changelog ==
+= 1.7.8 - Released on 23 April 2020 =
+* Fix: Fixed issue with Elementor plugin
+
+= 1.7.7 - Released on 23 April 2020 =
+* New: Support for WooCommerce 4.1
+* Update: Plugin framework
+
+= 1.7.6 - Released on 20 March 2020 =
+* New: Support for Elementor
+* Update: Plugin framework
+
+= 1.7.5 - Released on 5 March 2020 =
+* New: Support for WordPress 5.4
+* New: Support for WooCommerce 4.0
+* Update: Plugin framework
+
 = 1.7.4 - Released on 23 December 2019 =
 
 * New: Support for WooCommerce 3.9

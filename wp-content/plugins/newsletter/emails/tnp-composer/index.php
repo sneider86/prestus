@@ -1,12 +1,19 @@
 <?php
+/**
+ * This file is included by NewsletterControls to create the composer.
+ */
+
+/* @var $this NewsletterControls */
+
 defined('ABSPATH') || exit;
 
 $list = NewsletterEmails::instance()->get_blocks();
 
 $blocks = array();
 foreach ($list as $key => $data) {
-    if (!isset($blocks[$data['section']]))
+    if (!isset($blocks[$data['section']])) {
         $blocks[$data['section']] = array();
+    }
     $blocks[$data['section']][$key]['name'] = $data['name'];
     $blocks[$data['section']][$key]['filename'] = $key;
     $blocks[$data['section']][$key]['icon'] = $data['icon'];
@@ -17,8 +24,6 @@ $blocks = array_merge(array_flip(array('header', 'content', 'footer')), $blocks)
 
 // prepare the options for the default blocks
 $block_options = get_option('newsletter_main');
-
-/* @var $this NewsletterControls */
 
 ?>
 <style>
@@ -36,7 +41,7 @@ $block_options = get_option('newsletter_main');
 </style>
 
 <style>
-    <?php echo NewsletterEmails::instance()->get_composer_css(); ?>
+<?php echo NewsletterEmails::instance()->get_composer_css(); ?>
 </style>
 
 <div id="newsletter-builder">
@@ -44,10 +49,10 @@ $block_options = get_option('newsletter_main');
     <div id="newsletter-builder-area" class="tnp-builder-column">
 
         <?php if ($tnpc_show_subject) { ?>
-        <p>
-            <?php $this->text('title', 60, 'Newsletter subject'); ?>
-            <a href="#" class="tnp-suggest-button" onclick="tnp_suggest_subject(); return false;"><?php _e('Get ideas', 'newsletter') ?></a>
-        </p>
+            <p>
+                <?php $this->text('title', 60, 'Newsletter subject'); ?>
+                <a href="#" class="tnp-suggest-button" onclick="tnp_suggest_subject(); return false;"><?php _e('Get ideas', 'newsletter') ?></a>
+            </p>
         <?php } ?>
 
         <div id="newsletter-builder-area-center-frame-content">
@@ -61,36 +66,25 @@ $block_options = get_option('newsletter_main');
 
         <div class="tnpc-tabs">
         <button class="tablinks" onclick="openTab(event, 'tnpc-blocks')" id="defaultOpen"><?php _e('Blocks', 'newsletter') ?></button>
-        <?php /* <button class="tablinks" onclick="openTab(event, 'tnpc-general-options')"><?php _e('General Options', 'newsletter') ?></button> */ ?>
-        <button class="tablinks" onclick="openTab(event, 'tnpc-mobile-tab')"><i class="fa fa-mobile"></i> <?php _e('Mobile Preview', 'newsletter') ?></button>
+        <button class="tablinks" onclick="openTab(event, 'tnpc-mobile-tab')"><i class="fas fa-mobile"></i> <?php _e('Mobile Preview', 'newsletter') ?></button>
         <?php if ($show_test) { ?>
-        <button class="tablinks" onclick="openTab(event, 'tnpc-test-tab')"><i class="fa fa-paper-plane"></i> <?php _e('Test', 'newsletter') ?></button>
+        <button class="tablinks" onclick="openTab(event, 'tnpc-test-tab')"><i class="fas fa-paper-plane"></i> <?php _e('Test', 'newsletter') ?></button>
         <?php } ?>
         
         </div>
 
         <div id="tnpc-blocks" class="tabcontent">
-		<?php foreach ($blocks as $k => $section) { ?>
-            <div class="newsletter-sidebar-add-buttons" id="sidebar-add-<?php echo $k ?>">
-                <h4><span><?php echo ucfirst($k) ?></span></h4>
-				<?php foreach ($section AS $key => $block) { ?>
-                    <div class="newsletter-sidebar-buttons-content-tab" data-id="<?php echo $key ?>" data-name="<?php echo esc_attr($block['name']) ?>">
-                        <img src="<?php echo $block['icon'] ?>" title="<?php echo esc_attr($block['name']) ?>">
-                    </div>
-				<?php } ?>
-            </div>
-		<?php } ?>
+            <?php foreach ($blocks as $k => $section) { ?>
+                <div class="newsletter-sidebar-add-buttons" id="sidebar-add-<?php echo $k ?>">
+                    <h4><span><?php echo ucfirst($k) ?></span></h4>
+                    <?php foreach ($section AS $key => $block) { ?>
+                        <div class="newsletter-sidebar-buttons-content-tab" data-id="<?php echo $key ?>" data-name="<?php echo esc_attr($block['name']) ?>">
+                            <img src="<?php echo $block['icon'] ?>" title="<?php echo esc_attr($block['name']) ?>">
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
         </div>
-
-        <?php /* <div id="tnpc-general-options" class="tabcontent">
-
-            <h4 class="tnpc-general-options-title"><?php _e('Background color', 'newsletter') ?></h4><?php $this->color('general-bgcolor') ?>
-            <h4 class="tnpc-general-options-title"><?php _e('Title font', 'newsletter') ?></h4><?php $this->css_font('general-text-font') ?>
-            <h4 class="tnpc-general-options-title"><?php _e('Text font', 'newsletter') ?></h4><?php $this->css_font('general-title-font') ?>
-            <!-- Width? -->
-
-        </div>*/ ?>
-
 
         <div id="tnpc-mobile-tab" class="tabcontent">
 
@@ -113,14 +107,14 @@ $block_options = get_option('newsletter_main');
             </p>
         </div>
 
-	<!-- Block options container (dynamically loaded -->
+        <!-- Block options container (dynamically loaded -->
         <div id="tnpc-block-options">
             <div id="tnpc-block-options-buttons">
-                    <span id="tnpc-block-options-cancel" class="button-secondary"><?php _e("Cancel", "newsletter") ?></span>
-                    <span id="tnpc-block-options-save" class="button-primary"><?php _e("Apply", "newsletter") ?></span>
-                </div>
-                <form id="tnpc-block-options-form" onsubmit="return false;"></form>
-                
+                <span id="tnpc-block-options-cancel" class="button-secondary"><?php _e("Cancel", "newsletter") ?></span>
+                <span id="tnpc-block-options-save" class="button-primary"><?php _e("Apply", "newsletter") ?></span>
+            </div>
+            <form id="tnpc-block-options-form" onsubmit="return false;"></form>
+
         </div>
 
     </div>
@@ -138,12 +132,10 @@ $block_options = get_option('newsletter_main');
 <script type="text/javascript">
     TNP_PLUGIN_URL = "<?php echo NEWSLETTER_URL ?>";
     TNP_HOME_URL = "<?php echo home_url('/', is_ssl() ? 'https' : 'http') ?>";
-    tnp_context_type = "<?php echo $context_type?>";
+    tnp_context_type = "<?php echo $context_type ?>";
 </script>
 <script type="text/javascript" src="<?php echo plugins_url('newsletter'); ?>/emails/tnp-composer/_scripts/newsletter-builder.js?ver=<?php echo time() ?>"></script>
 
 <?php include NEWSLETTER_DIR . '/emails/subjects.php'; ?>
-
-<!--<script src="<?php echo plugins_url('newsletter') ?>/vendor/tinymce/tinymce.min.js"></script>-->
 
 <?php if (function_exists('wp_enqueue_editor')) wp_enqueue_editor(); ?>

@@ -51,7 +51,7 @@ class QLWAPP_Display_Controller extends QLWAPP_Controller {
 
       if (!empty($_REQUEST) && check_admin_referer('qlwapp_get_posts', 'nonce')) {
 
-        $data = array('all' => esc_html__('All this is a test', 'wp-whatsapp-chat'));
+        $data = array('all' => esc_html__('All', 'wp-whatsapp-chat'));
 
         $args = array(
             'post_type' => sanitize_key($_REQUEST['name']),

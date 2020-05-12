@@ -1,3 +1,173 @@
+= 6.3.9 =
+
+* Improved antibot and/or spam subscription checks (please review your security configuration)
+
+= 6.3.8 =
+
+* Fixed email encoding when sent with wp_mail() and an encoding is selected on main settings
+* Optimization on sending process
+* Test newsletter stats cleared when real delivery starts
+* Improved image resize
+* Fixed security page help texts
+
+= 6.3.7 =
+
+* Schedules registration fix
+
+= 6.3.6 =
+
+* Improved error detection
+* Fixed stats collection for Autoresponder
+* Changed the init sequence to grant full load of other plugins (newsletter preview problems on some installations)
+* Better reporting on tests
+
+= 6.3.5 =
+
+* New addons panel
+
+= 6.3.4 =
+
+* Fixes
+
+= 6.3.3 =
+
+* Fixed the missing admin notification when using the internal SMTP
+
+= 6.3.2 =
+
+* Fixed the admin notification email not sent or bot correctly formatted
+
+= 6.3.1 =
+
+* Empty subject fix
+
+= 6.3.0 =
+
+* New mailer infrastructure: better compatibility and performance
+* New [TEST] prefix for newsletter tests
+* Fix on composer subject saving
+* General performance improvements
+* Fixed title display in header composer block
+
+= 6.2.2 =
+
+* Fixed custom blocks style.css loading
+* Fixed loading sequence for Archive Addon
+* Labels translation on profile panel
+
+= 6.2.1 =
+
+* Fixed foreach warning
+* Added IP on subscription via API
+* All addons update logics moved to our free [Addons Manager](https://www.thenewsletterplugin.com/documentation/how-to-install-the-addons-manager) to make Newsletter even lighter
+
+= 6.2.0 =
+
+* Fixed integration with addons manager
+* Support for new addon format
+* Added PHP minimum version declaration
+
+= 6.1.9 =
+
+* Fixed a missing default on profile configuration
+* Fixed the default message template
+* Added image alt on image block
+* Improved addons version check and performances
+* Post block and image block fixes
+
+= 6.1.8 =
+
+* Fixed a version check on main settings
+
+= 6.1.7 =
+
+* Fix for Automated
+
+= 6.1.6 =
+
+* Fixed roles management
+
+= 6.1.5 =
+
+* Improved the Gutenberg block
+
+= 6.1.4 =
+
+* Support for Automated theme regeneration
+* Fixed link tracking
+
+= 6.1.3 =
+
+* Fix to avoid third party plugin notices to interfere with the composer
+* NEW! Added subscription block to the Gutenberg editor
+* Code cleanup
+
+= 6.1.2 =
+
+* Added support for roles
+
+= 6.1.1 =
+
+* Added support for custom blocks
+
+= 6.1.0 =
+
+* Fixed data cleanup for non utf8mb4 database. Emoji not saved solved.
+* Small changes to the addons panel
+
+= 6.0.9 =
+
+* Changed the access control for editors
+* Added the convert to utf8mb4 on status panel
+* Small loading improvements
+* API Subscribe activation message fix
+* Fixed debug notice on composer
+* Fixed alt attribute on social block
+
+= 6.0.8 =
+
+* Specific link tracking patch for ElasticEmail
+* Compatibility code for WP 4.7
+* Fixed minimal widget subscribe button
+
+= 6.0.7 =
+
+* Fixed the wrong edit mode of duplicated newsletters
+* Fixed the alignment of small images on composer
+* Added addons update notice on status panel
+
+= 6.0.6 =
+
+* Fixed the textual part saving
+* Fixed required check on extra field of type "select"
+* Fixed old CTA theme text part
+
+= 6.0.5 =
+
+* Fixed repated CSS inclusion in emails
+* Email body weight optimization
+* Fix warning on posts block
+
+= 6.0.4 =
+
+* Fixed the hero block
+
+= 6.0.3 =
+
+* Fixed link and color picker on text block
+
+= 6.0.2 =
+
+* Fixed posts block (link missing)
+
+= 6.0.1 =
+
+* Fixed new newsletter creating panel "proceed" button
+
+= 6.0.0 =
+
+* The Newsletter Plugin Composer - A new revamped drag & drop composer
+* Several improvements and fixes
 
 = 5.9.5 =
 

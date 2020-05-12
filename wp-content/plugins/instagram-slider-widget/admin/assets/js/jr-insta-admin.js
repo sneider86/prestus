@@ -5,12 +5,12 @@
 		if ( template.val() == 'thumbs' || template.val() == 'thumbs-no-border' || template.val() == 'slider' || template.val() == 'slider-overlay') {
 			template.closest('.jr-container').find('select[id$="images_link"] option[value="popup"]').animate({opacity: 'hide' , height: 'hide'}, 200);
 
-			window.image_link_val = template.closest('.jr-container').find('select[id$="images_link"]').val();
-			template.closest('.jr-container').find('select[id$="images_link"]').val("image_link");
+			//window.image_link_val = template.closest('.jr-container').find('select[id$="images_link"]').val();
+			//template.closest('.jr-container').find('select[id$="images_link"]').val("image_link");
 		}
 		else {
 			template.closest('.jr-container').find('select[id$="images_link"] option[value="popup"]').animate({opacity: 'show' , height: 'show'}, 200);
-			template.closest('.jr-container').find('select[id$="images_link"]').val(window.image_link_val);
+			//template.closest('.jr-container').find('select[id$="images_link"]').val(window.image_link_val);
 		}
 
 		// Hide Custom Url if image link is not set to custom url
@@ -65,11 +65,11 @@
 				template.closest('.jr-container').find('select[id$="images_link"] option[value="popup"]').animate({opacity: 'hide' , height: 'hide'}, 200);
 
 				window.image_link_val = template.closest('.jr-container').find('select[id$="images_link"]').val();
-				template.closest('.jr-container').find('select[id$="images_link"]').val("image_link");
+				//template.closest('.jr-container').find('select[id$="images_link"]').val("image_link");
 			}
 			else {
 				template.closest('.jr-container').find('select[id$="images_link"] option[value="popup"]').animate({opacity: 'show' , height: 'show'}, 200);
-				template.closest('.jr-container').find('select[id$="images_link"]').val(window.image_link_val);
+				//template.closest('.jr-container').find('select[id$="images_link"]').val(window.image_link_val);
 			}
 		});
 
@@ -80,9 +80,10 @@
 				search_for.closest('.jr-container').find('[id$="attachment"]:checkbox').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="user_url"]').animate({opacity: 'hide' , height: 'hide'}, 200);			
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'hide' , height: 'hide'}, 200);
-				search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');				
+				//search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
 				search_for.closest('.jr-container').find('select[id$="description"] option[value="username"]').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('input[id$="blocked_users"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
+				search_for.closest('.jr-container').find('input[id$="blocked_words"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('input[id$="show_feed_header"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
 				$('#img_to_show').animate({opacity: 'hide' , height: 'hide'}, 200);
 
@@ -91,9 +92,10 @@
 				search_for.closest('.jr-container').find('[id$="attachment"]:checkbox').closest('p').animate({opacity: 'show' , height: 'show'}, 200);				
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="user_url"]').animate({opacity: 'show' , height: 'show'}, 200);			
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'show' , height: 'show'}, 200);		
-				search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
+				//search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
 				search_for.closest('.jr-container').find('select[id$="description"] option[value="username"]').animate({opacity: 'show' , height: 'show'}, 200);
 				search_for.closest('.jr-container').find('input[id$="blocked_users"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('input[id$="blocked_words"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
 				search_for.closest('.jr-container').find('input[id$="show_feed_header"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
 				$('#img_to_show').animate({opacity: 'hide' , height: 'hide'}, 200);
 
@@ -101,10 +103,26 @@
 				search_for.closest('.jr-container').find('[id$="attachment"]:checkbox').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="user_url"]').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'hide' , height: 'hide'}, 200);
-				search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
+				//search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
 				search_for.closest('.jr-container').find('select[id$="description"] option[value="username"]').animate({opacity: 'hide' , height: 'hide'}, 200);
 				search_for.closest('.jr-container').find('input[id$="blocked_users"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('input[id$="blocked_words"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
+				search_for.closest('.jr-container').find('input[id$="show_feed_header"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('select[id$="orderby"] option[value="popular-ASC"]').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('select[id$="orderby"] option[value="popular-DESC"]').animate({opacity: 'hide' , height: 'hide'}, 200);
+				$('#img_to_show').animate({opacity: 'show' , height: 'show'}, 200);
+
+			} else if(search_for.val() === 'account_business') {
+				search_for.closest('.jr-container').find('[id$="attachment"]:checkbox').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="user_url"]').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'hide' , height: 'hide'}, 200);
+				//search_for.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
+				search_for.closest('.jr-container').find('select[id$="description"] option[value="username"]').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('input[id$="blocked_users"]').closest('p').animate({opacity: 'hide' , height: 'hide'}, 200);
+				search_for.closest('.jr-container').find('input[id$="blocked_words"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
 				search_for.closest('.jr-container').find('input[id$="show_feed_header"]').closest('p').animate({opacity: 'show' , height: 'show'}, 200);
+				search_for.closest('.jr-container').find('select[id$="orderby"] option[value="popular-ASC"]').animate({opacity: 'show' , height: 'show'}, 200);
+				search_for.closest('.jr-container').find('select[id$="orderby"] option[value="popular-DESC"]').animate({opacity: 'show' , height: 'show'}, 200);
 				$('#img_to_show').animate({opacity: 'show' , height: 'show'}, 200);
 
 			}
@@ -115,10 +133,10 @@
 			var attachment = $(this);
 			if ( this.checked ) {
 				attachment.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'show' , height: 'show'}, 200);
-				attachment.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
+				//attachment.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
 			} else {
 				attachment.closest('.jr-container').find('select[id$="images_link"] option[value="attachment"]').animate({opacity: 'hide' , height: 'hide'}, 200);				
-				attachment.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
+				//attachment.closest('.jr-container').find('select[id$="images_link"]').val('image_link');
 			}
 		});
 
@@ -186,6 +204,7 @@
 				data: {
 					action: 'wis_delete_account',
 					item_id: $item.data('item_id'),
+					is_business: $item.data('is_business'),
 					_ajax_nonce: wis.nonce
 				},
 				beforeSend: function () {
@@ -213,22 +232,72 @@
 			$('#wis-add-token').animate({opacity: 'show' , height: 'show'}, 200)
 		});
 
-		$('#wis-btn-manual-token').on('click', function (e) {
-			e.preventDefault();
-			var tok = $('#wis-manual-token').val();
-			var spin = $('#wis-add-token-spinner');
-			spin.addClass('is-active');
-			$('#wis-btn-manual-token').attr('disabled','disabled');
+		/*
+		* FACEBOOK API modal
+		*/
 
+		var modal = jQuery('#wis_accounts_modal');
+		var	modalOverlay = jQuery('#wis_modal_overlay');
+		var spinOverlay = jQuery('.wis-overlay-spinner');
+
+		modalOverlay.on("click", function(){
+			var conf = confirm("You haven't finished adding an account. Are you sure you want to close the window?");
+			if(conf) {
+				modal.toggleClass("wis_closed");
+				modalOverlay.toggleClass("wis_closed");
+				spinOverlay.toggleClass("is-active");
+			}
+		});
+
+		//BUSINESS INSTAGRAM
+		jQuery('.wis_modal_content #wis-instagram-row').on('click', function (e) {
+			modal.toggleClass("wis_closed");
+			spinOverlay.addClass('is-active');
+			//modalOverlay.toggleClass("wis_closed");
+			wis_account = $(this).attr('data-account');
 			jQuery.post ( ajaxurl, {
 				action:      'wis_add_account_by_token',
-				insttoken:       tok,
-				_ajax_nonce: add_account_nonce.nonce,
+				account: 	 wis_account,
+				_ajax_nonce: add_account_nonce.nonce
 			}).done( function( html ) {
-				console.log(html + ": " + tok);
+				console.log(html);
 				window.location.reload();
 			});
+		});
 
+		//FACEBOOK
+		jQuery('.wis_modal_content #wis-facebook-row').on('click', function (e) {
+			modal.toggleClass("wis_closed");
+			spinOverlay.addClass('is-active');
+			//modalOverlay.toggleClass("wis_closed");
+			wis_account = $(this).attr('data-account');
+			jQuery.post ( ajaxurl, {
+				action:      'wis_add_facebook_page_by_token',
+				account: 	 wis_account,
+				_ajax_nonce: add_account_nonce.nonce
+			}).done( function( html ) {
+				window.location.reload();
+			});
+		});
+
+		/*
+		* Chose API to add account
+		* */
+		var modal2 = jQuery('#wis_add_account_modal');
+		var	modal2Overlay = jQuery('#wis_add_account_modal_overlay');
+
+		modal2Overlay.on("click", function(){
+			var conf = confirm("You haven't finished adding an account. Are you sure you want to close the window?");
+			if(conf) {
+				modal2.toggleClass("wis_closed");
+				modal2Overlay.toggleClass("wis_closed");
+			}
+		});
+
+		jQuery('#wis-add-account-button .wis-btn-instagram-account').on('click', function (e) {
+			e.preventDefault();
+			modal2.removeClass('wis_closed');
+			modal2Overlay.removeClass('wis_closed');
 		});
 	}); // Document Ready
 

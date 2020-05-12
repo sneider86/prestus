@@ -27,7 +27,7 @@ if ($controls->is_action()) {
     <div id="tnp-heading">
 
         <h2><?php _e('Security', 'newsletter') ?></h2>
-        <?php $controls->page_help('https://www.thenewsletterplugin.com/documentation/antiflood') ?>
+        <?php $controls->page_help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood') ?>
 
     </div>
 
@@ -55,7 +55,7 @@ if ($controls->is_action()) {
                             <th><?php _e('Disable antibot', 'newsletter') ?></th>
                             <td>
                                 <?php $controls->yesno('disabled'); ?>
-                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/antiflood') ?>
+                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood') ?>
                                 <p class="description">
                                     <?php _e('Disable for ajax form submission', 'newsletter'); ?>
                                 </p>
@@ -71,7 +71,7 @@ if ($controls->is_action()) {
                                     1 => __('Enabled', 'newsletter')
                                 ));
                                 ?>
-                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/antiflood') ?>
+                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood') ?>
                             </td>
                         </tr>
 
@@ -94,13 +94,13 @@ if ($controls->is_action()) {
                                     360 => '60 ' . __('minutes', 'newsletter')
                                 ));
                                 ?>
-                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/antiflood') ?>
+                                <?php $controls->help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood') ?>
                             </td>
                         </tr>
                         <tr>
                             <th><?php _e('Captcha', 'newsletter') ?> </th>
                             <td>
-                                <?php $controls->enabled('captcha'); ?> <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/antiflood#captcha') ?>
+                                <?php $controls->enabled('captcha'); ?> <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood/#captcha') ?>
                             </td>
                         </tr>
                         <?php /*
@@ -124,7 +124,7 @@ if ($controls->is_action()) {
                         <tr>
                             <th>
                                 <?php _e('IP black list', 'newsletter') ?>
-                                <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/antiflood#ip') ?>
+                                <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood/#ip') ?>
                             </th>
                             <td>
                                 <?php $controls->textarea('ip_blacklist'); ?>
@@ -134,7 +134,7 @@ if ($controls->is_action()) {
                         <tr>
                             <th>
                                 <?php _e('Address black list', 'newsletter') ?>
-                                <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/antiflood#domains') ?>
+                                <?php $controls->field_help('https://www.thenewsletterplugin.com/documentation/subscription/antiflood/#domains') ?>
                             </th>
                             <td>
                                 <?php $controls->textarea('address_blacklist'); ?>

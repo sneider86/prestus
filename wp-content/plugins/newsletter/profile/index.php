@@ -1,14 +1,15 @@
 <?php
 defined('ABSPATH') || exit;
 
+/* @var $this NewsletterProfile */
+
 require_once NEWSLETTER_INCLUDES_DIR . '/controls.php';
 
 $controls = new NewsletterControls();
-$module = NewsletterProfile::instance();
 
-$current_language = $module->get_current_language();
+$current_language = $this->get_current_language();
 
-$is_all_languages = $module->is_all_languages();
+$is_all_languages = $this->is_all_languages();
 
 if (!$is_all_languages) {
     $controls->warnings[] = 'You are configuring the language "<strong>' . $current_language . '</strong>". Switch to "all languages" to see every options.';
@@ -17,16 +18,16 @@ if (!$is_all_languages) {
 // Profile options are still inside the main options
 if ($controls->is_action()) {
     if ($controls->is_action('save')) {
-        $module->save_options($controls->data, '', null, $current_language);
+        $this->save_options($controls->data, '', null, $current_language);
         $controls->add_message_saved();
     }
     if ($controls->is_action('reset')) {
-        $module->reset_options();
-        $controls->data = $module->get_options('', $current_language);
+        $this->reset_options();
+        $controls->data = $this->get_options('', $current_language);
         $controls->add_message_reset();
     }
 } else {
-    $controls->data = $module->get_options('', $current_language);
+    $controls->data = $this->get_options('', $current_language);
 }
 ?>
 

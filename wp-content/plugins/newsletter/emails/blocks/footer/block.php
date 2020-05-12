@@ -29,17 +29,10 @@ $options = array_merge($default_options, $options);
         text-decoration: none;
     }
 </style>
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td align="center">
 
-            <a class="footer-text" href="{profile_url}"><?php echo $options['profile'] ?></a>
+<a inline-class="footer-text" href="{profile_url}" target="_blank"><?php echo $options['profile'] ?></a>
 
-            <span class="footer-text">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+<span inline-class="footer-text">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
 
-            <a class="footer-text" href="{email_url}"><?php echo $options['view'] ?></a>
-
-        </td>
-    </tr>
-</table>
+<a inline-class="footer-text" href="{email_url}" target="_blank"><?php echo $options['view'] ?></a>
 

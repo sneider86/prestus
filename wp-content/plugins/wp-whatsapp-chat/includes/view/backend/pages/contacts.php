@@ -39,7 +39,7 @@
                 </div>
               </td> 
               <td>
-                <img class="qlwapp-avatar" src="<?php echo esc_url($contact['avatar']); ?>" alt="" width="50" height="50" />           </td>    
+                <img class="qlwapp-avatar" src="<?php echo esc_url($contact['avatar']); ?>" alt="<?php echo esc_html($contact['firstname'] . ', ' . $contact['lastname']); ?>" width="50" height="50" />           </td>    
               <td><?php echo qlwapp_format_phone($contact['phone']); ?></td> 
               <td><?php echo esc_html($contact['firstname'] . ', ' . $contact['lastname']); ?> </td>  
               <td><?php echo esc_html($contact['label']); ?></td>  

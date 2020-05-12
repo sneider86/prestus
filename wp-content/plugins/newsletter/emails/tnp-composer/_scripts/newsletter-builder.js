@@ -247,19 +247,25 @@ function start_composer() {
     });
 
     // live preview from block options *** EXPERIMENTAL ***
-    jQuery('#tnpc-block-options-form').change(function () {
+    jQuery('#tnpc-block-options-form').change(function (event) {
         var data = jQuery("#tnpc-block-options-form").serialize();
         jQuery.post(ajaxurl, data, function (response) {
             target.html(response);
+            if (event.target.dataset.afterRendering === 'reload') {
+                container.find(".tnpc-row-edit-block").click();
+            }
         }).fail(function () {
             alert("Block rendering failed");
         });
+            
+    
 
     });
 
     jQuery(".tnpc-row").add_delete();
     jQuery(".tnpc-row").add_block_edit();
     jQuery(".tnpc-row").add_block_clone();
+
 
     tnpc_mobile_preview();
 

@@ -2,12 +2,12 @@
 
 /*
  * TNP classes for internal API
- * 
+ *
  * Error reference
  * 404	Object not found
  * 403	Not allowed (when the API key is missing or wrong)
  * 400	Bad request, when the parameters are not correct or required parameters are missing
- * 
+ *
  */
 
 /**
@@ -21,6 +21,9 @@ class TNP {
      */
 
     public static function subscribe($params) {
+
+        $logger = new NewsletterLogger('phpapi');
+        $logger->debug($params);
 
         $newsletter = Newsletter::instance();
         $subscription = NewsletterSubscription::instance();
@@ -123,6 +126,21 @@ class TNP {
 
         apply_filters('newsletter_api_subscribe', $params);
 
+        $full_name = '';
+        if (isset($params['name'])) {
+            $params['name'] = $newsletter->normalize_name($params['name']);
+            $full_name .= $params['name'];
+        }
+
+        if (isset($params['surname'])) {
+            $params['surname'] = $newsletter->normalize_name($params['surname']);
+            $full_name .= ' ' . $params['surname'];
+        }
+
+        $ip = $newsletter->get_remote_ip();
+
+        NewsletterSubscription::instance()->valid_subscription_or_die($email, $full_name, $ip);
+
         $user = TNP::add_subscriber($params);
 
         if (is_wp_error($user)) {
@@ -132,7 +150,7 @@ class TNP {
         // Notification to admin (only for new confirmed subscriptions)
         if ($user->status == 'C') {
             do_action('newsletter_user_confirmed', $user);
-            $subscription->notify_admin($user, 'Newsletter subscription');
+            $subscription->notify_admin_on_subscription($user);
             setcookie('newsletter', $user->id . '-' . $user->token, time() + 60 * 60 * 24 * 365, '/');
         }
 
@@ -171,8 +189,8 @@ class TNP {
 
         NewsletterUnsubscription::instance()->send_unsubscribed_email($user);
 
-        NewsletterSubscription::instance()->notify_admin($user, 'Newsletter unsubscription');
-        
+	    NewsletterUnsubscription::instance()->notify_admin_on_unsubscription($user);
+
         do_action('newsletter_unsubscribed', $user);
 
         return;
@@ -232,6 +250,10 @@ class TNP {
             $user['status'] = $params['status'];
         } else {
             $user['status'] = 'C';
+        }
+
+        if (!empty($params['language'])) {
+            $user['language'] = $params['language'];
         }
 
         $user['token'] = $newsletter->get_token();

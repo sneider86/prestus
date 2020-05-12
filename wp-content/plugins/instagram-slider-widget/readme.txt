@@ -12,6 +12,10 @@ Social Slider Widget is a responsive slider widget that shows 20 latest images f
 == Description ==
 = Display Instagram feeds in widgets, posts, pages, or anywhere else using shortcodes. =
 
+== Important ==
+The plugin has moved to the new Instagram Basic Display API.
+To make your widgets work again, reconnect your instagram accounts in the plugin settings. [Read more about the changes](https://cm-wp.com/important-update-social-slider-widget)
+
 ### Features ###
 * Super easy to set up. Just create a widget with the necessary settings and add it anywhere on your website using shortcodes
 * Display Images in Slider or Thumbnails
@@ -73,6 +77,19 @@ Our goal is to create a simple yet powerful plugin – customized and multifunct
 * Wordpress 4.8 or later
 * WordPress Cron must be enabled
 
+== Frequently Asked Questions ==
+
+= Images from instagram are no longer displayed in the widget =
+If you use your account in the widget, go to the plugin settings and reconnect your instagram account.
+If you don't use an account in the widget, go to the plugin settings and connect your instagram account.
+
+= If you see a message 'Instagram requires authorization to view a user profile. Use autorized account in widget settings' =
+Go to the plugin settings and add an instagram account (click "Add account"), then go to the widget settings and select the added account.
+
+= If you see a message 'No images found' =
+If you use your account in the widget, go to the plugin settings and reconnect your instagram account.
+If you don't use an account in the widget, go to the plugin settings and add an instagram account (click "Add account"), then go to the widget settings and select the added account.
+
 == Screenshots ==
 1. Authorize several accounts and display multiple feeds simultaneously
 2. Display Instagram feeds in widgets, posts, pages, or anywhere else using shortcodes
@@ -86,8 +103,29 @@ Our goal is to create a simple yet powerful plugin – customized and multifunct
 10. Highlight
 
 == Changelog ==
-= 1.6.5 =
-* Fix 'No images found' when searching by hashtag or username
+= 1.7.5 =
+* Fixed delete empty account
+* Compatible with PHP 7.4
+* Other fixes
+
+= 1.7.4 =
+* Fixed "50 years ago" in Slider Normal and Slider Overlay templates
+
+= 1.7.3 =
+* Fixed search for 'hashtag' and 'username'. Due to changes in Instagram, 'hashtag' and 'username' have stopped working
+
+= 1.7.2 =
+* Fixed adding of accounts ( Warning count() )
+
+= 1.7.1 =
+* Bug Fixes
+
+= 1.7.0 =
+* The plugin now works on the new Instagram Basic Display API. To make your widgets work again, reconnect your instagram accounts in the plugin settings. [Read more about the changes](https://cm-wp.com/important-update-social-slider-widget)
+* ADDED: Ability to add a Business Instagram Account. This gives you more options for displaying information.
+* ADDED: New widget setting: "Business Account". You can choose which type of account to display information through.
+* ADDED: New widget setting: "Blocked words". If at least one of the listed words occurs in the image description, it will not be displayed.
+* Minor bugfixes
 
 = 1.6.4 =
 * In free slider templates images are now crop to square

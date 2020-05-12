@@ -19,6 +19,8 @@ class NewsletterFields {
     }
 
     public function _label($text, $for = '') {
+        if (empty($text))
+            return;
         echo '<label class="tnp-label">', $text, '</label>';
     }
 
@@ -57,22 +59,45 @@ class NewsletterFields {
         $this->_close();
     }
 
-    public function text($name, $label = '', $attrs = array()) {
+    /** General Input field with default type = text */
+    public function input($name, $label = '', $attrs = array()) {
         $attrs = $this->_merge_base_attrs($attrs);
-        $attrs = array_merge(array('description' => '', 'placeholder' => '', 'size' => 0, 'label_after' => ''), $attrs);
+        $attrs = array_merge(array('description' => '', 'placeholder' => '', 'size' => 0, 'label_after' => '', 'type' => 'text'), $attrs);
         $this->_open();
         $this->_label($label);
         $value = $this->controls->get_value($name);
-        echo '<input id="', $this->_id($name), '" placeholder="', esc_attr($attrs['placeholder']), '" name="options[' . $name . ']" type="text"';
+
+        echo '<input id="', $this->_id($name), '" placeholder="', esc_attr($attrs['placeholder']), '" name="options[', $name, ']" type="', $attrs['type'], '"';
+
         if (!empty($attrs['size'])) {
             echo ' style="width: ', $attrs['size'], 'px"';
         }
+
+        if (isset($attrs['min'])) {
+            echo ' min="' . (int) $attrs['min'] . '"';
+        }
+
+        if (isset($attrs['max'])) {
+            echo ' max="' . (int) $attrs['max'] . '"';
+        }
+
         echo ' value="', esc_attr($value), '">';
+
         if (!empty($attrs['label_after']))
             echo $attrs['label_after'];
         //$this->controls->text($name, $attrs['size'], $attrs['placeholder']);
         $this->_description($attrs);
         $this->_close();
+    }
+
+    public function text($name, $label = '', $attrs = array()) {
+        $attrs = array_merge(array('type' => 'text'), $attrs);
+        $this->input($name, $label, $attrs);
+    }
+
+    public function number($name, $label = '', $attrs = array()) {
+        $attrs = array_merge(array('type' => 'number'), $attrs);
+        $this->input($name, $label, $attrs);
     }
 
     public function multitext($name, $label = '', $count = 10, $attrs = array()) {
@@ -100,7 +125,7 @@ class NewsletterFields {
         $attrs = $this->_merge_attrs($attrs);
         $this->_open();
         $this->_label($label);
-        $this->controls->textarea_fixed($name);
+        $this->controls->textarea_fixed($name, '100%', '150');
         $this->_description($attrs);
         $this->_close();
     }
@@ -117,24 +142,45 @@ class NewsletterFields {
         }
         if (version_compare($wp_version, '4.8', '<')) {
             echo '<p><strong>Rich editor available only with WP 4.8+</strong></p>';
-        } 
+        }
         echo '<textarea id="options-' . esc_attr($name) . '" name="options[' . esc_attr($name) . ']" style="width: 100%;height:250px">';
         echo esc_html($value);
         echo '</textarea>';
 
         if (version_compare($wp_version, '4.8', '>=')) {
             echo '<script>wp.editor.remove("options-', $name, '");';
-            echo 'wp.editor.initialize("options-', $name, '", { tinymce: {toolbar1: "undo redo | formatselect fontselect fontsizeselect | bold italic forecolor backcolor | link unlink | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help", fontsize_formats: "11px 12px 14px 16px 18px 24px 36px 48px", plugins: "link textcolor colorpicker", default_link_target: "_blank", relative_urls : false, convert_urls: false}});</script>';
+            echo 'wp.editor.initialize("options-', $name, '", { tinymce: {content_style: "body {background-color: #f4f4f4;}", toolbar1: "undo redo | formatselect fontselect fontsizeselect | bold italic forecolor backcolor | link unlink | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help", fontsize_formats: "11px 12px 14px 16px 18px 24px 36px 48px", plugins: "link textcolor colorpicker", default_link_target: "_blank", relative_urls : false, convert_urls: false}});</script>';
         }
         $this->_description($attrs);
         $this->_close();
     }
 
     public function select($name, $label = '', $options = array(), $attrs = array()) {
-        $attrs = $this->_merge_attrs($attrs);
+        $attrs = $this->_merge_attrs($attrs, ['reload' => false, 'after-rendering' => '']);
         $this->_open();
         $this->_label($label);
-        $this->controls->select($name, $options);
+        $value = $this->controls->get_value($name);
+
+        echo '<select id="options-' . esc_attr($name) . '" name="options[' . esc_attr($name) . ']"';
+        if ($attrs['reload']) {
+            echo ' onchange="tnpc_reload_options(event)"';
+        }
+        if (!empty($attrs['after-rendering'])) {
+            echo ' data-after-rendering="' . $attrs['after-rendering'] . '"';
+        }
+        echo '>';
+        if (!empty($first)) {
+            echo '<option value="">' . esc_html($first) . '</option>';
+        }
+        foreach ($options as $key => $label) {
+            echo '<option value="' . esc_attr($key) . '"';
+            if ($value == $key)
+                echo ' selected';
+            echo '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+
+        //$this->controls->select($name, $options);
         $this->_description($attrs);
         $this->_close();
     }
@@ -176,31 +222,38 @@ class NewsletterFields {
 
     /** Collects a color in RGB format (#RRGGBB) with a picker. */
     public function color($name, $label, $attrs = array()) {
-        $attrs = array_merge(array('description' => '', 'placeholder' => ''), $attrs);
+        $attrs = array_merge(array('description' => '', 'placeholder' => '', 'default' => '#000000'), $attrs);
         $this->_open('tnp-color');
         $this->_label($label);
-        $this->controls->color($name);
+        $this->controls->color($name, $attrs['default']);
         $this->_description($attrs);
         $this->_close();
     }
 
     /** Configuration for a simple button with label and color */
     public function button($name, $label = '', $attrs = array()) {
-        $attrs = $this->_merge_attrs($attrs, array('placeholder' => 'Label...', 'url_placeholder' => 'https://...', 'url' => true));
+        $attrs = $this->_merge_attrs($attrs, array('placeholder' => 'Label...', 'url_placeholder' => 'https://...', 'url' => true, 'weight' => true));
         $this->_open('tnp-cta');
         $this->_label($label);
         $value = $this->controls->get_value($name . '_label');
+        echo '<div class="tnp-field-row">';
+        echo '<div class="tnp-field-col-2">';
         echo '<input id="', $this->_id($name), '" placeholder="', esc_attr($attrs['placeholder']), '" name="options[' . $name . '_label]" type="text"';
-        echo ' style="width: 200px"';
+        echo ' style="width: 100%"';
         echo ' value="', esc_attr($value), '">';
+        echo '</div>';
 
         if ($attrs['url']) {
+            echo '<div class="tnp-field-col-2">';
             $value = $this->controls->get_value($name . '_url');
             echo '<input id="', $this->_id($name . '_url'), '" placeholder="', esc_attr($attrs['url_placeholder']), '" name="options[' . $name . '_url]" type="url"';
-            echo ' style="width: 200px"';
+            echo ' style="width: 100%"';
             echo ' value="', esc_attr($value), '">';
+            echo '</div>';
         }
-        $this->controls->css_font($name . '_font', array('weight' => false));
+        echo '<div style="clear: both"></div>';
+        echo '</div>';
+        $this->controls->css_font($name . '_font', array('weight' => $attrs['weight']));
         $this->controls->color($name . '_background');
         $this->_close();
     }
@@ -265,8 +318,8 @@ class NewsletterFields {
                 'author_name' => '',
                 'post_status' => 'publish',
                 'suppress_filters' => true),
-                'last_post_option'=>false
-            ), $args);
+            'last_post_option' => false
+                ), $args);
         $args['filters']['posts_per_page'] = $count;
 
         $posts = get_posts($args['filters']);
@@ -300,7 +353,7 @@ class NewsletterFields {
      * @param type $attrs
      */
     public function media($name, $label = '', $attrs = array()) {
-        $attrs = $this->_merge_attrs($attrs, array('alt'=>false));
+        $attrs = $this->_merge_attrs($attrs, array('alt' => false));
         $this->_open();
         $this->_label($label);
         $this->controls->media($name);
@@ -322,10 +375,22 @@ class NewsletterFields {
         $this->_close();
     }
 
+    /**
+     * The field name is preset to tax_$taxonomy. A different name can be specified
+     * with the attribute 'name'.
+     * @param type $taxonomy
+     * @param type $label
+     * @param type $attrs
+     */
     public function terms($taxonomy, $label = '', $attrs = array()) {
-        $name = 'tax_' . $taxonomy;
-        if (empty($label))
+        if (isset($attrs['name'])) {
+            $name = $attrs['name'];
+        } else {
+            $name = 'tax_' . $taxonomy;
+        }
+        if (empty($label)) {
             $label = __('Terms', 'newsletter');
+        }
         $attrs = $this->_merge_attrs($attrs);
         $this->_open('tnp-categories');
         $this->_label($label);
@@ -439,8 +504,14 @@ class NewsletterFields {
         $this->_open('tnp-block-commons');
         $this->_label('Padding and background');
         $this->controls->color('block_background');
+
+            echo '&nbsp;&rarr;&nbsp;';
+            $this->controls->checkbox('block_background_gradient');
+            $this->controls->color('block_background_2');
+
         echo '&nbsp;&nbsp;&nbsp;';
         $this->padding('block_padding', '', $attrs = array('field_only' => true));
+        echo '<div class="tnp-description">Gradients are displayed only by few clients</div>';
         $this->_close();
     }
 

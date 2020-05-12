@@ -2,7 +2,7 @@
 /*
 Plugin Name: Social Slider Widget
 Plugin URI: https://cm-wp.com/instagram-slider-widget
-Version: 1.6.5
+Version: 1.7.6
 Description: Social Slider Widget is a responsive slider widget that shows 12 latest images from a public Instagram user and up to 18 images from a hashtag.
 Author: creativemotion
 Author URI: https://cm-wp.com/
@@ -145,11 +145,26 @@ try {
 	add_action( 'network_admin_notices', $wis_plugin_error_func );
 }
 
-define('WIS_INSTAGRAM_CLIENT_ID', '217c51471f2f4e11abaeaef4a12b99a4');
+define('WIS_INSTAGRAM_CLIENT_ID', '2555361627845349');
+define('WIS_FACEBOOK_CLIENT_ID', '776212986124330');
+
+/*
+ * Константа определяет какое имя опции для хранения данных.
+ * Нужно для отладки и последующего бесшовного перехода
+ */
+define('WIS_ACCOUNT_PROFILES_OPTION_NAME', 'account_profiles');
+define('WIS_ACCOUNT_PROFILES_NEW_OPTION_NAME', 'account_profiles_new');
+
+define('WIS_FACEBOOK_ACCOUNT_PROFILES_OPTION_NAME', 'facebook_account_profiles');
+
 /*******************************************************************************/
 /**
  * On widgets Init register Widget
  */
+require_once WIS_PLUGIN_DIR . '/includes/class.wis_social.php';
+
 require_once WIS_PLUGIN_DIR."/includes/class-wis_instagram_slider.php";
 add_action( 'widgets_init', array( 'WIS_InstagramSlider', 'register_widget' ) );
+//require_once WIS_PLUGIN_DIR."/includes/class-wis_facebook_slider.php";
+//add_action( 'widgets_init', array( 'WIS_FacebookSlider', 'register_widget' ) );
 ?>

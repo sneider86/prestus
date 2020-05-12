@@ -187,6 +187,13 @@ class NewsletterUsers extends NewsletterModule {
         $text = str_replace("\n", ' ', $text);
         $text = str_replace("\r", ' ', $text);
         $text = str_replace(";", ' ', $text);
+        
+        // Do you wonder? Excel...
+        $first = substr($text, 0, 1);
+        if ($first == '=' || $first == '+' || $first == '-' || $first == '@')
+        {
+            $text = "'" . $text;
+        }
         return $text;
     }
 

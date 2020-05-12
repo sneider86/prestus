@@ -8,7 +8,7 @@ $module = NewsletterEmails::instance();
 
 $email_id = (int) $_GET['id'];
 
-if ($controls->is_action('save') || $controls->is_action('next')) {
+if ($controls->is_action('save') || $controls->is_action('next') || $controls->is_action('test')) {
 
     $email['id'] = $email_id;
     $email['message'] = $controls->data['message'];
@@ -81,10 +81,13 @@ $controls->data = Newsletter::instance()->get_email($email_id, ARRAY_A);
                 tinyMCE.execCommand('mceInsertLink', false, media.attributes.url);
 
             } else {
+                debugger;
                 var display = tnp_uploader.state().display(media);
                 var url = media.attributes.sizes[display.attributes.size].url;
-
-                tinyMCE.execCommand('mceInsertContent', false, '<img src="' + url + '" style="max-width: 100%">');
+                var width = media.attributes.sizes[display.attributes.size].width;
+                var height = media.attributes.sizes[display.attributes.size].height;
+                var img = '<img src="' + url + '" style="width: ' + width + 'px; height: ' + height + 'px">';
+                tinyMCE.execCommand('mceInsertContent', false, img);
 
             }
         }).open();

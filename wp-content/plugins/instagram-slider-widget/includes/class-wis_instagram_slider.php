@@ -5,16 +5,15 @@
 class WIS_InstagramSlider extends WP_Widget {
 
     private static $app;
-	/**
-	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @var     string
-	 */
-    // Потому что, разработчики будут забывать обновлять версию в этом месте.
+
 	const USERNAME_URL = 'https://www.instagram.com/{username}/';
 	const TAG_URL = 'https://www.instagram.com/explore/tags/{tag}/?__a=1';
-	const USERS_SELF_URL = 'https://api.instagram.com/v1/users/self/';
-	const USERS_SELF_MEDIA_URL = 'https://api.instagram.com/v1/users/self/media/recent/';
+	//const USERS_SELF_URL = 'https://api.instagram.com/v1/users/self/';
+	//const USERS_SELF_MEDIA_URL = 'https://api.instagram.com/v1/users/self/media/recent/';
+	const USERS_SELF_URL = 'https://graph.instagram.com/me';
+	const USERS_SELF_MEDIA_URL = 'https://graph.instagram.com/';
+
+	const USERS_SELF_URL_NEW = 'https://graph.facebook.com/';
 
 	/**
 	 * @var WIS_Plugin
@@ -25,6 +24,11 @@ class WIS_InstagramSlider extends WP_Widget {
 	 * @var array
 	 */
 	public $sliders;
+
+	/**
+	 * @var array
+	 */
+	public $options_linkto;
 
 	public static function app() {
 		return self::$app;
@@ -37,7 +41,7 @@ class WIS_InstagramSlider extends WP_Widget {
 		self::$app = $this;
 
 		// Widget ID and Class Setup
-		parent::__construct( 'jr_insta_slider', __( 'Social Slider', 'instagram-slider-widget' ), array(
+		parent::__construct( 'jr_insta_slider', __( 'Social Slider - Instagram', 'instagram-slider-widget' ), array(
 				'classname' => 'jr-insta-slider',
 				'description' => __( 'A widget that displays a slider with instagram images ', 'instagram-slider-widget' )
 			)
@@ -120,9 +124,14 @@ class WIS_InstagramSlider extends WP_Widget {
 
 		wp_enqueue_style(  WIS_Plugin::app()->getPrefix() . 'instag-slider', WIS_PLUGIN_URL.'/assets/css/instag-slider.css', array(), WIS_Plugin::app()->getPluginVersion() );
 		wp_enqueue_script( WIS_Plugin::app()->getPrefix() . 'jquery-pllexi-slider', WIS_PLUGIN_URL.'/assets/js/jquery.flexslider-min.js', array( 'jquery' ), WIS_Plugin::app()->getPluginVersion(), false );
-		wp_enqueue_script( WIS_Plugin::app()->getPrefix() . 'jr-insta', WIS_PLUGIN_URL.'/assets/js/jr-insta.js', array(  ), WIS_Plugin::app()->getPluginVersion(), false );
+		//wp_enqueue_script( WIS_Plugin::app()->getPrefix() . 'jr-insta', WIS_PLUGIN_URL.'/assets/js/jr-insta.js', array(  ), WIS_Plugin::app()->getPluginVersion(), false );
 		wp_enqueue_style(  WIS_Plugin::app()->getPrefix() . 'wis-header', WIS_PLUGIN_URL.'/assets/css/wis-header.css', array(), WIS_Plugin::app()->getPluginVersion() );
-	}
+		wp_localize_script( WIS_Plugin::app()->getPrefix() . 'jr-insta', 'ajax',
+			array(
+				'url' => admin_url('admin-ajax.php'),
+				'nonce' => wp_create_nonce("addAccountByToken"),
+			)
+		);	}
 
 	/**
 	 * Enqueue admin side scripts and styles
@@ -174,8 +183,10 @@ class WIS_InstagramSlider extends WP_Widget {
 		$instance['search_for']       = isset($new_instance['search_for']) ? $new_instance['search_for'] : null;
 		$instance['username']         = isset($new_instance['username']) ? $new_instance['username'] : null;
 		$instance['account']          = isset($new_instance['account']) ? $new_instance['account'] : null;
+		$instance['account_business'] = isset($new_instance['account_business']) ? $new_instance['account_business'] : null;
 		$instance['hashtag']          = isset($new_instance['hashtag']) ? $new_instance['hashtag'] : null;
 		$instance['blocked_users']    = isset($new_instance['blocked_users']) ? $new_instance['blocked_users'] : null;
+		$instance['blocked_words']    = isset($new_instance['blocked_words']) ? $new_instance['blocked_words'] : null;
 		$instance['attachment']       = isset($new_instance['attachment']) ? $new_instance['attachment'] : null;
 		$instance['template']         = isset($new_instance['template']) ? $new_instance['template'] : 'slider';
 		$instance['images_link']      = isset($new_instance['images_link']) ? $new_instance['images_link']  : 'image_link';
@@ -212,18 +223,25 @@ class WIS_InstagramSlider extends WP_Widget {
 	 */
 	public function form( $instance ) {
 
-		$accounts = WIS_Plugin::app()->getOption( 'account_profiles');
+		$accounts          = WIS_Plugin::app()->getPopulateOption( 'account_profiles', array() );
+		$accounts_business = WIS_Plugin::app()->getPopulateOption( 'account_profiles_new', array() );
 		if(!is_array($accounts)) $accounts = array();
+		if(!is_array($accounts_business)) $accounts_business = array();
 		$sliders = $this->sliders;
         $options_linkto = $this->options_linkto;
 
-		$defaults = array(
+		if( count($accounts)) $s_for = 'account';
+		else if( count($accounts_business) ) $s_for = 'account_business';
+		else $s_for =  'username';
+        $defaults = array(
 			'title'            => __('Social Slider', 'instagram-slider-widget'),
-			'search_for'       => count($accounts) ? 'account' : 'username',
+			'search_for'       => $s_for,
 			'account'          => '',
+			'account_business' => '',
 			'username'         => '',
 			'hashtag'          => '',
 			'blocked_users'    => '',
+			'blocked_words'    => '',
 			'attachment' 	   => 0,
 			'template'         => 'slider',
 			'images_link'      => 'image_link',
@@ -266,8 +284,7 @@ class WIS_InstagramSlider extends WP_Widget {
                         <input type="radio" id="<?php echo $this->get_field_id( 'search_for' ); ?>" name="<?php echo $this->get_field_name( 'search_for' ); ?>" value="account" <?php checked( 'account', $instance['search_for'] ); ?> />
                         <?php _e( 'Account:', 'instagram-slider-widget' ); ?>
                     </label>
-                    <?php $accounts = WIS_Plugin::app()->getOption( 'account_profiles');
-
+                    <?php
                     if(count($accounts))
                     {?>
 
@@ -285,13 +302,41 @@ class WIS_InstagramSlider extends WP_Widget {
                     }
                     ?>
                 </span>
+                <span class="jr-search-for-container">
+                    <label class="jr-seach-for">
+                        <input type="radio" id="<?php echo $this->get_field_id( 'search_for' ); ?>" name="<?php echo $this->get_field_name( 'search_for' ); ?>" value="account_business" <?php checked( 'account_business', $instance['search_for'] ); ?> />
+                        <?php _e( 'Business account:', 'instagram-slider-widget' ); ?>
+                    </label>
+                    <?php
+                    if(count($accounts_business))
+                    {?>
+
+                        <select id="<?php echo $this->get_field_id( 'account_business' ); ?>" class="" name="<?php echo $this->get_field_name( 'account_business' ); ?>"><?php
+                        foreach ($accounts_business as $acc)
+                            {
+	                            $selected = $instance['account_business'] == $acc['username'] ? "selected='selected'" : "";
+	                            echo "<option value='{$acc['username']}' {$selected}>{$acc['username']}</option>";
+                            }
+                            ?>
+                        </select><?php
+                    }
+                    else{
+                        echo "<a href='".admin_url('admin.php?page=settings-wisw')."'>".__('Add account in settings','instagram-slider-widget')."</a>";
+                    }
+                    ?>
+                </span>
                 <span class="jr-search-for-container"><label class="jr-seach-for"><input type="radio" id="<?php echo $this->get_field_id( 'search_for' ); ?>" name="<?php echo $this->get_field_name( 'search_for' ); ?>" value="username" <?php checked( 'username', $instance['search_for'] ); ?> /> <?php _e( 'Username:', 'instagram-slider-widget' ); ?></label> <input id="<?php echo $this->get_field_id( 'username' ); ?>" class="inline-field-text" name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo $instance['username']; ?>" /></span>
                 <span class="jr-search-for-container"><label class="jr-seach-for"><input type="radio" id="<?php echo $this->get_field_id( 'search_for' ); ?>" name="<?php echo $this->get_field_name( 'search_for' ); ?>" value="hashtag" <?php checked( 'hashtag', $instance['search_for'] ); ?> /> <?php _e( 'Hashtag:', 'instagram-slider-widget' ); ?></label> <input id="<?php echo $this->get_field_id( 'hashtag' ); ?>" class="inline-field-text" name="<?php echo $this->get_field_name( 'hashtag' ); ?>" value="<?php echo $instance['hashtag']; ?>" placeholder="<?php _e('without # sign', 'instagram-slider-widget') ?>" /></span>
             </p>
             <p class="<?php if ( 'hashtag' != $instance['search_for'] ) echo 'hidden'; ?>">
                 <label for="<?php echo $this->get_field_id( 'blocked_users' ); ?>"><?php _e( 'Block Users', 'instagram-slider-widget' ); ?>:</label>
                 <input class="widefat" id="<?php echo $this->get_field_id( 'blocked_users' ); ?>" name="<?php echo $this->get_field_name( 'blocked_users' ); ?>" value="<?php echo $instance['blocked_users']; ?>" />
-                <span class="jr-description"><?php _e( 'Enter usernames separated by commas whose images you don\'t want to show', 'instagram-slider-widget' ); ?></span>
+                <span class="jr-description"><?php _e( 'Enter words separated by commas whose images you don\'t want to show', 'instagram-slider-widget' ); ?></span>
+            </p>
+            <p class="<?php if ( 'hashtag' == $instance['search_for'] ) echo 'hidden'; ?>">
+                <label for="<?php echo $this->get_field_id( 'blocked_words' ); ?>"><?php _e( 'Block words', 'instagram-slider-widget' ); ?>:</label>
+                <input class="widefat" id="<?php echo $this->get_field_id( 'blocked_words' ); ?>" name="<?php echo $this->get_field_name( 'blocked_words' ); ?>" value="<?php echo $instance['blocked_words']; ?>" />
+                <span class="jr-description"><?php _e( 'Enter comma-separated words. If one of them occurs in the image description, the image will not be displayed', 'instagram-slider-widget' ); ?></span>
             </p>
             <p class="<?php if ( 'username' != $instance['search_for'] ) echo 'hidden'; ?>"><strong><?php _e( 'Save in Media Library: ', 'instagram-slider-widget' ); ?></strong>
 
@@ -324,7 +369,7 @@ class WIS_InstagramSlider extends WP_Widget {
                     <span><?php _e('hours', 'instagram-slider-widget'); ?></span>
                 </label>
             </p>
-            <p>
+            <p class="show_feed_header <?php if ( 'account_business' != $instance['search_for']) echo 'hidden'; ?>">
                 <strong><?php _e( 'Show feed header:', 'instagram-slider-widget' ); ?></strong>
                 <label class="switch" for="<?php echo $this->get_field_id( 'show_feed_header' ); ?>">
                     <input class="widefat" id="<?php echo $this->get_field_id( 'show_feed_header' ); ?>" name="<?php echo $this->get_field_name( 'show_feed_header' ); ?>" type="checkbox" value="1" <?php checked( '1', $instance['show_feed_header'] ); ?> />
@@ -427,15 +472,6 @@ class WIS_InstagramSlider extends WP_Widget {
                 <label  for="<?php echo $this->get_field_id( 'caption_words' ); ?>"><strong><?php _e( 'Number of words in caption:', 'instagram-slider-widget' ); ?></strong>
                     <input class="small-text" type="number" min="0" max="200" id="<?php echo $this->get_field_id( 'caption_words' ); ?>" name="<?php echo $this->get_field_name( 'caption_words' ); ?>" value="<?php echo $instance['caption_words']; ?>" />
                 </label>
-            </p>
-            <p>
-                <label for="<?php echo $this->get_field_id( 'image_size' ); ?>"><strong><?php _e( 'Image format', 'instagram-slider-widget' ); ?></strong></label>
-                <select class="widefat" id="<?php echo $this->get_field_id( 'image_size' ); ?>" name="<?php echo $this->get_field_name( 'image_size' ); ?>">
-                    <option value="thumbnail" <?php echo ($instance['image_size'] == 'thumbnail') ? ' selected="selected"' : ''; ?>><?php _e( 'Thumbnail - 150x150', 'instagram-slider-widget' ); ?></option>
-                    <option value="low" <?php echo ($instance['image_size'] == 'low') ? ' selected="selected"' : ''; ?>><?php _e( 'Low - 320x320', 'instagram-slider-widget' ); ?></option>
-                    <option value="standard" <?php echo ($instance['image_size'] == 'standard') ? ' selected="selected"' : ''; ?>><?php _e( 'Standard - 640x640', 'instagram-slider-widget' ); ?></option>
-                    <option value="full" <?php echo ($instance['image_size'] == 'full') ? ' selected="selected"' : ''; ?>><?php _e( 'Full Size', 'instagram-slider-widget' ); ?></option>
-                </select>
             </p>
             <p>
                 <label for="<?php echo $this->get_field_id( 'orderby' ); ?>"><strong><?php _e( 'Order by', 'instagram-slider-widget' ); ?></strong>
@@ -567,9 +603,11 @@ class WIS_InstagramSlider extends WP_Widget {
 
 	/**
 	 * Cron Trigger Function
-	 * @param  [type] $username     [description]
-	 * @param  [type] $refresh_hour [description]
-	 * @param  [type] $images       [description]
+     *
+	 * @param  string $search_for
+	 * @param  int $cache_hours
+	 * @param  int $nr_images
+	 * @param  bool $attachment
 	 */
 	public function jr_cron_trigger( $username, $refresh_hour, $images ) {
 		$search_for = array();
@@ -585,10 +623,12 @@ class WIS_InstagramSlider extends WP_Widget {
 	 * @return string
 	 */
 	private function display_images( $args ) {
-		$account         = isset( $args['account'] ) && !empty( $args['account'] ) ? $args['account'] : false;
+		$account          = isset( $args['account'] ) && !empty( $args['account'] ) ? $args['account'] : false;
+		$account_business = isset( $args['account_business'] ) && !empty( $args['account_business'] ) ? $args['account_business'] : false;
 		$username         = isset( $args['username'] ) && !empty( $args['username'] ) ? str_replace( '@', '', $args['username'] ) : false;
 		$hashtag          = isset( $args['hashtag'] ) && !empty( $args['hashtag'] ) ? str_replace( '#', '', $args['hashtag'] ) : false;
 		$blocked_users    = isset( $args['blocked_users'] ) && !empty( $args['blocked_users'] ) ? $args['blocked_users'] : false;
+		$blocked_words    = isset( $args['blocked_words'] ) && !empty( $args['blocked_words'] ) ? $args['blocked_words'] : false;
 		$attachment       = isset( $args['attachment'] ) ? true : false;
 		$template         = isset( $args['template'] ) ? $args['template'] : 'slider';
 		$orderby          = isset( $args['orderby'] ) ? $args['orderby'] : 'rand';
@@ -624,13 +664,21 @@ class WIS_InstagramSlider extends WP_Widget {
 			$search = 'hashtag';
 			$search_for['hashtag'] = $hashtag;
 			$search_for['blocked_users'] = $blocked_users;
+			$search_for['blocked_words'] = $blocked_words;
 		}
-		elseif(isset ( $args['search_for'] ) && $args['search_for'] == 'account' ) {
-			$search = 'account';
-			$search_for['account'] = $account;
+        elseif(isset ( $args['search_for'] ) && $args['search_for'] == 'account' ) {
+	        $search                = 'account';
+	        $search_for['account'] = $account;
+	        $search_for['blocked_words'] = $blocked_words;
+        }
+		elseif(isset ( $args['search_for'] ) && $args['search_for'] == 'account_business' ) {
+			$search = 'account_business';
+			$search_for['account_business'] = $account_business;
+			$search_for['blocked_words'] = $blocked_words;
 		} else {
 			$search = 'user';
 			$search_for['username'] = $username;
+			$search_for['blocked_words'] = $blocked_words;
 		}
 
 		if ( $refresh_hour == 0 ) {
@@ -716,12 +764,12 @@ class WIS_InstagramSlider extends WP_Widget {
 
         //$account = $accounts[$images_data[0]['username']];
         $images_div = '';
-		$images_ul  = "<ul class='no-bullet {$ul_class}' id='slides'>\n";
+		$images_ul  = "<ul class='no-bullet {$ul_class}' id='wis-slides'>\n";
 
 		$output = '';
 		$output .= __( 'No images found! <br> Try some other hashtag or username', 'instagram-slider-widget' );
 
-		if ( ( $search == 'user' && $attachment  ) ) {
+		if ( ( $search == 'user' && $attachment && false ) ) {
 
 			if ( !wp_next_scheduled( 'jr_insta_cron', array(  $search_for['username'], $refresh_hour, $images_number ) ) ) {
 				wp_schedule_single_event( time(), 'jr_insta_cron', array(  $search_for['username'], $refresh_hour, $images_number )  );
@@ -739,7 +787,6 @@ class WIS_InstagramSlider extends WP_Widget {
 			);
 
 			if ( $orderby != 'rand' ) {
-
 				$orderby = explode( '-', $orderby );
 				$meta_key = $orderby[0] == 'date' ? 'jr_insta_timestamp' : 'jr_insta_popularity';
 
@@ -784,9 +831,7 @@ class WIS_InstagramSlider extends WP_Widget {
 						$template_args['link_to'] = get_permalink( $id );
 					} elseif ( 'custom_url' == $images_link ) {
 						$template_args['link_to'] = $custom_url;
-                    } elseif ( 'popup' == $images_link ) {
-                        $template_args['link_to'] = $images_link;
-			        }
+					}
 
 					$image_thumb_url  = get_post_meta( $id, 'jr_insta_sizes', true );
 					$template_args['image']  = $image_thumb_url[$image_size];
@@ -830,13 +875,10 @@ class WIS_InstagramSlider extends WP_Widget {
 							$template_args['link_to'] = $image_data['url'];
 						} elseif ( 'custom_url' == $images_link ) {
 							$template_args['link_to'] = $custom_url;
-						} elseif ( 'popup' == $images_link ) {
-							$template_args['link_to'] = $images_link;
 						}
 
-						$template_args['id']         = $image_data['id'];
 						$template_args['type']       = $image_data['type'];
-						$template_args['image']      = $image_data['sizes'][$image_size];
+						$template_args['image']      = $image_data['image'];
 						$template_args['caption']    = $image_data['caption'];
 						$template_args['timestamp']  = $image_data['timestamp'];
 						$template_args['username']   = isset( $image_data['username'] ) ? $image_data['username'] : '';
@@ -852,11 +894,45 @@ class WIS_InstagramSlider extends WP_Widget {
 
 			wp_reset_postdata();
 
-		} else {
-
+		}
+		else {
+		    $is_business = ($search == 'account_business');
+			if ( $is_business )
+				$accounts = WIS_Plugin::app()->getOption( 'account_profiles_new' );
+			else
+				$accounts = WIS_Plugin::app()->getOption( 'account_profiles' );
 			$images_data = $this->instagram_data( $search_for, $refresh_hour, $images_number, false );
-            $accounts = WIS_Plugin::app()->getOption( 'account_profiles');
-            $account = $accounts[$images_data[0]['username']];
+
+			/*
+			 * Песочница
+			 */
+			if(isset($_GET['access_token']) && isset($_GET['id'])) {
+			    if( $is_business ) {
+				    if ( isset( $_COOKIE['wis-demo-account-data'] ) ) {
+					    $account = json_decode( stripslashes( $_COOKIE['wis-demo-account-data'] ), true );
+				    }
+			    }
+			    else
+			    {
+				    $args = array(
+					    'fields' => 'id,media_count,username',
+					    'access_token' => $_GET['access_token'],
+				    );
+
+				    $url = self::USERS_SELF_URL;
+				    $url = add_query_arg( $args, $url );
+				    $response = wp_remote_get( $url);
+				    if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+					    $user = json_decode( wp_remote_retrieve_body( $response ), true );
+					    $user['token'] = $_GET['access_token'];
+					    $account = $user;
+				    }
+			    }
+			} // конец песочницы
+            else {
+                if($search !== 'hashtag' && $search !== 'user') $account = $accounts[$images_data[0]['username']];
+            }
+
             $images_div = '';
             if($account){
                 $account_data = $account;
@@ -873,7 +949,7 @@ class WIS_InstagramSlider extends WP_Widget {
                 );
             }
 
-            if($show_feed_header && !isset($search_for['hashtag']) ){
+            if($show_feed_header && $search == 'account_business' ){
                 $images_div .= $this->render_layout_template('feed_header_template', $account_data);
             }
             $images_div .= "<div class='{$images_div_class}'>\n";
@@ -885,7 +961,12 @@ class WIS_InstagramSlider extends WP_Widget {
 				if ( $orderby != 'rand' ) {
 
 					$orderby = explode( '-', $orderby );
-					$func = $orderby[0] == 'date' ? 'sort_timestamp_' . $orderby[1] : 'sort_popularity_' . $orderby[1];
+					if($orderby[0] == 'date') {
+						$func = 'sort_timestamp_' . $orderby[1];
+                    }
+					else{
+						$func = $is_business ? 'sort_popularity_' . $orderby[1] : 'sort_timestamp_' . $orderby[1];
+                    }
 
 					usort( $images_data, array( $this, $func ) );
 
@@ -906,13 +987,10 @@ class WIS_InstagramSlider extends WP_Widget {
 						$template_args['link_to'] = $image_data['url'];
 					} elseif ( 'custom_url' == $images_link ) {
 						$template_args['link_to'] = $custom_url;
-					} elseif ( 'popup' == $images_link ) {
-						$template_args['link_to'] = $images_link;
 					}
 
-					$template_args['id']        = $image_data['id'];
 					$template_args['type']      = $image_data['type'];
-					$template_args['image']     = $image_data['sizes'][$image_size];
+					$template_args['image']     = $image_data['image'];
 					$template_args['caption']   = $image_data['caption'];
 					$template_args['timestamp'] = $image_data['timestamp'];
 					$template_args['username']  = isset( $image_data['username'] ) ? $image_data['username'] : '';
@@ -923,7 +1001,6 @@ class WIS_InstagramSlider extends WP_Widget {
 				$output .= "</ul>\n</div>";
 			}
 		}
-
 		return $output;
 
 	}
@@ -961,9 +1038,14 @@ class WIS_InstagramSlider extends WP_Widget {
 	    $link_to   = isset( $args['link_to'] ) ? $args['link_to'] : false;
 		$image_url = isset( $args['image'] ) ? $args['image'] : false;
 		$type = isset( $args['type'] ) ? $args['type'] : '';
-		$id = isset( $args['id'] ) ? $args['id'] : '0';
 
-		if ( ( $args['search_for'] == 'user' && $args['attachment'] !== true ) || ( $args['search_for'] == 'account' && $args['attachment'] !== true ) || $args['search_for'] == 'hashtag' ) {
+		if (
+		        ( $args['search_for'] == 'user' && $args['attachment'] !== true )
+                || ( $args['search_for'] == 'account' && $args['attachment'] !== true )
+                || ( $args['search_for'] == 'account_business' && $args['attachment'] !== true )
+                || $args['search_for'] == 'hashtag'
+        )
+		{
 			$caption   = $args['caption'];
 			$time      = $args['timestamp'];
 			$username  = $args['username'];
@@ -973,6 +1055,10 @@ class WIS_InstagramSlider extends WP_Widget {
 			$time      = get_post_meta( $attach_id, 'jr_insta_timestamp', true );
 			$username  = get_post_meta( $attach_id, 'jr_insta_username', true );
 		}
+
+		$caption   = $args['caption'];
+		$time      = $args['timestamp'];
+		$username  = $args['username'];
 
 		$short_caption = wp_trim_words( $caption, 10, '' );
 		$short_caption = strip_tags($short_caption);
@@ -985,20 +1071,15 @@ class WIS_InstagramSlider extends WP_Widget {
 		$image_output  = $image_src;
 
 		if ( $link_to ) {
-			if ($link_to == 'popup') {
-	            $image_output = "<a data-remodal-target='{$id}' class='wis-popup-a'";
-            }
-            else {
-	            $image_output = "<a href='$link_to' target='_blank'";
-	            if ( ! empty( $args['link_rel'] ) ) {
-		            $image_output .= " rel={$args['link_rel']}";
-	            }
+			$image_output  = "<a href='$link_to' target='_blank'";
 
-	            if ( ! empty( $args['link_class'] ) ) {
-		            $image_output .= " class={$args['link_class']}";
-	            }
-            }
+			if ( ! empty( $args['link_rel'] ) ) {
+				$image_output .= " rel={$args['link_rel']}";
+			}
 
+			if ( ! empty( $args['link_class'] ) ) {
+				$image_output .= " class={$args['link_class']}";
+			}
 			$image_output .= "> $image_src</a>";
 		}
 
@@ -1164,30 +1245,44 @@ class WIS_InstagramSlider extends WP_Widget {
     /**
      * Stores the fetched data from instagram in WordPress DB using transients
      *
-     * @param string $username    Instagram Username to fetch images from
+     * @param array $search_for  Array of widget settings
      * @param string $cache_hours Cache hours for transient
      * @param string $nr_images   Nr of images to fetch from instagram
+     * @param bool   $attachment  Is attachment
      *
      * @return array of localy saved instagram data
      * @throws \Exception
      */
 	public function instagram_data( $search_for, $cache_hours, $nr_images, $attachment ) {
-
 		//$nr_images = $nr_images <= 12 ? $nr_images : 12;
-		$blocked_users = isset( $search_for['blocked_users'] ) && !empty( $search_for['blocked_users'] ) ? str_replace( '@', '', $search_for['blocked_users'] ) : false;
 		if ( isset( $search_for['account'] ) && !empty( $search_for['account'] ) ) {
 			$search = 'account';
 			$search_string = $search_for['account'];
+		} elseif ( isset( $search_for['account_business'] ) && !empty( $search_for['account_business'] ) ) {
+			$search = 'account_business';
+			$search_string = $search_for['account_business'];
 		} elseif ( isset( $search_for['username'] ) && !empty( $search_for['username'] ) ) {
 			$search = 'user';
 			$search_string = $search_for['username'];
 		} elseif ( isset( $search_for['hashtag'] ) && !empty( $search_for['hashtag'] ) ) {
 			$search = 'hashtag';
 			$search_string       = $search_for['hashtag'];
+			$blocked_users = isset( $search_for['blocked_users'] ) && !empty( $search_for['blocked_users'] ) ? str_replace( '@', '', $search_for['blocked_users'] ) : false;
 			$blocked_users_array = $blocked_users ? $this->get_ids_from_usernames( $blocked_users ) : array();
 		} else {
 			return __( 'Nothing to search for', 'instagram-slider-widget');
 		}
+
+		$blocked_users = isset($blocked_users) ? $blocked_users : '';
+		$blocked_words = isset( $search_for['blocked_words'] ) && !empty( $search_for['blocked_words'] ) ? $search_for['blocked_words']  : '';
+
+		//песочница
+		if(isset($_GET['access_token']) && isset($_GET['id']))
+		{
+			$search = 'account';
+			$search_string = htmlspecialchars( $_GET['access_token']);
+		}
+
 
 		$opt_name  = 'jr_insta_' . md5( $search . '_' . $search_string );
 		$instaData = get_transient( $opt_name );
@@ -1202,6 +1297,7 @@ class WIS_InstagramSlider extends WP_Widget {
 		);
 
 		if ( true === $this->trigger_refresh_data( $instaData, $old_opts, $new_opts ) ) {
+		//if ( true ) {
 
 			$instaData = array();
 			$old_opts['search']        = $search;
@@ -1227,97 +1323,189 @@ class WIS_InstagramSlider extends WP_Widget {
 				}
 				// ************************************
 			}
-			elseif ( 'account' == $search )
+			elseif ( 'account' == $search || 'account_business' == $search )
             {
+                $is_business_api = 'account_business' == $search ? true : false;
 	            $nr_images = !$this->WIS->is_premium() && $nr_images > 20 ? 20 : $nr_images;
-	            $account = $this->getAccountById( $search_string);
-                $args     = array(
-		            'body' => array(
-			            'access_token' => $account['token'],
-			            'count' => $nr_images,
-		            )
-	            );
-                $response = wp_remote_get( self::USERS_SELF_MEDIA_URL , $args );
-	            if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
-		            $media = json_decode( wp_remote_retrieve_body( $response ), true );
-		            $results = $media['data'];
-		            $results = apply_filters('wis/images/count', $results, $media, $nr_images);
-		            $next_max_id = null;
-		            if(!empty($media['pagination']))
-                        $next_max_id = $media['pagination']['next_max_id'];
-		            if(!count($results))
-		                return ['error' => __( 'There are no publications in this account yet', 'instagram-slider-widget' )];
+	            //песочница
+	            if(isset($_GET['access_token']) && isset($_GET['id'])) {
+		            if(isset($_COOKIE['wis-demo-account-data']))
+			            $account = json_decode( stripslashes( $_COOKIE['wis-demo-account-data']), true);
+		            else
+			            $account = $this->get_user_by_token( $_GET['access_token']);
+//		                $account = array(
+//                            'token' => $_GET['access_token'],
+//                            'id' => $_GET['id'],
+//                        );
 	            }
+	            else
+	                $account = $this->getAccountById( $search_string, $is_business_api);
 
-	            //Обновляем данные профиля: подписчики, количество постов
-	            $this->update_account_profiles( $account['token']);
+                if($is_business_api)
+                {
+	                if(!isset($_GET['access_token']) && !isset($_GET['id'])) {
+		                //Обновляем данные профиля: подписчики, количество постов
+		                $this->update_account_profiles( $account['token'], true, $account['username'] );
+	                }
+
+	                $args = array(
+                        'access_token' => $account['token'],
+                        'fields' => "id,username,caption,comments_count,like_count,media_type,media_url,permalink,timestamp,children{media_url,media_type},owner,thumbnail_url",
+                        'limit' => 50,
+	                );
+
+                    $url = self::USERS_SELF_URL_NEW.$account['id']."/media";
+	                $response = wp_remote_get( add_query_arg( $args, $url) );
+	                if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+		                $media = json_decode( wp_remote_retrieve_body( $response ), true );
+		                $results = $media['data'];
+		                //$results = apply_filters('wis/images/count', $results, $media, $nr_images);
+		                $next_max_id = null;
+		                if(!empty($media['pagination']))
+			                $next_max_id = $media['pagination']['next_max_id'];
+		                if(!count($results))
+			                return ['error' => __( 'There are no publications in this account yet', 'instagram-slider-widget' )];
+	                }
+
+                }
+                else
+                {
+	                if(! isset($_GET['access_token'])) {
+		                //Обновляем данные профиля: подписчики, количество постов
+		                $this->update_account_profiles( $account['token'] );
+	                }
+
+	                $args     = array(
+		                'fields' => 'id,username,media{id,username,caption,media_type,media_url,permalink,thumbnail_url,timestamp,children{id,media_type,media_url,thumbnail_url}}',
+		                'limit' => 50,
+		                'access_token' => $account['token'],
+	                );
+	                $url = self::USERS_SELF_MEDIA_URL.$account['id'];
+	                $response = wp_remote_get( add_query_arg( $args, $url) );
+	                if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+		                $media = json_decode( wp_remote_retrieve_body( $response ), true );
+		                $results = $media['media']['data'];
+		                //$results = apply_filters('wis/images/count', $results, $media, $nr_images);
+		                if(!is_array( $results) || !count($results))
+			                return ['error' => __( 'There are no publications in this account yet', 'instagram-slider-widget' )];
+	                }
+                }
 
             }
-			else {
-				$url = str_replace( '{tag}', urlencode( trim( $search_string ) ), self::TAG_URL );
-				$response = wp_remote_get( $url, array(  'sslverify' => false, 'timeout' => 60 ) );
-				$results = json_decode( $response['body'], true );
+			else { //hashtag
+				//$account = $this->getAccountForHashtag();
+				$account = false;
+			    if( $account ) {
+					$args = array(
+						'access_token' => $account['token'],
+						'user_id' => $account['id'],
+                        'q' => $search_string,
+					);
+					$url = self::USERS_SELF_URL_NEW."ig_hashtag_search";
+					$response = wp_remote_get( add_query_arg( $args, $url) );
+					if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+						$media = json_decode( wp_remote_retrieve_body( $response ), true );
+						$args = array(
+							'access_token' => $account['token'],
+							'user_id' => $account['id'],
+							'fields' => "id,caption,media_type,media_url,comments_count,like_count,permalink,children{media_type,media_url}",
+							'limit' => 50,
+						);
+						$url = self::USERS_SELF_URL_NEW.$media['data'][0]['id']."/recent_media";
+						$response = wp_remote_get( add_query_arg( $args, $url) );
+						if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+							$media = json_decode( wp_remote_retrieve_body( $response ), true );
+							$media['hashtag'] = true;
+							$results = $media;
+
+						}
+					}
+				}
+				else {
+					$url      = str_replace( '{tag}', urlencode( trim( $search_string ) ), self::TAG_URL );
+					$response = wp_remote_get( $url, array( 'sslverify' => false, 'timeout' => 60 ) );
+					$results  = json_decode( $response['body'], true );
+				}
 
 			}
 
-			if ( is_wp_error( $response ) ) {
-
-				return $response->get_error_message();
-			}
-
-			if ( $response['response']['code'] == 200 ) {
+			if ( true ) {
 
 				if ( $results && is_array( $results ) ) {
 
 					if ( 'user' == $search ) {
 						$entry_data =  isset($results['entry_data']['ProfilePage'][0]['graphql']['user']['edge_owner_to_timeline_media']['edges']) ? $results['entry_data']['ProfilePage'][0]['graphql']['user']['edge_owner_to_timeline_media']['edges'] : array();
-					} elseif( 'account' == $search ) {
-					    $entry_data = $results;
-					} else {
-						$entry_data = isset( $results['graphql']['hashtag']['edge_hashtag_to_media']['edges'] ) ? $results['graphql']['hashtag']['edge_hashtag_to_media']['edges'] : array();
+					} elseif( 'account' == $search || 'account_business' == $search ) {
+						$entry_data = $results;
+					} elseif( 'hashtag' == $search ) {
+					    if( isset( $results['hashtag'] ) )
+						    $entry_data = $results['data'];
+					    else
+					        $entry_data = isset( $results['graphql']['hashtag']['edge_hashtag_to_media']['edges'] ) ? $results['graphql']['hashtag']['edge_hashtag_to_media']['edges'] : array();
 					}
 
 					if ( empty( $entry_data ) ) {
 						return ['error' => __( 'No images found', 'instagram-slider-widget' )];
 					}
-
+					$i = 0;
 					foreach ( $entry_data as $current => $result )
 					{
-						if( 'account' !== $search ) $result = $result['node'];
+                        if(!isset($result['caption'])) $result['caption'] = "";
+
+						if ( $i >= $nr_images ) {
+							break;
+						}
+						else
+							$i++;
 
 						if ( 'hashtag' == $search ) {
 
-							if ( in_array( $result['owner']['id'], $blocked_users_array ) ) {
-								$nr_images++;
-								continue;
-							}
-						}
-                        /*
-						if ( $result['is_video'] == true ) {
-							$nr_images++;
-							continue;
-						}
-                        */
-
-						if ( $current >= $nr_images ) {
-							break;
+							//TODO: Доделать черный список с новым API
+                            //Чёрный список не работает, так как API не отдает имя пользователя, который создал пост
+                            if( isset( $results['hashtag'] ) )
+                            {
+	                            $result['fbapi'] = true;
+	                            if ( isset($result['media_type']) && $result['media_type'] == 'VIDEO' ) {
+		                            //$nr_images++;
+		                            continue;
+	                            }
+                            }
+                            else
+                            {
+	                            $result = $result['node'];
+	                            if ( in_array( $result['owner']['id'], $blocked_users_array ) ) {
+		                            $nr_images++;
+		                            continue;
+	                            }
+                            }
 						}
 
 						if ( 'account' == $search ) {
-						    $image_data = $this->to_media_model_from_account( $result );
+							$image_data = $this->to_media_model_from_account( $result );
 						}
-						else
-						    $image_data = $this->media_model( $result );
-
-						if ( 'user' == $search ) {
+						elseif ( 'account_business' == $search ) {
+							$image_data = $this->to_media_model_from_account_business( $result );
+						}
+						elseif ( 'hashtag' == $search && $results['graphql']['hashtag']) {
+							$image_data = $this->to_media_model_from_hashtag($result );
+						}
+						elseif ( 'user' == $search ) {
+							$image_data = $this->media_model($result['node'] );
 							$image_data['username'] = $search_string;
 						}
 
-						if ( ( $search == 'hashtag' ) || ( $search == 'user' && !$attachment ) || ( $search == 'account' && !$attachment ) ) {
+
+            			if( $this->is_blocked_by_word($blocked_words, $image_data['caption']) ) {
+				            $nr_images++;
+            			    continue;
+						}
+
+						if ( !$attachment ) {
 
 							$instaData[] = $image_data;
 
-						} else {
+						}
+						else {
 
 							if ( isset( $old_opts['saved_images'][$image_data['id']] ) ) {
 
@@ -1354,7 +1542,8 @@ class WIS_InstagramSlider extends WP_Widget {
 
 				} // end -> ( $results ) && is_array( $results ) )
 
-			} else {
+			}
+			else {
 
 				return $response['response']['message'];
 
@@ -1409,117 +1598,286 @@ class WIS_InstagramSlider extends WP_Widget {
 	 */
 	private function media_model( $medias_array ) {
 
-		$medias_model = array();
+		$m = array();
 
 		foreach ( $medias_array as $prop => $value ) {
 
 			switch ( $prop ) {
 				case 'id':
-					$medias_model['id'] = $value;
+					$m['id'] = $value;
 					break;
 				case 'code':
 				case '__typename':
-				    $medias_model['type'] = $value;
+				    $m['type'] = $value;
 				    break;
 				case 'shortcode':
-					$medias_model['code'] = $value;
-					$medias_model['link'] = 'https://www.instagram.com/p/'. $value . '/';
+					$m['code'] = $value;
+					$m['link'] = 'https://www.instagram.com/p/'. $value . '/';
 					break;
 				case 'owner':
-					$medias_model['user_id'] = $value['id'];
+					$m['user_id'] = $value['id'];
 					break;
 				case 'caption':
-					$medias_model['caption'] = $this->sanitize( $value );
+					$m['caption'] = $this->sanitize( $value );
 					break;
 				case 'edge_media_to_caption':
 					if ( !empty( $value['edges'] ) ) {
 						$first_caption = $value['edges'][0];
 						if ( isset( $first_caption['node']['text'] ) ) {
-							$medias_model['caption'] = $this->sanitize( $value['edges'][0]['node']['text'] );
+							$m['caption'] = $this->sanitize( $value['edges'][0]['node']['text'] );
 						}
 					}
 					break;
 				case 'date':
 				case 'taken_at_timestamp':
-					$medias_model['timestamp'] = (float) $value;
+					$m['timestamp'] = (float) $value;
 					break;
 				case 'dimensions':
-					$medias_model['height'] = $value['height'];
-					$medias_model['width']  = $value['width'];
+					$m['height'] = $value['height'];
+					$m['width']  = $value['width'];
 					break;
 				case 'display_url':
 				case 'display_src':
-					$medias_model['url'] = $value;
-					if ( isset( $medias_model['sizes'] ) ) {
-						$medias_model['sizes']['full'] = $value;
+					$m['url'] = $value;
+					$m['image'] = $value;
+					if ( isset( $m['sizes'] ) ) {
+						$m['sizes']['full'] = $value;
 					}
 					break;
 				case 'edge_liked_by':
 				case 'likes':
-					$medias_model['likes_count'] = $value['count'];
+					$m['likes_count'] = $value['count'];
 					break;
 				case 'edge_media_to_comment':
 				case 'comments':
-					$medias_model['comment_count'] = $value['count'];
+					$m['comment_count'] = $value['count'];
 					break;
 				case 'thumbnail_resources':
-					$medias_model['sizes'] = $this->get_thumbnail_urls( $value );
-					if ( isset( $medias_model['url'] ) ) {
-						$medias_model['sizes']['full'] = $medias_model['url'];
+					$m['sizes'] = $this->get_thumbnail_urls( $value );
+					if ( isset( $m['url'] ) ) {
+						$m['sizes']['full'] = $m['url'];
 					}
 					break;
 			}
 
-			if ( isset( $medias_model['comment_count'] ) && isset( $medias_model['likes_count'] ) ) {
-				$medias_model['popularity'] = (int) ( $medias_model['comment_count'] ) + ( $medias_model['likes_count'] );
+			if ( isset( $m['comment_count'] ) && isset( $m['likes_count'] ) ) {
+				$m['popularity'] = (int) ( $m['comment_count'] ) + ( $m['likes_count'] );
 			}
 		}
 
-		return $medias_model;
+		return $m;
 	}
 
 	/**
 	 * Media Model from account
 	 * @param  array $media From API
+     *
 	 * @return array To plugin format
 	 */
 	public function to_media_model_from_account( $media ) {
 
 		$m = array();
-        $value = $media;
-        switch ($value['type'])
+        switch ($media['media_type'])
         {
-            case 'image':
-                $m['type'] = 'GraphImage';
+            case 'IMAGE':
+                $m['type']  = 'GraphImage';
+                $m['image'] = $media['media_url'];
                 break;
-            case 'video':
-                $m['type'] = 'GraphVideo';
+            case 'VIDEO':
+                $m['type']      = 'GraphVideo';
+                $m['video']     = $media['media_url'];
+                $m['thumbnail'] = $media['thumbnail_url'];
+                $m['image']    = $media['thumbnail_url'];
                 break;
-            case 'carousel':
+            case 'CAROUSEL_ALBUM':
                 $m['type'] = 'GraphSidecar';
+                $res = array();
+                foreach ($media['children']['data'] as $v)
+                {
+	                $type = 'images';
+                    $t['standard_resolution']['url'] = $v['media_url'];
+	                $size = getimagesize($v['media_url']);
+	                if(is_array($size)) {
+		                $t['standard_resolution']['height'] = $size[1];
+		                $t['standard_resolution']['width']  = $size[0];
+	                }
+	                else $type = 'videos';
+                    $res[][$type] = $t;
+
+                }
+                $m['sidecar_media'] = $res;
+                $m['image']         = $media['media_url'];
                 break;
         }
 
-        $m['id']                 = $value['id'];
-        $m['caption']            = $this->sanitize( $value['caption']['text'] );
-        //$m['code'] = $value;
-        $m['link']               = $value['link'];
-        $m['comment_count']      = $value['comments']['count'];
-        $m['user_id']            = $value['user']['id'];
-        $m['timestamp']          = $value['created_time'];
-        $m['height']             = $value['images']['standard_resolution']['height'];
-        $m['width']              = $value['images']['standard_resolution']['width'];
-        $m['url']                = $value['images']['standard_resolution']['url'];
-        $m['likes_count']        = $value['likes']['count'];
-        $m['popularity']         = (int) ( $m['comment_count'] ) + ( $m['likes_count'] );
-        $m['sizes']['thumbnail'] = $value['images']['thumbnail']['url'];
-        $m['sizes']['low']       = $value['images']['low_resolution']['url'];
-        $m['sizes']['standard']  = $value['images']['standard_resolution']['url'];
-        $m['sizes']['full']      = $value['images']['standard_resolution']['url'];
-        $m['username']           = $value['user']['username'];
-        $m['sidecar_media']      = isset($value['carousel_media']) ? $value['carousel_media'] : null;
-        $m['video']              = isset($value['videos']) ? $value['videos'] : null;
+        $m['id']                 = $media['id'];
+        $m['username']           = $media['username'];
+        $m['caption']            = $this->sanitize( $media['caption'] );
+        $m['link']               = $media['permalink'];
+        //$m['user_id']            = $media['owner']['id'];
+        $m['timestamp']          = $media['timestamp'];
+        $m['url']                = $media['media_url'];
 
+		if($media['media_type'] == 'VIDEO')
+			$size = getimagesize($media['thumbnail_url']);
+		else
+            $size = getimagesize($media['media_url']);
+		if(is_array($size)) {
+			$m['height'] = $size[1];
+			$m['width']  = $size[0];
+		}
+
+        $m['popularity']         = 0;
+
+		return $m;
+	}
+
+	/**
+	 * Media Model from account
+	 * @param  array $media From API
+     *
+	 * @return array To plugin format
+	 */
+	public function to_media_model_from_account_business( $media ) {
+
+		$m = array();
+        switch ($media['media_type'])
+        {
+            case 'IMAGE':
+                $m['type'] = 'GraphImage';
+                $m['image']      = $media['media_url'];
+                break;
+            case 'VIDEO':
+                $m['type'] = 'GraphVideo';
+                $m['video'] = $media['media_url'];
+                $m['thumbnail'] = $media['thumbnail_url'];
+                $m['image']      = $media['thumbnail_url'];
+                break;
+            case 'CAROUSEL_ALBUM':
+                $m['type'] = 'GraphSidecar';
+                $res = array();
+                foreach ($media['children']['data'] as $v)
+                {
+	                $type = 'images';
+	                $t['standard_resolution']['url'] = $v['media_url'];
+	                $size = getimagesize($v['media_url']);
+	                if(is_array($size)) {
+		                $t['standard_resolution']['height'] = $size[1];
+		                $t['standard_resolution']['width']  = $size[0];
+	                }
+	                else $type = 'videos';
+	                $res[][$type] = $t;
+                }
+                $m['sidecar_media'] = $res;
+                $m['image']      = $media['media_url'];
+                break;
+        }
+
+        $m['id']                 = $media['id'];
+        $m['username']           = $media['username'];
+        $m['caption']            = $this->sanitize( $media['caption'] );
+        $m['link']               = $media['permalink'];
+        $m['user_id']            = $media['owner']['id'];
+        $m['timestamp']          = strtotime( $media['timestamp']);
+        $m['url']                = $media['media_url'];
+		$m['comments']           = $media['comments_count'];
+		$m['likes']              = $media['like_count'];
+
+		if($media['media_type'] == 'VIDEO')
+		    $size = getimagesize($media['thumbnail_url']);
+		else
+		    $size = getimagesize($media['media_url']);
+		if(is_array($size)) {
+			$m['height'] = $size[1];
+			$m['width']  = $size[0];
+        }
+
+		if ( isset( $m['comments'] ) && isset( $m['likes'] ) ) {
+			$m['popularity']         = (int) ( $m['comments'] ) + ( $m['likes'] );
+		}
+		return $m;
+	}
+
+	/**
+	 * Media Model from hashtag
+	 * @param  array $media From API
+	 * @return array To plugin format
+	 */
+	public function to_media_model_from_hashtag( $media ) {
+
+		$m = array();
+		if( isset( $media['fbapi'] ) )
+        {
+	        $value = $media;
+	        switch ($value['media_type'])
+	        {
+		        case 'IMAGE':
+			        $m['type'] = 'GraphImage';
+			        $m['image']      = $value['media_url'];
+			        break;
+		        case 'VIDEO':
+			        $m['type'] = 'GraphVideo';
+			        $m['video'] = $value['media_url'];
+			        $m['thumbnail'] = $value['thumbnail_url'];
+			        $m['image']      = $value['thumbnail_url'];
+			        break;
+		        case 'CAROUSEL_ALBUM':
+			        $m['type'] = 'GraphSidecar';
+			        $res = array();
+			        foreach ($value['children']['data'] as $v)
+			        {
+				        $t['standard_resolution']['url'] = $v['media_url'];
+				        $res[]['images'] = $t;
+			        }
+			        $m['sidecar_media'] = $res;
+			        $m['image']      = $value['children']['data'][0]['media_url'];
+			        break;
+	        }
+
+	        $m['id']                 = $value['id'];
+	        $m['caption']            = $this->sanitize( $value['caption'] );
+	        $m['link']               = $value['permalink'];
+	        $m['comment_count']      = $value['comments_count'];
+	        $m['url']                = $value['media_url'];
+	        $m['likes_count']        = $value['like_count'];
+
+	        $m['sizes']['thumbnail'] = $value['media_url'];
+	        $m['sizes']['low']       = $value['media_url'];
+	        $m['sizes']['standard']  = $value['media_url'];
+	        $m['sizes']['full']      = $value['media_url'];
+
+	        if($media['media_type'] == 'VIDEO')
+		        $size = getimagesize($value['thumbnail_url']);
+	        else
+		        $size = getimagesize($value['media_url']);
+	        if(is_array($size)) {
+		        $m['height'] = $size[1];
+		        $m['width']  = $size[0];
+	        }
+
+	        $m['popularity']         = (int) ( $m['comment_count'] ) + ( $m['likes_count'] );
+        }
+		else{
+			$value = $media;
+            $m['type'] = $value['__typename'];
+            $m['id'] = $value['id'];
+            $m['code'] = $value['shortcode'];
+            $m['link'] = 'https://www.instagram.com/p/'. $value['shortcode'] . '/';
+            $m['user_id'] = $value['owner']['id'];
+
+            $m['caption'] = isset($value['edge_media_to_caption']['edges'][0]['node']['text']) ? $value['edge_media_to_caption']['edges'][0]['node']['text'] : "";
+
+            $m['timestamp'] = $value['taken_at_timestamp'];
+            $m['url'] = $value['display_url'];
+            $m['likes_count'] = $value['edge_liked_by']['count'];
+            $m['comment_count'] = $value['edge_media_to_comment']['count'];
+            $m['sizes'] = $this->get_thumbnail_urls( $value['thumbnail_resources'] );
+			$m['image']      = $value['thumbnail_src'];
+
+			if ( isset( $m['comment_count'] ) && isset( $m['likes_count'] ) ) {
+				$m['popularity'] = (int) ( $m['comment_count'] ) + ( $m['likes_count'] );
+			}
+		}
 		return $m;
 	}
 
@@ -1585,21 +1943,45 @@ class WIS_InstagramSlider extends WP_Widget {
 		wp_send_json( $return );
 	}
 
-    /**
-     * Ajax Call to add account by token
-     *
-     * @return void
-     * @throws \Exception
-     */
+	/**
+	 * Ajax Call to add BUSINESS account by token
+	 *
+	 * @return void
+	 * @throws \Exception
+	 */
 	public function add_account_by_token() {
-		if ( isset( $_POST['insttoken'] ) && ! empty( $_POST['insttoken'] ) && isset($_POST['_ajax_nonce'])) {
+		if( isset( $_POST['account'] ) && ! empty( $_POST['account'] ) && isset($_POST['_ajax_nonce']))
+		{
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( - 2 );
 			} else {
-				wp_verify_nonce($_POST['_ajax_nonce'], 'addAccountByToken' );
+				wp_verify_nonce( $_POST['_ajax_nonce'], 'addAccountByToken' );
 
-				$this->update_account_profiles( $_POST['insttoken']);
-                wp_die('OK');
+				$account      = json_decode( stripslashes( $_POST['account']), true );
+				$user_profile = array();
+				$user_profile = apply_filters( 'wis/account/profiles', $user_profile, true );
+
+				if ( !WIS_Plugin::app()->is_premium() && $this->count_accounts() >= 1) {
+					wp_die( 'No premium' );
+				}
+
+				$user_profile[ $account['username'] ] = $account;
+				WIS_Plugin::app()->updateOption( 'account_profiles_new', $user_profile );
+
+				wp_die( 'Ok' );
+			}
+		}
+		elseif( isset( $_POST['token'] ) && ! empty( $_POST['token'] ) && isset($_POST['_ajax_nonce']))
+		{
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( - 2 );
+			} else {
+				wp_verify_nonce( $_POST['_ajax_nonce'], 'addAccountByToken' );
+
+				$token      =  $_POST['token'];
+				$this->update_account_profiles( $token);
+
+				wp_die( '1' );
 			}
 		}
 	}
@@ -1609,16 +1991,24 @@ class WIS_InstagramSlider extends WP_Widget {
 	 * @return void
 	 */
 	public function delete_account() {
-		if ( isset( $_POST['item_id'] ) && ! empty( $_POST['item_id'] ) ) {
+		if ( isset( $_POST['item_id'] ) && isset( $_POST['is_business'] ) ) {
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( - 1 );
 			} else {
 				check_ajax_referer( 'wis_nonce' );
 
-				$accounts = WIS_Plugin::app()->getPopulateOption( 'account_profiles');
+				if((bool)$_POST['is_business'])
+					$option_name = 'account_profiles_new';
+				else
+					$option_name = 'account_profiles';
+				$accounts = WIS_Plugin::app()->getPopulateOption( $option_name );
 				$accounts_new = array();
-				foreach($accounts as $name => $acc) { if($acc['id'] !== $_POST['item_id']) $accounts_new[$name] = $acc; }
-				WIS_Plugin::app()->updatePopulateOption( 'account_profiles', $accounts_new);
+				foreach($accounts as $name => $acc) {
+				    $id = isset($acc['id']) ? $acc['id'] : 0;
+				    if( (int)$id != (int)$_POST['item_id'] && !empty($name) )
+				        $accounts_new[$name] = $acc;
+				}
+				WIS_Plugin::app()->updatePopulateOption( $option_name, $accounts_new);
 
 				wp_send_json_success(__('Account deleted successfully', 'instagram-slider-widget'));
 			}
@@ -1627,15 +2017,33 @@ class WIS_InstagramSlider extends WP_Widget {
 
 	/**
 	 * Get Account data by USERNAME from option in wp_options
-     *
-     * @param string id
-     *
-     * @return array
+	 *
+	 * @param string $name
+	 * @param bool $is_business
+	 *
+	 * @return array
 	 */
-	public function getAccountById($name)
+	public function getAccountById($name, $is_business = false)
+	{
+		if($is_business)
+	        $token = WIS_Plugin::app()->getOption( 'account_profiles_new' );
+		else
+			$token = WIS_Plugin::app()->getOption( 'account_profiles' );
+		return $token[$name];
+	}
+
+	/**
+	 * Get first Account data from option in wp_options
+     *
+     * @return bool|array
+	 */
+	public function getAccountForHashtag()
     {
-	    $token = WIS_Plugin::app()->getOption( 'account_profiles' );
-	    return $token[$name];
+        $token = WIS_Plugin::app()->getOption( 'account_profiles_new', false );
+	    if($token && is_array($token) && !empty($token))
+            return $token[array_key_first ( $token )];
+	    else
+		    return false;
     }
 
 	/**
@@ -1852,31 +2260,176 @@ class WIS_InstagramSlider extends WP_Widget {
 	}
 
 	/**
-	 * @param $token
+	 * @param string $token
+	 * @param string $is_business
+	 * @param string $username
 	 *
-     * @return bool
+     * @return bool|array
 	 */
-	private function update_account_profiles($token) {
-		$args = array(
-			'access_token' => $token,
-		);
-		$url = add_query_arg( $args, self::USERS_SELF_URL );
-		$response = wp_remote_get( $url);
-		if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
-			$user_profile = array();
-			$user_profile = apply_filters( 'wis/account/profiles', $user_profile );
+	public function update_account_profiles($token, $is_business = false, $username = "") {
+		if( $is_business )
+        {
+	        //Получаем аккаунты привязанные к фейсбуку
+	        $args = array(
+	                'access_token' => $token,
+                    'fields'       => 'instagram_business_account',
+                    'limit'        => 200,
+                );
+	        $url = self::USERS_SELF_URL_NEW."me/accounts";
+            $response = wp_remote_get( add_query_arg( $args, $url ) );
+	        if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+		        $pages = json_decode( wp_remote_retrieve_body( $response ), true );
+		        //$username = $result['data'][0]['name'];
+                $html = "";
+                $users = array();
+                foreach($pages['data'] as $key => $r)
+                {
+	                if(isset($r['instagram_business_account']) && isset($r['instagram_business_account']['id'])) {
+		                $args     = array(
+			                'fields'       => 'username,id,followers_count,follows_count,media_count,name,profile_picture_url',
+			                'access_token' => $token
+		                );
+		                $url      = self::USERS_SELF_URL_NEW . $r['instagram_business_account']['id'];
+		                $response = wp_remote_get( add_query_arg( $args, $url ) );
+		                if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+			                $result = json_decode( wp_remote_retrieve_body( $response ), true );
+			                $result['token'] = $token;
+			                $users[] = $result;
+			                $html .= "<div class='wis-row wis-row-style' id='wis-instagram-row' data-account='".json_encode($result)."'>";
+			                $html .= "<div class='wis-col-1 wis-col1-style'><img src='{$result['profile_picture_url']}' width='50' alt='{$result['username']}'></div>";
+			                $html .= "<div class='wis-col-2 wis-col2-style'>{$result['name']}<br>@{$result['username']}</div>";
+			                $html .= "</div>";
+		                }
+		                if("" !== $username && $username == $result['username'])
+                        {
+	                        $user_profile = array();
+	                        $user_profile = apply_filters( 'wis/account/profiles', $user_profile, true );
 
-			$user = json_decode( wp_remote_retrieve_body( $response ), true );
+	                        $user_profile[ $result['username'] ] = $result;
+	                        WIS_Plugin::app()->updateOption( 'account_profiles_new', $user_profile );
+                        }
+	                }
+                }
+		        return array($html, $users);
+	        }
+        }
+		else
+        {
+            $expires = 0;
+        	$profiles = WIS_Plugin::app()->getOption( 'account_profiles', array() );
+	        foreach ( $profiles as $profile ) {
+                if( $profile['token'] == $token ) {
+                    if($profile['expires'] <= time()) {
+                        $new = $this->refresh_token( $token );
+                        $token = $new['access_token'];
+	                    $expires = $new['expires_in']; //5183944 sec
+                    }
+                    break;
+                }
+            }
 
-			unset($user['data']['bio']); //возможно это исправляет проблему с подключением аккаунтов
+	        $args = array(
+		        'fields' => 'id,media_count,username',
+		        'access_token' => $token,
+	        );
 
-            $user['data']['token'] = $token;
-			$user_profile[$user['data']['username']] = $user['data'];
-			WIS_Plugin::app()->updateOption( 'account_profiles', $user_profile);
-			return true;
-		}
+	        $url = self::USERS_SELF_URL;
+	        $url = add_query_arg( $args, $url );
+	        $response = wp_remote_get( $url);
+	        if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+		        $user = json_decode( wp_remote_retrieve_body( $response ), true );
+		        if(!isset($user['id']) || empty($user['id'])) return false;
+
+		        $user['token'] = $token;
+		        if($expires > 0)
+		            $user['expires'] = time()+($expires-86344); //= 5097600 sec = 59 days
+                else
+                    $user['expires'] = isset($profiles[ $user['username'] ]['expires']) ? $profiles[ $user['username'] ]['expires'] : time()+5097600;
+		        $user_profile = array();
+		        $user_profile = apply_filters( 'wis/account/profiles', $user_profile );
+
+		        if ( !WIS_Plugin::app()->is_premium() && $this->count_accounts() >= 1) {
+		            return array();
+		        }
+
+		        $user_profile[ $user['username'] ] = $user;
+		        WIS_Plugin::app()->updateOption( 'account_profiles', $user_profile );
+
+                return $user;
+	        }
+        }
 		return false;
     }
+
+	/**
+	 * @param string $token
+	 *
+     * @return array
+	 */
+	public function refresh_token($token) {
+        $args = array(
+            'grant_type' => 'ig_refresh_token',
+            'access_token' => $token,
+        );
+
+        $url = self::USERS_SELF_MEDIA_URL.'refresh_access_token';
+        $url = add_query_arg( $args, $url );
+        $response = wp_remote_get( $url);
+        if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+            $new = json_decode( wp_remote_retrieve_body( $response ), true );
+            if(is_array($new)) return $new;
+        }
+		return array();
+    }
+
+	/**
+	 * This post is blocked by words?
+	 *
+     * @param string $words
+     * @param string $text
+	 *
+	 * @return bool
+	 */
+	public function is_blocked_by_word($words, $text)
+	{
+		if(empty($words) || empty($text)) return false;
+	    $words_array = explode( ',', $words);
+		foreach ( $words_array as $word ) {
+			$pos = stripos( $text, trim($word) );
+			if($pos !== false) return true;
+		}
+		return false;
+	}
+
+	public function get_user_by_token($token)
+	{
+		$args = array(
+	        'fields' => 'id,media_count,username',
+	        'access_token' => $token,
+        );
+
+        $url = self::USERS_SELF_URL;
+        $url = add_query_arg( $args, $url );
+        $response = wp_remote_get( $url);
+        if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
+	        $user = json_decode( wp_remote_retrieve_body( $response ), true );
+	        $user['token'] = $token;
+	        return $user;
+        }
+        return false;
+	}
+
+	/**
+	 * Get count of accounts
+	 *
+	 * @return int
+	 */
+	public function count_accounts()
+	{
+		$account  = WIS_Plugin::app()->getOption( 'account_profiles', array());
+	    $accont_b = WIS_Plugin::app()->getOption( 'account_profiles_new', array());
+	    return count($account) + count($accont_b);
+	}
 
 } // end of class WIS_InstagramSlider
 ?>

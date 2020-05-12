@@ -73,7 +73,7 @@ if (empty($emails)) {
             <div class="col-md-3">
                 <div class="tnp-widget tnp-number">
                     <h3>Emails Sent</h3>
-                    <div class="tnp-icon"><i class="fa fa-users"></i></div>
+                    <div class="tnp-icon"><i class="fas fa-users"></i></div>
                     <div class="tnp-value"><?php echo number_format_i18n($report->total, 0) ?></div>
                 </div>
             </div>
@@ -81,7 +81,7 @@ if (empty($emails)) {
             <div class="col-md-3">
                 <div class="tnp-widget tnp-number">
                     <h3>Overall Opens</h3>
-                    <div class="tnp-icon tnp-blue"><i class="fa fa-envelope-open"></i></div>
+                    <div class="tnp-icon tnp-blue"><i class="fas fa-envelope-open"></i></div>
                     <div class="tnp-value"><?php echo $report->open_rate; ?>%</div>
                     <div class="tnp-value-2">(<?php echo $report->open_count; ?>)</div>
                 </div>
@@ -90,7 +90,7 @@ if (empty($emails)) {
             <div class="col-md-3">
                 <div class="tnp-widget tnp-number">
                     <h3>Overall Clicks</h3>
-                    <div class="tnp-icon tnp-orange"><i class="fa fa-mouse-pointer"></i></div>
+                    <div class="tnp-icon tnp-orange"><i class="fas fa-mouse-pointer"></i></div>
                     <div class="tnp-value"><?php echo $report->click_rate; ?>%</div>
                     <div class="tnp-value-2">(<?php echo $report->click_count; ?>)</div>
                 </div>
@@ -99,7 +99,7 @@ if (empty($emails)) {
             <div class="col-md-3">
                 <div class="tnp-widget tnp-number tnp-inactive">
                     <h3>Overall Reactivity</h3>
-                    <div class="tnp-icon tnp-gray"><i class="fa fa-star"></i></div>
+                    <div class="tnp-icon tnp-gray"><i class="fas fa-star"></i></div>
                     <div class="tnp-value">-%</div>
                 </div>
             </div>

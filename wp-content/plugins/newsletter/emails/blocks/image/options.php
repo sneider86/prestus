@@ -9,6 +9,6 @@
 <?php $fields->media('image', null, array('alt'=>true)) ?>
 
 <?php $fields->url('url', 'URL') ?>
-
+<?php $fields->size('width', 'Width') ?>
 <?php $fields->block_commons() ?>
 

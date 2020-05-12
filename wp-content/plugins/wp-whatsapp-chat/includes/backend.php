@@ -1,6 +1,6 @@
 <?php
 
-class QLWAPP_Admin {
+class QLWAPP_Backend {
 
   protected static $instance;
 
@@ -72,5 +72,5 @@ class QLWAPP_Admin {
 
 }
 
-QLWAPP_Admin::instance();
+QLWAPP_Backend::instance();
 

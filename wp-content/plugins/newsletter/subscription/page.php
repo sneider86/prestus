@@ -21,12 +21,15 @@ if ($message_key == 'confirmation') {
 } else {
     $user = $module->get_user_from_request(true);
 }
+
+$email = $module->get_email_from_request();
+
 $message = apply_filters('newsletter_page_text', '', $message_key, $user);
 $options = $module->get_options('', $module->get_user_language($user));
 if (!$message) {
     $message = $options[$message_key . '_text'];
 }
-$message = $module->replace($message, $user);
+$message = $module->replace($message, $user, $email);
 
 if (isset($options[$message_key . '_tracking'])) {
     $message .= $options[$message_key . '_tracking'];
@@ -81,6 +84,13 @@ if (is_file(WP_CONTENT_DIR . '/extensions/newsletter/subscription/page.php')) {
             #message {
                 line-height: 1.6em;
             }
+            
+            #missing {
+                padding: 20px;
+                font-weight: bold;
+                border: 1px solid #999;
+                margin: 20px 0;
+            }
         </style>
     </head>
 
@@ -91,6 +101,12 @@ if (is_file(WP_CONTENT_DIR . '/extensions/newsletter/subscription/page.php')) {
         </script>
         <?php } ?>
         <div id="container">
+            <?php if (current_user_can('administrator')) { ?>
+            <div id="missing">
+                This message is shown only to administrators. Newsletter is using this page to show its messages because 
+                the dedicated page (on main settings) is not set or the configured page has been deleted or unpublished.
+            </div>
+            <?php } ?>
             <h1><?php echo get_option('blogname'); ?></h1>
             <div id="message">
             <?php echo $message; ?>

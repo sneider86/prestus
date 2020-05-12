@@ -44,6 +44,7 @@ if (isset($theme_options['theme_posts'])) {
         $filters['post_type'] = $theme_options['theme_post_types'];
     }
 
+    if (!isset($theme_options['theme_language'])) $theme_options['theme_language'] = '';
     $posts = Newsletter::instance()->get_posts($filters, $theme_options['theme_language']);
 }
 
@@ -86,11 +87,18 @@ if (isset($theme_options['theme_posts'])) {
             outline: none;
             text-decoration: none;
             -ms-interpolation-mode: bicubic;
+            max-width: 100%;
         }
 
         p {
             display: block;
             margin: 13px 0;
+        }
+        @media all and (max-width: 525px) {
+            td {
+                float: left;
+                display: block;
+            }
         }
     </style>
     <!--[if mso]>
@@ -157,8 +165,14 @@ if (isset($theme_options['theme_posts'])) {
 
                                 if (isset($theme_options['theme_thumbnails'])) {
                                     // Will be replaces with the new media resizer
-                                    $image = tnp_post_thumbnail_src($post, array(75, 75, true));
+                                    $image = tnp_post_thumbnail_src($post, $theme_options['theme_image_size']);
                                 }
+                                
+                                if ($theme_options['theme_image_size'] == 'thumbnail') {
+                                    $image_width = 150;
+                            } else {
+                                $image_width = 300;
+                            }
 
                                 $url = get_permalink($post);
                                 $excerpt = '';
@@ -169,9 +183,9 @@ if (isset($theme_options['theme_posts'])) {
                                 <tr>
                                     <!-- Image column -->
                                     <?php if (isset($theme_options['theme_thumbnails'])) { ?>
-                                        <td valign="top" width="75">
+                                        <td valign="top" width="<?php echo $image_width?>">
                                             <?php if ($image) { ?>
-                                            <a target="_blank"  href="<?php echo $url ?>"><img width="75" style="width: 75px; min-width: 75px" src="<?php echo $image ?>" alt="image"></a>
+                                            <a target="_blank"  href="<?php echo $url ?>"><img width="<?php echo $image_width?>" style="width: <?php echo $image_width?>px; min-width: <?php echo $image_width?>px;" src="<?php echo $image ?>" alt="image"></a>
                                             <?php } ?>
                                         </td>
                                     <?php } ?>

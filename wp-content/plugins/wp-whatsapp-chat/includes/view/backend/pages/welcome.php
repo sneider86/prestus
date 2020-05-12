@@ -1,4 +1,4 @@
-<div class="wrap about-wrap full-width-layout qlwrap">
+<div class="wrap about-wrap full-width-layout">
   <div class="has-2-columns is-wider-left" style="max-width: 100%">
     <div class="column">
       <div class="welcome-header">
@@ -31,7 +31,7 @@
       </div>    
     </div>
     <div class="column">
-      <img src="<?php echo plugins_url('/assets/backend/img/box1.png', QLWAPP_PLUGIN_FILE); ?>">
+      <img alt="<?php echo QLWAPP_PLUGIN_NAME; ?>" src="<?php echo plugins_url('/assets/backend/img/box1.png', QLWAPP_PLUGIN_FILE); ?>">
     </div>
   </div>
 </div>

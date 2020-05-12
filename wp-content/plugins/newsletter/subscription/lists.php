@@ -119,7 +119,7 @@ $status = array(0 => 'Private', 1 => 'Only on profile page', 2 => 'Even on subsc
                                 $text .= $note . '<br>';
                             }
                             if (!empty($text)) {
-                                echo '<i class="fa fa-info-circle tnp-notes" title="', esc_attr($text), '"></i>';
+                                echo '<i class="fas fa-info-circle tnp-notes" title="', esc_attr($text), '"></i>';
                             }
                             ?> 
 

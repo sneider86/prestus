@@ -31,14 +31,14 @@
             </div>
         </div>
         <div class="column">
-            <img src="<?php echo plugins_url('/assets/backend/img/box1.png', QLWAPP_PLUGIN_FILE); ?>">
+            <img alt="<?php esc_html_e('Premium', 'wp-whatsapp-chat'); ?>" src="<?php echo plugins_url('/assets/backend/img/box1.png', QLWAPP_PLUGIN_FILE); ?>">
         </div>
     </div>
     <br/>
     <br/>
     <div class="has-2-columns is-wider-right" style="max-width: 100%">
         <div class="column">
-            <img src="<?php echo plugins_url('/assets/backend/img/box2.png', QLWAPP_PLUGIN_FILE); ?>">
+            <img alt="<?php esc_html_e('Chatbox interface', 'wp-whatsapp-chat'); ?>" src="<?php echo plugins_url('/assets/backend/img/box2.png', QLWAPP_PLUGIN_FILE); ?>">
         </div>
         <div class="column">
             <br/>

@@ -10,7 +10,6 @@ $options = array(
     'facebook_url' => '',
     'twitter_url' => '',
     'instagram_url' => '',
-    'googleplus_url' => '',
     'pinterest_url' => '',
     'linkedin_url' => '',
     'tumblr_url' => '',

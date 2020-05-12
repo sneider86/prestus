@@ -111,12 +111,6 @@ if (!$controls->is_action()) {
                             </td>
                         </tr>
                         <tr>
-                            <th>Google+ URL</th>
-                            <td>
-                                <?php $controls->text('googleplus_url', 40); ?>
-                            </td>
-                        </tr>
-                        <tr>
                             <th>Pinterest URL</th>
                             <td>
                                 <?php $controls->text('pinterest_url', 40); ?>

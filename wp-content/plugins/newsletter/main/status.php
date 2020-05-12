@@ -1,4 +1,6 @@
 <?php
+/* @var $this Newsletter */
+
 defined('ABSPATH') || exit;
 
 @include_once NEWSLETTER_INCLUDES_DIR . '/controls.php';
@@ -13,7 +15,7 @@ $wp_cron_calls_max = 0;
 $wp_cron_calls_min = 0;
 $wp_cron_calls_avg = 0;
 if (count($wp_cron_calls) > 20) {
-    
+
     for ($i = 1; $i < count($wp_cron_calls); $i++) {
         $diff = $wp_cron_calls[$i] - $wp_cron_calls[$i - 1];
         $total += $diff;
@@ -53,8 +55,16 @@ if ($controls->is_action('conversion')) {
     $this->logger->info('Maybe convert to utf8mb4');
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     if (function_exists('maybe_convert_table_to_utf8mb4')) {
-        maybe_convert_table_to_utf8mb4(NEWSLETTER_EMAILS_TABLE);
-        maybe_convert_table_to_utf8mb4(NEWSLETTER_USERS_TABLE);
+        $r = maybe_convert_table_to_utf8mb4(NEWSLETTER_EMAILS_TABLE);
+        if (!$r) {
+            $controls->errors .= 'It was not possible to run the conversion for the table ' . NEWSLETTER_EMAILS_TABLE . ' - ';
+            $controls->errors .= $wpdb->last_error . '<br>';
+        }
+        $r = maybe_convert_table_to_utf8mb4(NEWSLETTER_USERS_TABLE);
+        if (!$r) {
+            $controls->errors .= 'It was not possible to run the conversion for the table ' . NEWSLETTER_EMAILS_TABLE . ' - ';
+            $controls->errors .= $wpdb->last_error . '<br>';
+        }
         $controls->messages = 'Done.';
     } else {
         $controls->errors = 'Table conversion function not available';
@@ -84,23 +94,25 @@ if ($controls->is_action('test')) {
         $message->subject = 'Newsletter test email at ' . date(DATE_ISO8601);
         $message->from = $module->options['sender_email'];
         $message->from_name = $module->options['sender_name'];
-        
+
         $r = $module->deliver($message);
 
         if (!is_wp_error($r)) {
             $options['mail'] = 1;
             $controls->messages .= '<strong>SUCCESS</strong><br>';
+            $controls->messages .= 'Anyway if the message does not appear the mailbox (check even the spam folder) you can ';
+            $controls->messages .= '<a href="https://www.thenewsletterplugin.com/documentation/?p=15170" target="_blank"><strong>read more here</strong></a>.';
         } else {
             $options['mail'] = 0;
             $options['mail_error'] = $r->get_error_message();
 
-            $controls->errors .= '<strong>FAILED</strong> (' .  $r->get_error_message() . ')<br>';
+            $controls->errors .= '<strong>FAILED</strong> (' . $r->get_error_message() . ')<br>';
 
             if (!empty($module->options['return_path'])) {
                 $controls->errors .= '- Try to remove the return path on main settings.<br>';
             }
 
-            $controls->errors .= '<a href="https://www.thenewsletterplugin.com/documentation/email-sending-issues" target="_blank"><strong>' . __('Read more', 'newsletter') . '</strong></a>.';
+            $controls->errors .= '<a href="https://www.thenewsletterplugin.com/documentation/?p=15170" target="_blank"><strong>' . __('Read more', 'newsletter') . '</strong></a>.';
 
             $parts = explode('@', $module->options['sender_email']);
             $sitename = strtolower($_SERVER['SERVER_NAME']);
@@ -126,7 +138,23 @@ foreach ($emails as $email) {
     $queued += $email->total - $email->sent;
 }
 $speed = Newsletter::$instance->options['scheduler_max'];
+
+function tnp_status_print_flag($condition) {
+    switch ($condition) {
+        case 0: echo ' <span class="tnp-ko">KO</span>';
+            break;
+        case 1: echo '<span class="tnp-ok">OK</span>';
+            break;
+        case 2: echo '<span class="tnp-maybe">MAYBE</span>';
+            break;
+    }
+}
 ?>
+<style>
+    table.widefat tbody tr>td:first-child {
+        width: 150px!important;
+    }
+</style>
 
 <div class="wrap tnp-main-status" id="tnp-wrap">
 
@@ -143,7 +171,7 @@ $speed = Newsletter::$instance->options['scheduler_max'];
         <form method="post" action="">
             <?php $controls->init(); ?>
 
-            <h3>General checks</h3>
+            <h3>Mailing test</h3>
             <table class="widefat" id="tnp-status-table">
 
                 <thead>
@@ -155,29 +183,140 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                 </thead>
 
                 <tbody>
+                    <tr>
+                        <td>Mailing</td>
+                        <td>
+                            <?php if (empty($options['mail'])) { ?>
+                                <span class="tnp-ko">KO</span>
+                            <?php } else { ?>
+                                <span class="tnp-ok">OK</span>
+                            <?php } ?>
+
+                        </td>
+                        <td>
+                            <?php if (empty($options['mail'])) { ?>
+                                <?php if (empty($options['mail_error'])) { ?>
+                                    A test has never run.
+                                <?php } else { ?>
+                                    Last test failed with error "<?php echo esc_html($options['mail_error']) ?>".
+
+                                <?php } ?>
+                            <?php } else { ?>
+                                Last test was successful. If you didn't receive the test email:
+                                <ol>
+                                    <li>If you set the Newsletter SMTP, do a test from that panel</li>
+                                    <li>If you're using a integration extension do a test from its configuration panel</li>
+                                    <li>If previous points do not apply to you, ask for support to your provider reporting the emails from your blog are not delivered</li>
+                                </ol>
+                            <?php } ?>
+                            <br>
+                            <a href="https://www.thenewsletterplugin.com/documentation/email-sending-issues" target="_blank">Read more to solve your issues, if any</a>.    
+                            <br>
+                            Email: <?php $controls->text_email('test_email') ?> <?php $controls->button('test', __('Send a test message')) ?>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>General checks</h3>
+            <table class="widefat" id="tnp-status-table">
+
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th><?php _e('Status', 'newsletter') ?></th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <?php
+                        $page_id = $this->get_newsletter_page_id();
+                        $page = $this->get_newsletter_page();
+                        $condition = 1;
+                        if ($page_id) {
+                            if (!$page || $page->post_status !== 'publish') {
+                                $condition = 0;
+                            }
+                        } else {
+                            $condition = 2;
+                        }
+                        ?>
+                        <td>
+                            Dedicated page<br>
+                            <small>The blog page Newsletter uses for messages</small>
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($condition == 2) { ?>
+                                Newsletter is using a neutral page to show messages, if you want to use a dedicated page, configure it on
+                                <a href="?page=newsletter_main_main">main settings</a>.
+                            <?php } else if ($condition == 0) { ?>
+                                A dedicated page is set but it is no more available or no more published. Review the dedicated page on
+                                <a href="?page=newsletter_main_main">main settings</a>.
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <?php
+                        $page_id = $this->get_newsletter_page_id();
+                        $page = $this->get_newsletter_page();
+                        $condition = 1;
+                        if ($page_id) {
+                            if (!$page) {
+                                $condition = 0;
+                            } else {
+                                $content = $page->post_content;
+                                if (strpos($content, '[newsletter]') === false && strpos($content, '[newsletter ') === false) {
+                                    $condition = 2;
+                                }
+                            }
+                        }
+                        ?>
+                        <td>
+                            Dedicated page content<br>
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($condition == 2) { ?>
+                                The page seems to not contain the <code>[newsletter]</code>, but sometime it cannot be detected if you use
+                                a visual composer. <a href="post.php?post=<?php echo $page->ID ?>&action=edit" target="_blank">Please, check the page</a>.
+                            <?php } else if ($condition == 0) { ?>
+                                The dedicated page seems to not be available.
+                            <?php } ?>
+                        </td>
+                    </tr>
+
                     <?php
                     $method = '';
                     if (function_exists('get_filesystem_method')) {
                         $method = get_filesystem_method(array(), WP_PLUGIN_DIR);
                     }
+                    if (empty($method))
+                        $condition = 2;
+                    else if ($method == 'direct')
+                        $condition = 1;
+                    else
+                        $condition = 0;
                     ?>
                     <tr>
                         <td>Add-ons installable</td>
                         <td>
-                            <?php if (empty($method)) { ?>
-                                <span class="tnp-maybe">MAYBE</span>
-
-                            <?php } else if ($method == 'direct') { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } else { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } ?>
-
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
-                            <?php if (empty($method)) { ?>
+                            <?php if ($condition == 2) { ?>
                                 No able to check, just try the add-ons manager one click install
-                            <?php } else if ($method == 'direct') { ?>
+                            <?php } else if ($condition == 1) { ?>
                                 The add-ons manager can install our add-ons
                             <?php } else { ?>
                                 The plugins dir could be read-only, you can install add-ons uploading the package from the
@@ -213,69 +352,22 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                             $mailer = Newsletter::instance()->get_mailer();
                             $name = 'Unknown';
                             if (is_object($mailer)) {
-                            if (method_exists($mailer, 'get_description')) {
-                                $name = $mailer->get_description();
-                            } else {
-                                $name = get_class($mailer);
-                            }
+                                if (method_exists($mailer, 'get_description')) {
+                                    $name = $mailer->get_description();
+                                } else {
+                                    $name = get_class($mailer);
+                                }
                             }
                             ?>
-                            
+
                             <?php echo esc_html($name) ?>
                         </td>
                     </tr>
-                    
-                    <tr>
-                        <td>Mailing</td>
-                        <td>
-                            <?php if (empty($options['mail'])) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
 
-                        </td>
-                        <td>
-                            <?php if (empty($options['mail'])) { ?>
-                                <?php if (empty($options['mail_error'])) { ?>
-                                    A test has never run.
-                                <?php } else { ?>
-                                    Last test failed with error "<?php echo esc_html($options['mail_error']) ?>".
 
-                                <?php } ?>
-                            <?php } else { ?>
-                                Last test was successful. If you didn't receive the test email:
-                                <ol>
-                                    <li>If you set the Newsletter SMTP, do a test from that panel</li>
-                                    <li>If you're using a integration extension do a test from its configuration panel</li>
-                                    <li>If previous points do not apply to you, ask for support to your provider reporting the emails from your blog are not delivered</li>
-                                </ol>
-                            <?php } ?>
-                            <br>
-                            <a href="https://www.thenewsletterplugin.com/documentation/email-sending-issues" target="_blank">Read more to solve your issues, if any</a>.    
-                            <br>
-                            Email: <?php $controls->text_email('test_email') ?> <?php $controls->button('test', __('Send a test message')) ?>
-                        </td>
 
-                    </tr>
-                    
-                    <?php if (ini_get('opcache.validate_timestamps') === '0') { ?>
-                    
-                    <tr>
-                        <td>
-                            Opcache
-                        </td>
-                        
-                        <td>
-                            <span class="tnp-ko">KO</span>
-                        </td>
-                        
-                        <td>
-                            You have the PHP opcache active with file validation disable so every blog plugins update needs a webserver restart!
-                        </td>
-                    </tr>
-                    <?php } ?>
-                    
+
+
                     <?php
                     $return_path = $module->options['return_path'];
                     if (!empty($return_path)) {
@@ -310,93 +402,22 @@ $speed = Newsletter::$instance->options['scheduler_max'];
 
                     </tr>
 
-                    <tr>
-                        <td>Blog Charset</td>
-                        <td>
-                            <?php if (get_option('blog_charset') == 'UTF-8') { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } else { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            Charset: <?php echo esc_html(get_option('blog_charset')) ?>
-                            <br>
 
-                            <?php if (get_option('blog_charset') == 'UTF-8') { ?>
 
-                            <?php } else { ?>
-                                Your blog charset is <?php echo esc_html(get_option('blog_charset')) ?> but it is recommended to use
-                                the <code>UTF-8</code> charset but the <a href="https://codex.wordpress.org/Converting_Database_Character_Sets" target="_blank">conversion</a>
-                                could be tricky. If you're not experiencing problem, leave things as is.
-                            <?php } ?>
-                        </td>
-                    </tr>
+
 
                     <tr>
-                        <td>PHP version</td>
-                        <td>
-                            <?php if (version_compare(phpversion(), '5.3', '<')) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            Your PHP version is <?php echo phpversion() ?><br>
-                            <?php if (version_compare(phpversion(), '5.3', '<')) { ?>
-                                Newsletter plugin works correctly with PHP version 5.3 or greater. Ask your provider to upgrade your PHP. Your version is
-                                unsupported even by the PHP community.
-                            <?php } ?>
-                        </td>
-
-                    </tr>
-
-                    <tr>
-                        <td>Curl version</td>
-                        <td>
-                            <?php if (!function_exists('curl_version')) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            <?php if (!function_exists('curl_version')) { ?>
-                                cUrl is not available, ask the provider to install it and activate the PHP cUrl library
-                                <?php
-                            } else {
-                                $version = curl_version();
-                                echo 'Version: ' . $version['version'] . '<br>';
-                                echo 'SSL Version: ' . $version['ssl_version'] . '<br>';
-                            }
-                            ?>
-                        </td>
-
-                    </tr>
-                    
-                    <?php
-                    $value = (int) ini_get('max_execution_time');
-                    $res = true;
-                    if ($value != 0 && $value < NEWSLETTER_CRON_INTERVAL) {
-                        $res = set_time_limit(NEWSLETTER_CRON_INTERVAL);
-                    }
-                    ?>
-
-                    <tr>
+                        <?php
+                        $condition = NEWSLETTER_EXTENSION_UPDATE ? 1 : 0;
+                        ?>
                         <td>Addons update</td>
                         <td>
-                            <?php if (NEWSLETTER_EXTENSION_UPDATE) { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } else { ?>
-                                <span class="tnp-maybe">MAYBE</span>
-                            <?php } ?>
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
-                            <?php if (!NEWSLETTER_EXTENSION_UPDATE) { ?>
-                                Newsletter Addons update is disabled (probably in your <code>wp-config.php</code> file)
+                            <?php if ($condition == 0) { ?>
+                                Newsletter Addons update is disabled (probably in your <code>wp-config.php</code> file the constant 
+                                <code>NEWSLETTER_EXTENSION_UPDATE</code> is set to <code>true</code>)
                             <?php } else { ?>
                                 Newsletter Addons can be updated
                             <?php } ?>
@@ -405,217 +426,29 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                     </tr>
 
 
-                    <?php
-                    $value = (int) ini_get('max_execution_time');
-                    $res = true;
-                    if ($value != 0 && $value < NEWSLETTER_CRON_INTERVAL) {
-                        $res = set_time_limit(NEWSLETTER_CRON_INTERVAL);
-                    }
-                    ?>
+
+
+
+
 
                     <tr>
-                        <td>PHP execution time limit</td>
+                        <?php
+                        $time = wp_next_scheduled('newsletter');
+                        $res = true;
+                        $condition = 1;
+                        if ($time === false) {
+                            $res = false;
+                            $condition = 0;
+                        }
+                        $delta = $time - time();
+                        if ($delta <= -600) {
+                            $res = false;
+                            $condition = 0;
+                        }
+                        ?>
+                        <td>Newsletter delivery engine job</td>
                         <td>
-                            <?php if ($res) { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } else { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            <?php if (!$res) { ?>
-                                Your PHP execution time limit is <?php echo $value ?> seconds and cannot be changed or 
-                                is too lower to grant the maximum delivery rate of Newsletter.    
-                            <?php } else { ?>
-                                Your PHP execution time limit is <?php echo $value ?> seconds and can be eventually changed by Newsletter<br>
-                            <?php } ?>
-
-                        </td>
-
-                    </tr>
-
-                    <tr>
-                        <td>Home URL</td>
-                        <td>
-                            <?php if (strpos(home_url('/'), 'http') !== 0) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            Value: <?php echo home_url('/'); ?>
-                            <br>
-                            <?php if (strpos(home_url('/'), 'http') !== 0) { ?>
-                                Your home URL is not absolute, emails require absolute URLs.
-                                Probably you have a protocol agnostic plugin installed to manage both HTTPS and HTTP in your
-                                blog.
-                            <?php } else { ?>
-
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>WP_CONTENT_URL</td>
-                        <td>
-                            <?php if (strpos(WP_CONTENT_URL, 'http') !== 0) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            Value: <?php echo WP_CONTENT_URL; ?>
-                            <br>
-                            <?php if (strpos(WP_CONTENT_URL, 'http') !== 0) { ?>
-                                Your content URL is not absolute, emails require absolute URLs when they have images inside.
-                                Newsletter tries to deal with this problem but when a problem with images persists, you should try to remove
-                                from your wp-config.php the WP_CONTENT_URL define and check again.
-                            <?php } else { ?>
-
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>Database Charset</td>
-                        <td>
-                            <?php if ($wpdb->charset != 'utf8mb4') { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            Charset: <?php echo $wpdb->charset; ?>
-                            <br>
-                            <?php if ($wpdb->charset != 'utf8mb4') { ?>
-                                The recommended charset for your database is <code>utf8mb4</code> to avoid possible saving errors when you use emoji. 
-                                Read the WordPress Codex <a href="https://codex.wordpress.org/Converting_Database_Character_Sets" target="_blank">conversion 
-                                    instructions</a> (skilled technicia required).
-                            <?php } else { ?>
-                                    If you experience newsletter saving database error
-                                    <?php $controls->button('conversion', 'Try tables upgrade')?>
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-
-                    <?php $wait_timeout = $wpdb->get_var("select @@wait_timeout"); ?>
-                    <tr>
-                        <td>Database wait timeout</td>
-                        <td>
-                            <?php if ($wait_timeout < 30) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-
-                        </td>
-                        <td>
-                            Your database wait timeout is <?php echo $wait_timeout; ?> seconds<br>
-                            <?php if ($wait_timeout < 30) { ?>
-                                That value is low and could produce database connection errors while sending emails or during long import
-                                sessions. Ask the provider to raise it at least to 60 seconds.
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <?php
-                    $res = $wpdb->query("drop table if exists {$wpdb->prefix}newsletter_test");
-                    $res = $wpdb->query("create table if not exists {$wpdb->prefix}newsletter_test (id int(20))");
-                    ?>
-                    <tr>
-                        <td>Database table creation</td>
-                        <td>
-                            <?php if ($res === false) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if ($res === false) { ?>
-                                Check the privileges of the user you use to connect to the database, it seems it cannot create tables.<br>
-                                (<?php echo esc_html($wpdb->last_error) ?>)
-                            <?php } else { ?>
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <?php
-                    $res = $wpdb->query("alter table {$wpdb->prefix}newsletter_test add column id1 int(20)");
-                    ?>
-                    <tr>
-                        <td>Database table change</td>
-                        <td>
-                            <?php if ($res === false) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if ($res === false) { ?>
-                                Check the privileges of the user you use to connect to the database, it seems it cannot change the tables. It's require to update the
-                                plugin.<br>
-                                (<?php echo esc_html($wpdb->last_error) ?>)
-                            <?php } else { ?>
-                            <?php } ?>
-                        </td>
-                    </tr> 
-
-                    <?php
-                    // Clean up
-                    $res = $wpdb->query("drop table if exists {$wpdb->prefix}newsletter_test");
-                    ?>
-
-                    <?php
-                    set_transient('newsletter_transient_test', 1, 300);
-                    delete_transient('newsletter_transient_test');
-                    $res = get_transient('newsletter_transient_test');
-                    ?>
-                    <tr>
-                        <td>WordPress transients</td>
-                        <td>
-                            <?php if ($res !== false) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if ($res !== false) { ?>
-                                Transients cannot be delete. This can block the delivery engine. Usually it is due to a not well coded plugin installed.
-                            <?php } else { ?>
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <?php
-                    $time = wp_next_scheduled('newsletter');
-                    $res = true;
-                    if ($time === false) {
-                        $res = false;
-                    }
-                    $delta = $time - time();
-                    if ($delta <= -600) {
-                        $res = false;
-                    }
-                    ?>
-                    <tr>
-                        <td>Newsletter schedule timing</td>
-                        <td>
-                            <?php if ($res === false) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
                             <?php if ($time === false) { ?>
@@ -671,64 +504,6 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                         </td>
                     </tr>
 
-                    <tr>
-                        <td>
-                            WordPress scheduler auto trigger
-                        </td>
-                        <td>
-                            <?php if (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON) { ?>
-                                <span class="tnp-maybe">MAYBE</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON) { ?>
-                                The constant DISABLE_WP_CRON is set to true (probably in wp-config.php). That disables the scheduler auto triggering and it's
-                                good ONLY if you setup an external trigger.
-                            <?php } else { ?>
-
-                            <?php } ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Alternate cron
-                        </td>
-                        <td>
-                            &nbsp;
-                        </td>
-                        <td>
-                            <?php if (defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON) { ?>
-                                Using the alternate cron trigger.
-                            <?php } else { ?>
-
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            Cron calls
-                        </td>
-                        <td>
-                            <?php if ($wp_cron_calls_avg > NEWSLETTER_CRON_INTERVAL * 1.1) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if ($wp_cron_calls_avg > NEWSLETTER_CRON_INTERVAL * 1.1) { ?>
-                                The blog cron system is NOT triggered enough often.
-
-                            <?php } else { ?>
-
-                            <?php } ?>
-                            <br>
-                            Trigger interval: average <?php echo $wp_cron_calls_avg ?>&nbsp;s, max <?php echo $wp_cron_calls_max ?>&nbsp;s, min <?php echo $wp_cron_calls_min ?>&nbsp;s 
-                        </td>
-                    </tr>
 
                     <?php
                     $res = true;
@@ -765,67 +540,34 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                         </td>
                     </tr>
 
-                    <?php
-                    $res = true;
-                    $response = wp_remote_get(site_url('/wp-cron.php') . '?' . time());
-                    if (is_wp_error($response)) {
-                        $res = false;
-                        $message = $response->get_error_message();
-                    } else {
-                        if (wp_remote_retrieve_response_code($response) != 200) {
-                            $res = false;
-                            $message = wp_remote_retrieve_response_message($response);
-                        }
-                    }
-                    ?>
-                    <tr>
-                        <td>
-                            WordPress scheduler auto trigger call
-                        </td>
-                        <td>
-                            <?php if (!$res) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!$res) { ?>
-                                The blog cannot autotrigger the internal scheduler, if an external trigger is used this could not be a real problem.<br>
-                                Error: <?php echo esc_html($message) ?><br>
-                            <?php } else { ?>
 
-                            <?php } ?>
-                            Url: <?php echo esc_html(site_url('/wp-cron.php')) ?><br>
-                        </td>
-                    </tr>
-
-                    <?php
-                    $res = true;
-                    $response = wp_remote_get('http://www.thenewsletterplugin.com/wp-content/versions/all.txt');
-                    if (is_wp_error($response)) {
-                        $res = false;
-                        $message = $response->get_error_message();
-                    } else {
-                        if (wp_remote_retrieve_response_code($response) != 200) {
-                            $res = false;
-                            $message = wp_remote_retrieve_response_message($response);
-                        }
-                    }
-                    ?>
                     <tr>
+                        <?php
+                        $res = true;
+                        $response = wp_remote_get('http://www.thenewsletterplugin.com/wp-content/extensions.json');
+                        $condition = 1;
+                        if (is_wp_error($response)) {
+                            $res = false;
+                            $condition = 0;
+                            $message = $response->get_error_message();
+                        } else {
+                            if (wp_remote_retrieve_response_code($response) != 200) {
+                                $res = false;
+                                $condition = 0;
+                                $message = wp_remote_retrieve_response_message($response);
+                            }
+                        }
+                        ?>
+
                         <td>
-                            Extension version check
+                            Addons version check<br>
+                            <small>Your blog can check the professional addon updates?</small>
                         </td>
                         <td>
-                            <?php if (!$res) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
-                            <?php if (!$res) { ?>
+                            <?php if ($condition == 0) { ?>
                                 The blog cannot contact www.thenewsletterplugin.com to check the license or the extension versions.<br>
                                 Error: <?php echo esc_html($message) ?><br>
                             <?php } else { ?>
@@ -833,26 +575,8 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                             <?php } ?>
                         </td>
                     </tr>   
-                    
-                    <tr>
-                        <td>
-                            Addons update
-                        </td>
-                        <td>
-                            <?php if (NEWSLETTER_EXTENSION_UPDATE) { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } else { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (!NEWSLETTER_EXTENSION_UPDATE) { ?>
-                                Addons update has been disabled. 
-                            <?php } else { ?>
 
-                            <?php } ?>
-                        </td>
-                    </tr>    
+
                     <?php
                     // Send calls stats
                     $send_calls = get_option('newsletter_diagnostic_send_calls', array());
@@ -913,47 +637,28 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                         <?php
                     }
                     ?>
-                       
+
 
                     <tr>
+                        <?php
+                        $condition = (defined('NEWSLETTER_CRON_WARNINGS') && !NEWSLETTER_CRON_WARNINGS) ? 2 : 1;
+                        ?>
                         <td>
-                            Cron warnings
+                            Cron warnings<br>
+                            <small>Newsletter can notify of WP scheduler problems?</small>
                         </td>
                         <td>
-                            <?php if (defined('NEWSLETTER_CRON_WARNINGS') && !NEWSLETTER_CRON_WARNINGS) { ?>
-                                <span class="tnp-maybe">MAYBE</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
-                            <?php if (defined('NEWSLETTER_CRON_WARNINGS') && !NEWSLETTER_CRON_WARNINGS) { ?>
-                            Scheduler warnings are disabled in your wp-config.php with the constant <code>NEWSLETTER_CRON_WARNINGS</code> set to true.
+                            <?php if ($condition == 2) { ?>
+                                Scheduler warnings are disabled in your <code>wp-config.php</code> with the constant <code>NEWSLETTER_CRON_WARNINGS</code> set to true.
                             <?php } else { ?>
 
                             <?php } ?>
                         </td>
                     </tr>
-                    
-                    <tr>
-                        <td>
-                            WordPress debug mode
-                        </td>
-                        <td>
-                            <?php if (defined('WP_DEBUG') && WP_DEBUG) { ?>
-                                <span class="tnp-maybe">MAYBE</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <?php if (defined('WP_DEBUG') && WP_DEBUG) { ?>
-                                WordPress is in debug mode it is not recommended on a production system. See the constant WP_DEBUG inside the wp-config.php.
-                            <?php } else { ?>
 
-                            <?php } ?>
-                        </td>
-                    </tr>
 
 
 
@@ -1038,11 +743,11 @@ $speed = Newsletter::$instance->options['scheduler_max'];
 
                     <?php
                     wp_mkdir_p(NEWSLETTER_LOG_DIR);
-                    $res = is_dir(NEWSLETTER_LOG_DIR) && is_writable(NEWSLETTER_LOG_DIR);
-                    if ($res) {
+                    $condition = is_dir(NEWSLETTER_LOG_DIR) && is_writable(NEWSLETTER_LOG_DIR) ? 1 : 0;
+                    if ($condition) {
                         @file_put_contents(NEWSLETTER_LOG_DIR . '/test.txt', "");
-                        $res = is_file(NEWSLETTER_LOG_DIR . '/test.txt');
-                        if ($res) {
+                        $condition = is_file(NEWSLETTER_LOG_DIR . '/test.txt') ? 1 : 0;
+                        if ($condition) {
                             @unlink(NEWSLETTER_LOG_DIR . '/test.txt');
                         }
                     }
@@ -1052,24 +757,441 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                             Log folder
                         </td>
                         <td>
-                            <?php if (!$res) { ?>
-                                <span class="tnp-ko">KO</span>
-                            <?php } else { ?>
-                                <span class="tnp-ok">OK</span>
-                            <?php } ?>
+                            <?php tnp_status_print_flag($condition) ?>
                         </td>
                         <td>
                             The log folder is <?php echo esc_html(NEWSLETTER_LOG_DIR) ?><br>
                             <?php if (!$res) { ?>
                                 Cannot create the folder or it is not writable.
-                            <?php } else { ?>
-
                             <?php } ?>
                         </td>
                     </tr>           
                 </tbody>
             </table>
 
+            <h3>WordPress Scheduler/Cron</h3>
+
+            <table class="widefat" id="tnp-status-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th><?php _e('Status', 'newsletter') ?></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <?php
+                        $condition = (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON) ? 2 : 1;
+                        ?>
+                        <td>
+                            WordPress scheduler auto trigger
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($condition == 2) { ?>
+                                The constant <code>DISABLE_WP_CRON</code> is set to true (probably in <code>wp-config.php</code>). That disables the scheduler auto triggering and it's
+                                good ONLY if you setup an external trigger.
+                            <?php } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Alternate cron
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <?php if (defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON) { ?>
+                                Using the alternate cron trigger.
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <?php
+                        $condition = ($wp_cron_calls_avg > NEWSLETTER_CRON_INTERVAL * 1.1) ? 0 : 1;
+                        ?>
+                        <td>
+                            Cron calls
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($condition == 0) { ?>
+                                The blog cron system is NOT triggered enough often.
+                            <?php } ?>
+                            <br>
+                            Trigger interval: average <?php echo $wp_cron_calls_avg ?>&nbsp;s, max <?php echo $wp_cron_calls_max ?>&nbsp;s, min <?php echo $wp_cron_calls_min ?>&nbsp;s
+                            <br>
+                            <a href="https://www.thenewsletterplugin.com/documentation/delivery-and-spam/newsletter-delivery-engine/" target="_blank">Read more</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <?php
+                        $res = true;
+                        $response = wp_remote_get(site_url('/wp-cron.php') . '?' . time());
+                        if (is_wp_error($response)) {
+                            $res = false;
+                            $message = $response->get_error_message();
+                        } else {
+                            if (wp_remote_retrieve_response_code($response) != 200) {
+                                $res = false;
+                                $message = wp_remote_retrieve_response_message($response);
+                            }
+                        }
+                        $condition = !$res ? 0 : 1;
+                        ?>
+
+                        <td>
+                            WordPress scheduler auto trigger call
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($condition == 0) { ?>
+                                The blog cannot auto-trigger the internal scheduler, if an external trigger is used this could not be a real problem.<br>
+                                Error: <?php echo esc_html($message) ?><br>
+                            <?php } else { ?>
+
+                            <?php } ?>
+                            Url: <?php echo esc_html(site_url('/wp-cron.php')) ?><br>
+                            <br>
+                            <a href="https://www.thenewsletterplugin.com/documentation/delivery-and-spam/newsletter-delivery-engine/" target="_blank">Read more</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+            <h3>WordPress</h3>
+
+            <table class="widefat" id="tnp-status-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th><?php _e('Status', 'newsletter') ?></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <?php
+                        $condition = (defined('WP_DEBUG') && WP_DEBUG) ? 2 : 1;
+                        ?>
+                        <td>
+                            WordPress debug mode
+                        </td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if (defined('WP_DEBUG') && WP_DEBUG) { ?>
+                                WordPress is in debug mode it is not recommended on a production system. See the constant <code>WP_DEBUG</code> inside the <code>wp-config.php</code>.
+                            <?php } else { ?>
+
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+
+
+                    <tr>
+                        <?php
+                        $charset = get_option('blog_charset');
+                        $condition = $charset === 'UTF-8' ? 1 : 0;
+                        ?>
+                        <td>Blog Charset</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            Charset: <?php echo esc_html($charset) ?>
+                            <br>
+
+                            <?php if ($condition == 1) { ?>
+
+                            <?php } else { ?>
+                                It is recommended to use
+                                the <code>UTF-8</code> charset but the <a href="https://codex.wordpress.org/Converting_Database_Character_Sets" target="_blank">conversion</a>
+                                could be tricky. If you're not experiencing problem, leave things as is.
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <?php
+                        $condition = (strpos(home_url('/'), 'http') !== 0) ? 0 : 1;
+                        ?>
+                        <td>Home URL</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            Value: <?php echo home_url('/'); ?>
+                            <br>
+                            <?php if ($condition == 0) { ?>
+                                Your home URL is not absolute, emails require absolute URLs.
+                                Probably you have a protocol agnostic plugin installed to manage both HTTPS and HTTP in your
+                                blog.
+                            <?php } else { ?>
+
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <?php
+                        $condition = (strpos(WP_CONTENT_URL, 'http') !== 0) ? 0 : 1;
+                        ?>
+                        <td>WP_CONTENT_URL</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            Value: <?php echo esc_html(WP_CONTENT_URL); ?>
+                            <br>
+                            <?php if ($condition == 0) { ?>
+                                Your content URL is not absolute, emails require absolute URLs when they have images inside.
+                                Newsletter tries to deal with this problem but when a problem with images persists, you should try to remove
+                                from your <code>wp-config.php</code> the <code>WP_CONTENT_URL</code> define and check again.
+                            <?php } else { ?>
+
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <?php
+                        set_transient('newsletter_transient_test', 1, 300);
+                        delete_transient('newsletter_transient_test');
+                        $res = get_transient('newsletter_transient_test');
+                        $condition = ($res !== false) ? 0 : 1;
+                        ?>
+                        <td>WordPress transients</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($res !== false) { ?>
+                                Transients cannot be delete. This can block the delivery engine. Usually it is due to a not well coded plugin installed.
+                            <?php } else { ?>
+                            <?php } ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+            <h3>PHP</h3>
+            <table class="widefat" id="tnp-status-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th><?php _e('Status', 'newsletter') ?></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PHP version</td>
+                        <td>
+                            <?php if (version_compare(phpversion(), '5.6', '<')) { ?>
+                                <span class="tnp-ko">KO</span>
+                            <?php } else { ?>
+                                <span class="tnp-ok">OK</span>
+                            <?php } ?>
+
+                        </td>
+                        <td>
+                            Your PHP version is <?php echo phpversion() ?><br>
+                            <?php if (version_compare(phpversion(), '5.3', '<')) { ?>
+                                Newsletter plugin works correctly with PHP version 5.6 or greater. Ask your provider to upgrade your PHP. Your version is
+                                unsupported even by the PHP community.
+                            <?php } ?>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <?php
+                        $value = (int) ini_get('max_execution_time');
+                        $res = true;
+                        $condition = 1;
+                        if ($value != 0 && $value < NEWSLETTER_CRON_INTERVAL) {
+                            $res = set_time_limit(NEWSLETTER_CRON_INTERVAL);
+                            if ($res)
+                                $condition = 1;
+                            else
+                                $condition = 0;
+                        }
+                        ?>
+                        <td>PHP execution time limit</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if (!$res) { ?>
+                                Your PHP execution time limit is <?php echo $value ?> seconds. It cannot be changed and it is too lower to grant the maximum delivery rate of Newsletter.
+                            <?php } else { ?>
+                                Your PHP execution time limit is <?php echo $value ?> seconds and can be eventually changed by Newsletter.<br>
+                            <?php } ?>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr>
+                        <?php
+                        $condition = function_exists('curl_version');
+                        ?>
+                        <td>Curl version</td>
+                        <td>
+                            <?php if (!$condition) { ?>
+                                <span class="tnp-ko">KO</span>
+                            <?php } else { ?>
+                                <span class="tnp-ok">OK</span>
+                            <?php } ?>
+
+                        </td>
+                        <td>
+                            <?php
+                            if (!$condition) {
+                                echo 'cUrl is not available, ask the provider to install it and activate the PHP cUrl library';
+                            } else {
+                                $version = curl_version();
+                                echo 'Version: ' . $version['version'] . '<br>';
+                                echo 'SSL Version: ' . $version['ssl_version'] . '<br>';
+                            }
+                            ?>
+                        </td>
+
+                    </tr>    
+                    <?php if (ini_get('opcache.validate_timestamps') === '0') { ?>
+                        <tr>
+                            <td>
+                                Opcache
+                            </td>
+
+                            <td>
+                                <span class="tnp-ko">KO</span>
+                            </td>
+
+                            <td>
+                                You have the PHP opcache active with file validation disable so every blog plugins update needs a webserver restart!
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+
+            <h3>Database</h3>
+            <table class="widefat" id="tnp-status-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th><?php _e('Status', 'newsletter') ?></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Database Charset</td>
+                        <td>
+                            <?php if ($wpdb->charset != 'utf8mb4') { ?>
+                                <span class="tnp-ko">KO</span>
+                            <?php } else { ?>
+                                <span class="tnp-ok">OK</span>
+                            <?php } ?>
+
+                        </td>
+                        <td>
+                            Charset: <?php echo $wpdb->charset; ?>
+                            <br>
+                            <?php if ($wpdb->charset != 'utf8mb4') { ?>
+                                The recommended charset for your database is <code>utf8mb4</code> to avoid possible saving errors when you use emoji. 
+                                Read the WordPress Codex <a href="https://codex.wordpress.org/Converting_Database_Character_Sets" target="_blank">conversion 
+                                    instructions</a> (skilled technicia required).
+                            <?php } else { ?>
+                                If you experience newsletter saving database error
+                                <?php $controls->button('conversion', 'Try tables upgrade') ?>
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+
+                    <?php
+                    $wait_timeout = $wpdb->get_var("select @@wait_timeout");
+                    $condition = ($wait_timeout < 30) ? 0 : 1;
+                    ?>
+                    <tr>
+                        <td>Database wait timeout</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            Your database wait timeout is <?php echo $wait_timeout; ?> seconds<br>
+                            <?php if ($wait_timeout < 30) { ?>
+                                That value is low and could produce database connection errors while sending emails or during long import
+                                sessions. Ask the provider to raise it at least to 60 seconds.
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <?php
+                    $res = $wpdb->query("drop table if exists {$wpdb->prefix}newsletter_test");
+                    $res = $wpdb->query("create table if not exists {$wpdb->prefix}newsletter_test (id int(20))");
+                    $condition = $res === false ? 0 : 1;
+                    ?>
+                    <tr>
+                        <td>Database table creation</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($res === false) { ?>
+                                Check the privileges of the user you use to connect to the database, it seems it cannot create tables.<br>
+                                (<?php echo esc_html($wpdb->last_error) ?>)
+                            <?php } else { ?>
+                            <?php } ?>
+                        </td>
+                    </tr>
+
+                    <?php
+                    $res = $wpdb->query("alter table {$wpdb->prefix}newsletter_test add column id1 int(20)");
+                    $condition = $res === false ? 0 : 1;
+                    ?>
+                    <tr>
+                        <td>Database table change</td>
+                        <td>
+                            <?php tnp_status_print_flag($condition) ?>
+                        </td>
+                        <td>
+                            <?php if ($res === false) { ?>
+                                Check the privileges of the user you use to connect to the database, it seems it cannot change the tables. It's require to update the
+                                plugin.<br>
+                                (<?php echo esc_html($wpdb->last_error) ?>)
+                            <?php } else { ?>
+                            <?php } ?>
+                        </td>
+                    </tr> 
+
+                    <?php
+                    // Clean up
+                    $res = $wpdb->query("drop table if exists {$wpdb->prefix}newsletter_test");
+                    ?>
+
+                </tbody>
+            </table>
             <h3>General parameters</h3>
             <table class="widefat" id="tnp-parameters-table">
                 <thead>
@@ -1105,8 +1227,8 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                             <?php echo NEWSLETTER_CRON_INTERVAL . ' (seconds)'; ?>
                         </td>
                     </tr>
-                    
-                    
+
+
 
                     <?php /*
                       <tr>
@@ -1210,13 +1332,14 @@ $speed = Newsletter::$instance->options['scheduler_max'];
 
                 <h4><?php echo $wpdb->prefix ?>newsletter_emails</h4>
                 <?php
-                $rs = $wpdb->get_results("describe {$wpdb->prefix}newsletter_emails");
+                $rs = $wpdb->get_results("show full columns from {$wpdb->prefix}newsletter_emails");
                 ?>
                 <table class="tnp-db-table">
                     <thead>
                         <tr>
                             <th>Field</th>
                             <th>Type</th>
+                            <th>Collation</th>
                             <th>Null</th>
                             <th>Key</th>
                             <th>Default</th>
@@ -1228,6 +1351,7 @@ $speed = Newsletter::$instance->options['scheduler_max'];
                             <tr>
                                 <td><?php echo esc_html($r->Field) ?></td>
                                 <td><?php echo esc_html($r->Type) ?></td>
+                                <td><?php echo esc_html($r->Collation) ?></td>
                                 <td><?php echo esc_html($r->Null) ?></td>
                                 <td><?php echo esc_html($r->Key) ?></td>
                                 <td><?php echo esc_html($r->Default) ?></td>

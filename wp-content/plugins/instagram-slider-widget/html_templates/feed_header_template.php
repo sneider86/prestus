@@ -7,9 +7,9 @@
 /** @var string $profile_url ULR of account */
 
 $username        = isset($args['username']) ?  $args['username'] : '';
-$profile_pic_url = isset($args['profile_picture']) ? $args['profile_picture'] : '';
-$posts_count     = isset($args['counts']['media']) ? $args['counts']['media'] : '';
-$followers       = isset($args['counts']['followed_by']) ? $args['counts']['followed_by'] : '';
+$profile_pic_url = $args['profile_picture_url'];
+$posts_count     = $args['media_count'];
+$followers       = $args['followers_count'];
 $profile_url     = "https://www.instagram.com/$username/";
 ?>
 

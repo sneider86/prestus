@@ -14,7 +14,11 @@ $default_options = array(
     'block_padding_top' => 15,
     'block_padding_bottom' => 15,
     'block_padding_left' => 15,
-    'block_padding_right' => 15    
+    'block_padding_right' => 15,
+    'title'=>$info['footer_title'],
+    'address'=>$info['footer_contact'],
+    'copyright'=>$info['footer_legal'],
+    
 );
 $options = array_merge($default_options, $options);
 ?>
@@ -29,16 +33,11 @@ $options = array_merge($default_options, $options);
         color: <?php echo $options['font_color'] ?>;
     }
 </style>
-<table width="100%" style="width: 100%!important" border="0" cellspacing="0" cellpadding="0" align="center" class="responsive-table">
-    <tr>
-        <td align="center" class="canspam-text">
-                <?php echo!empty($block_options['footer_title']) ? $block_options['footer_title'] : 'Your Company' ?>
-                <br>
-                <?php echo!empty($block_options['footer_contact']) ? $block_options['footer_contact'] : 'Company Address, Phone Number' ?>
-                <br>
-                <em><?php echo!empty($block_options['footer_legal']) ? $block_options['footer_legal'] : 'Copyright or Legal text' ?></em>
-            </div>
-        </td>
-    </tr>
-</table>
 
+<div inline-class="canspam-text">
+    <strong><?php echo $options['title'] ?></strong>
+    <br>
+    <?php echo $options['address'] ?>
+    <br>
+    <em><?php echo $options['copyright'] ?></em>
+</div>

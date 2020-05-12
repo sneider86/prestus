@@ -20,10 +20,6 @@ if (!defined('ABSPATH')) exit;
         <td><?php $controls->text_url('theme_pinterest', 30); ?></td>
     </tr>
     <tr>
-        <th>Google+</th>
-        <td><?php $controls->text_url('theme_googleplus', 30); ?></td>
-    </tr>
-    <tr>
         <th>LinkedIn</th>
         <td><?php $controls->text_url('theme_linkedin', 30); ?></td>
     </tr>

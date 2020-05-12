@@ -1,3 +1,15 @@
+= 4.6.5 =
+* Fix. suggestion update
+
+= 4.6.4 =
+* Fix. missing alt images
+
+= 4.6.3 =
+* Fix. links update
+
+= 4.6.2 =
+* Fix. delete db options on plugin uninstall
+
 = 4.6.1 =
 * Fix. save entries in display contact
 * Fix. save taxonomies in display contact

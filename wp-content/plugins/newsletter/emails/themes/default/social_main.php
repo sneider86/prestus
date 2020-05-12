@@ -12,12 +12,6 @@ $social_icon_url = plugins_url('newsletter') . '/emails/themes/default/images';
                 <a href="<?php echo esc_attr($theme_options['main_facebook_url']) ?>"><img src="<?php echo $social_icon_url ?>/facebook.png" alt="Facebook"></a>
             </td>
         <?php } ?>
-
-        <?php if (!empty($theme_options['main_googleplus_url'])) { ?>
-            <td style="text-align: center; vertical-align: top" align="center" valign="top">
-                <a href="<?php echo esc_attr($theme_options['main_googleplus_url']) ?>"><img src="<?php echo $social_icon_url ?>/googleplus.png"></a>
-            </td>
-        <?php } ?>
             
         <?php if (!empty($theme_options['main_twitter_url'])) { ?>
             <td style="text-align: center; vertical-align: top" align="center" valign="top">

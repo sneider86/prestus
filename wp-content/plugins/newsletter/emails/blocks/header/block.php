@@ -19,12 +19,10 @@ $default_options = array(
 $options = array_merge($default_options, $options);
 
 if (empty($info['header_logo']['id'])) {
-    $image = false;
+    $media = false;
 } else {
-    $image = tnp_media_resize($info['header_logo']['id'], array(200, 80));
-    if (is_wp_error($image)) {
-        $image = false;
-    }
+    $media = tnp_resize($info['header_logo']['id'], array(200, 80));
+    $media->alt = $info['header_title'];
 }
 
 $empty = empty($info['header_logo']['id']) && empty($info['header_sub']) && empty($info['header_title']);
@@ -58,28 +56,24 @@ $empty = empty($info['header_logo']['id']) && empty($info['header_sub']) && empt
             color: <?php echo $options['font_color'] ?>;
         }
         .header-logo-img {
-            display: block; 
-            max-width: 100%
+            display: inline-block; 
+            max-width: 100%!important;
         }
     </style>
 
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" class="header-table">
         <tr>
-            <?php if ($image) { ?>
-                <td align="left" width="50%" inline-class="header-logo">
+            <td align="left" width="50%" inline-class="header-logo" class="header-logo-global">
+                <?php if ($media) { ?>
                     <a href="<?php echo home_url() ?>" target="_blank">
-                        <img alt="<?php echo esc_attr($info['header_title']) ?>" src="<?php echo $image ?>" class="header-logo-img" border="0">
+                        <img alt="<?php echo esc_attr($media->alt) ?>" src="<?php echo $media->url ?>" width="<?php echo $media->width ?>" height="<?php echo $media->height ?>" inline-class="header-logo-img" border="0">
                     </a>
-                </td>             
-            <?php } else { ?>
-                <td align="left" width="50%" inline-class="header-logo">
-                    <a href="<?php echo home_url() ?>" target="_blank" class="header-title">
+                <?php } else { ?>
+                    <a href="<?php echo home_url() ?>" target="_blank" inline-class="header-title">
                         <?php echo esc_attr($info['header_title']) ?>
                     </a>
-                </td>
-            <?php } ?>
-
-
+                <?php } ?>
+            </td>
             <td width="50%" align="right" class="mobile-hide" inline-class="header-text">
                 <?php echo $info['header_sub'] ?>
             </td>

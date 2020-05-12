@@ -90,7 +90,7 @@ $labels = array_reverse( $labels );
                         <div id="tnp-dash-statistics" class="postbox">
                             <h3><?php _e( 'Statistics', 'newsletter' ) ?>
                                 <a href="<?php echo NewsletterStatistics::instance()->get_index_url() ?>">
-                                    <i class="fa fa-chart-bar"></i> <?php _e( 'Statistics', 'newsletter' ) ?>
+                                    <i class="fas fa-chart-bar"></i> <?php _e( 'Statistics', 'newsletter' ) ?>
                                 </a>
                             </h3>
                             <div class="inside">
@@ -242,7 +242,7 @@ $labels = array_reverse( $labels );
                             <h3><?php _e( 'Documentation', 'newsletter' ) ?>
                                 <a href="https://www.thenewsletterplugin.com/plugins/newsletter/newsletter-documentation"
                                    target="_blank">
-                                    <i class="fa fa-life-ring"></i> <?php _e( 'Read all', 'newsletter' ) ?>
+                                    <i class="fas fa-life-ring"></i> <?php _e( 'Read all', 'newsletter' ) ?>
                                 </a>
                             </h3>
                             <div class="inside">
@@ -255,21 +255,21 @@ $labels = array_reverse( $labels );
                                     <a class="orange"
                                        href="https://www.thenewsletterplugin.com/plugins/newsletter/newsletter-documentation/email-sending-issues"
                                        target="_blank">
-                                        <i class="fa fa-exclamation-triangle"></i> <?php _e( 'Problem sending messages? Start here!', 'newsletter' ) ?>
+                                        <i class="fas fa-exclamation-triangle"></i> <?php _e( 'Problem sending messages? Start here!', 'newsletter' ) ?>
                                     </a>
                                 </div>
 
                                 <div>
                                     <a class="blue" href="https://www.thenewsletterplugin.com/support/video-tutorials"
                                        target="_blank">
-                                        <i class="fa fa-youtube-play"></i> <?php _e( 'All Video Tutorials', 'newsletter' ) ?>
+                                        <i class="fas fa-youtube-play"></i> <?php _e( 'All Video Tutorials', 'newsletter' ) ?>
                                     </a>
                                 </div>
                                 <div>
                                     <a class="purple"
                                        href="https://www.thenewsletterplugin.com/plugins/newsletter/newsletter-preferences"
                                        target="_blank">
-                                        <i class="fa fa-question-circle"></i> <?php _e( 'Learn how to segment your suscribers', 'newsletter' ) ?>
+                                        <i class="fas fa-question-circle"></i> <?php _e( 'Learn how to segment your suscribers', 'newsletter' ) ?>
                                     </a>
                                 </div>
                             </div>
@@ -284,10 +284,10 @@ $labels = array_reverse( $labels );
                         <div id="tnp-dash-newsletters" class="postbox">
                             <h3><?php _e( 'Newsletters', 'newsletter' ) ?>
                                 <a href="<?php echo $emails_module->get_admin_page_url( 'index' ); ?>">
-                                    <i class="fa fa-list"></i> <?php _e( 'List', 'newsletter' ) ?>
+                                    <i class="fas fa-list"></i> <?php _e( 'List', 'newsletter' ) ?>
                                 </a>
                                 <a href="<?php echo $emails_module->get_admin_page_url( 'theme' ); ?>">
-                                    <i class="fa fa-plus-square"></i> <?php _e( 'New', 'newsletter' ) ?>
+                                    <i class="fas fa-plus-square"></i> <?php _e( 'New', 'newsletter' ) ?>
                                 </a>
                             </h3>
                             <div class="inside">
@@ -310,7 +310,7 @@ $labels = array_reverse( $labels );
 												<?php $emails_module->show_email_progress_bar( $email, array( 'scheduled' => true ) ) ?>
                                             </td>
                                             <td style="white-space:nowrap"><?php if ($email->status == 'sent') {
-		                                            echo '<a class="button-primary" href="' . $statistics_module->get_statistics_url($email->id) . '"><i class="fa fa-chart-bar"></i> ' . __('Statistics', 'newsletter') . '</a>';
+		                                            echo '<a class="button-primary" href="' . $statistics_module->get_statistics_url($email->id) . '"><i class="fas fa-chart-bar"></i> ' . __('Statistics', 'newsletter') . '</a>';
 	                                            } else {
 		                                            echo $emails_module->get_edit_button($email);
                                                 } ?></td>
@@ -325,7 +325,7 @@ $labels = array_reverse( $labels );
                             <div id="tnp-dash-premium" class="postbox">
                                 <h3><?php _e( 'Premium', 'newsletter' ) ?>
                                     <a href="https://www.thenewsletterplugin.com/extensions" target="_blank">
-                                        <i class="fa fa-trophy"></i> <?php _e( 'Buy', 'newsletter' ) ?>
+                                        <i class="fas fa-trophy"></i> <?php _e( 'Buy', 'newsletter' ) ?>
                                     </a>
                                 </h3>
                                 <div class="inside">
@@ -353,10 +353,10 @@ $labels = array_reverse( $labels );
                         <div id="tnp-dash-subscribers" class="postbox">
                             <h3><?php _e( 'Last Subscribers', 'newsletter' ) ?>
                                 <a href="<?php echo $users_module->get_admin_page_url( 'index' ); ?>">
-                                    <i class="fa fa-users"></i> <?php _e( 'List', 'newsletter' ) ?>
+                                    <i class="fas fa-users"></i> <?php _e( 'List', 'newsletter' ) ?>
                                 </a>
                                 <a href="<?php echo $users_module->get_admin_page_url( 'new' ); ?>">
-                                    <i class="fa fa-user-plus"></i> <?php _e( 'New', 'newsletter' ) ?>
+                                    <i class="fas fa-user-plus"></i> <?php _e( 'New', 'newsletter' ) ?>
                                 </a>
                             </h3>
                             <div class="inside">
@@ -371,11 +371,11 @@ $labels = array_reverse( $labels );
                                                 <a class="button-primary tnp-button-white"
                                                    title="<?php _e( 'Edit', 'newsletter' ) ?>"
                                                    href="<?php echo $users_module->get_admin_page_url( 'edit' ); ?>&amp;id=<?php echo $s->id; ?>"><i
-                                                            class="fa fa-edit"></i></a>
+                                                            class="fas fa-edit"></i></a>
                                                 <a title="<?php _e( 'Profile', 'newsletter' ) ?>"
                                                    href="<?php echo home_url( '/' ) ?>?na=p&nk=<?php echo $s->id . '-' . $s->token; ?>"
                                                    class="button-primary tnp-button-white" target="_blank"><i
-                                                            class="fa fa-user"></i></a>
+                                                            class="fas fa-user"></i></a>
                                             </td>
                                         </tr>
 									<?php } ?>

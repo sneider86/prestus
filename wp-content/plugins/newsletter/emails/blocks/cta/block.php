@@ -11,8 +11,8 @@ $default_options = array(
     'font_color' => '#ffffff',
     'url' => home_url(),
     'font_family' => $font_family,
-    'font_size' => 16,
-    'font_weight' => 'normal',
+    'font_size' => 20,
+    'font_weight' => 'bold',
     'block_background' => '#ffffff',
     'width' => '200',
     'block_padding_top' => 20,
@@ -20,6 +20,20 @@ $default_options = array(
 );
 
 $options = array_merge($default_options, $options);
+
+if (!empty($options['schema'])) {
+    if ($options['schema'] === 'dark') {
+        $options['block_background'] = '#000000';
+        $options['font_color'] = '#ffffff';
+        $options['background'] = '#96969C';
+    }
+    
+    if ($options['schema'] === 'bright') {
+        $options['block_background'] = '#ffffff';
+        $options['font_color'] = '#ffffff';
+        $options['background'] = '#256F9C';
+    }
+}
 ?>
 <style>
     .cta-button {
@@ -43,7 +57,8 @@ $options = array_merge($default_options, $options);
         display: inline-block;
     }
 </style>
-<a href="<?php echo $options['url'] ?>" target="_blank" rel="noopener" class="cta-button"><?php echo $options['text'] ?></a>
+
+<a href="<?php echo $options['url'] ?>" target="_blank" rel="noopener" inline-class="cta-button"><?php echo $options['text'] ?></a>
 
 <div itemscope="" itemtype="http://schema.org/EmailMessage">
     <div itemprop="potentialAction" itemscope="" itemtype="http://schema.org/ViewAction">

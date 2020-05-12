@@ -21,10 +21,21 @@ if( ! function_exists( 'yith_plugin_fw_promo_notices' ) ){
 	    global $pagenow;
 	    $not_administrator = function_exists( 'current_user_can' ) && ! current_user_can( 'administrator' );
 	    $is_dashboard = 'index.php' == $pagenow;
+	    $is_wc_pages = '';
+	    $is_plugin_page = 'plugins.php' == $pagenow || 'plugin-install.php' == $pagenow && 'plugin-editor.php' == $pagenow;
+		$wc_post_types = array( 'shop_order', 'shop_coupon',  );
+	    $is_wc_post_types = isset( $_GET['post_type'] ) && in_array( $_GET['post_type'], $wc_post_types );
+	    $wc_pages = array( 'wc-reports', 'wc-settings', 'wc-status', 'wc-addons' );
+		$is_wc_pages = isset( $_GET['page'] ) && in_array( $_GET['page'], $wc_pages );
+		$is_yith_page = isset( $_GET['page'] ) && false !== strstr( $_GET['page'], 'yith'  ) ;
 
-	    if( $not_administrator || $is_dashboard ){
+	    if( $not_administrator ){
 	        return false;
         }
+
+		if( ! $is_plugin_page && ! $is_wc_pages && ! $is_wc_post_types && ! $is_yith_page ){
+			return false;
+		}
 
 		$base_url                   = apply_filters( 'yith_plugin_fw_promo_base_url', YIT_CORE_PLUGIN_URL . '/lib/promo/' );
 		$xml                        = apply_filters( 'yith_plugin_fw_promo_xml_url', YIT_CORE_PLUGIN_PATH . '/lib/promo/yith-promo.xml' );

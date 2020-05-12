@@ -182,6 +182,7 @@ class NewsletterStore {
      */
     function delete($table, $id) {
         global $wpdb;
+        if (empty($id)) return false;
         if (is_array($id)) {
             for ($i=0; $i<count($id); $i++) {
                 $id[$i] = (int)$id[$i];

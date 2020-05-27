@@ -19,11 +19,16 @@ class PrestamosConfig{
     register_deactivation_hook(plugin_dir_path(__DIR__).'/prestamos.php',array( $this, 'drop_db_schema_prestamos' )); 
     add_shortcode( 'form_register', array($this, 'form_register' ) );
     add_shortcode( 'ingresar', array($this, 'view_ingresar' ) );
+
+    add_shortcode( 'page_response', array($this, 'view_response' ) );
+
     add_action( 'rest_api_init', array( $this, 'create_customer_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'login_customer_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'logout_customer_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'request_loan_endpoint' ));
     add_action( 'rest_api_init', array( $this, 'load_grid_loan_customer' ));
+    add_action( 'rest_api_init', array( $this, 'payment_response' ));
+    add_action( 'rest_api_init', array( $this, 'payment_confirmation' ));
     add_action( 'wp_enqueue_scripts', array($this,'form_register_js'));
     add_action( 'init', array($this,'eres_session_start'), 1 );
 
@@ -611,7 +616,28 @@ class PrestamosConfig{
               <td>'.$prestamo->getFechaPrestamo().'</td>
               <td>$'.number_format($prestamo->getTotal()).'</td>
               <td>'.$prestamo->getNameEstado().'</td>
-              <td><button class="btndetloan">Ver</button></td>
+              <td>
+              <form>
+                  <script src="https://s3-us-west-2.amazonaws.com/epayco/v1.0/checkoutEpayco.js" 
+                      class="epayco-button" 
+                      data-epayco-key="05650da6654efe571707db30e5749c69" 
+                      data-epayco-amount="25000" 
+                      data-epayco-name="Cuota Pago" 
+                      data-epayco-description="Cuota Pago" 
+                      data-epayco-currency="cop" 
+                      data-epayco-country="co" 
+                      data-epayco-test="true"
+                      data-epayco-response="http://local.prestus.co/respuesta.html" 
+                      data-epayco-confirmation="http://local.prestus.co/confirmacion" 
+                      data-epayco-email-billing="sneider86@gmail.com" 
+                      data-epayco-name-billing="Erick Estrada" 
+                      data-epayco-address-billing="Trv 44 # 102-167" 
+                      data-epayco-type-doc-billing="cc" 
+                      data-epayco-mobilephone-billing="3013051925" 
+                      data-epayco-number-doc-billing="1129518657" 
+                      >
+                  </script>
+              </form>
           </tr>
         ';
       }
@@ -665,6 +691,28 @@ class PrestamosConfig{
   public function drop_cron_job(){
     wp_clear_scheduled_hook( 'even_cronjob' );
   }
+  public function payment_response(){
+    register_rest_route( 'checkout/payment/', 'response', array(
+      'methods'  => 'GET',
+      'callback' => array($this,'function_payment_response'),
+    ) );
+  }
+  public function payment_confirmation(){
+    register_rest_route( 'checkout/payment/', 'confirmation', array(
+      'methods'  => 'GET',
+      'callback' => array($this,'function_payment_confirmation'),
+    ) );
+  }
+  public function function_payment_response(){
+    require_once plugin_dir_path($this->file) . 'views/response_epayco.php';
+  }
+  public function function_payment_confirmation(){
+    error_log("confirmación de pago");
+  }
+  public function view_response(){
+    require_once plugin_dir_path($this->file) . 'views/response_epayco.php';
+  }
+
 }
 
 $obj = new PrestamosConfig(__FILE__);

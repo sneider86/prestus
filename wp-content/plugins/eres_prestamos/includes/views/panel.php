@@ -153,6 +153,8 @@ $step   = round($maximo/10);
   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
   crossorigin="anonymous"></script>
+
+  <script type="text/javascript" src="https://checkout.epayco.co/checkout.js">   </script>
 <div class="eres-main-panel" style=" ">
     <div id="wrapperMenu">	            
         <ul id="menu-dashboard"class="nav nav-pills nav-stacked">
@@ -234,6 +236,50 @@ $step   = round($maximo/10);
 </div>
 <script>
     jQuery(document).ready(function ($) {
+
+//a1c7200f0e2029d11b62bfd863422d5db10a8397
+
+//491d6a0b6e992cf924edd8d3d088aff1 este funciona
+        var handler = ePayco.checkout.configure({
+  				key: '05650da6654efe571707db30e5749c69',
+  				test: true
+  			});
+        
+var data={
+          //Parametros compra (obligatorio)
+          name: "Vestido Mujer Primavera",
+          description: "Vestido Mujer Primavera",
+          invoice: "1234",
+          currency: "cop",
+          amount: "12000",
+          tax_base: "0",
+          tax: "0",
+          country: "co",
+          lang: "es",
+
+          //Onpage="false" - Standard="true"
+          external: "false",
+
+
+          //Atributos opcionales
+          extra1: "extra1",
+          extra2: "extra2",
+          extra3: "extra3",
+          response: "http://local.prestus.co/respuesta.html",
+
+          //Atributos cliente
+          name_billing: "Andres Perez",
+          address_billing: "Carrera 19 numero 14 91",
+          type_doc_billing: "cc",
+          mobilephone_billing: "3050000000",
+          number_doc_billing: "1129518657",
+
+         //atributo deshabilitación metodo de pago
+          methodsDisable: [ "PSE","SP","CASH","DP"]
+
+          }
+ 
+
         $( ".widget button" ).button();
         $('#submenu li a').on('click', function(e){
             $('#submenu').toggleClass();
@@ -353,8 +399,12 @@ $step   = round($maximo/10);
                     }
                     $(".btndetloan").off("click");
                     $(".btndetloan").on("click",function(){
-                        $(".multicontent").css({'display':'none'});
-                        $(".divdetallefactura").css({'display':'block'});
+                        // $(".multicontent").css({'display':'none'});
+                        // $(".divdetallefactura").css({'display':'block'});
+
+                        handler.open(data)
+
+
                     });
                 },
                 error: function(e) {
